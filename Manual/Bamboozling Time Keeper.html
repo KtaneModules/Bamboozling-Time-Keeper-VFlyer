@@ -835,7 +835,10 @@
 							<li>If the operator is "<strong class="stop">STOP</strong>", divide your current value by 17. </li>
 							<li>If the operator is "B#" multiply your current value by (#+1).</li>
 						</ul>
-						<li>If the starting phrase is in the last row of Table Start, use the 2nd to last part to perform step 18, unless the 2nd to last part is "HUNDRED", multiply your current value by 100 instead.</li>
+						<li>If the starting phrase is in the last row of Table Start, perform step 18 except use the 2nd to last part, unless the 2nd to last part is "HUNDRED", multiply your current value by 100 instead.</li>
+						<li>If the starting phrase contains parentheses or a number, do the next 2 steps, otherwise skip to step 24.</li>
+						<li>The cell needed is determined by ([P2<sub>1</sub>]+[P2<sub>2</sub>] , 7-[MBC<sub>2</sub>]), where P2<sub>n</sub> is the index of the 2nd phrase for the given stage and MBC<sub>n</sub> is the color of the middle button in the given stage.</li>
+						<li>Perform Step 19 except with the cell needed from the previous step.</li>
 						<li>If the left and right buttons have the same color as the 2nd part of the display, but the middle button is a different button, change the correct button to  be the middle button.</li>
 						<li>If step 9 was applied to stage 1, add 25. Otherwise if step 9 was applied to stage 2, add 150. Otherwise, subtract 250.</li>
 						<li>Subtract the product of the number of Kristy's modules on the bomb and 10.</li>
@@ -858,7 +861,7 @@
                 </div>
                 <div class="page-content">
 					<h2>The Scale Factor</h2>
-					<p>Now that you have made your final value for both stages, you must figure out a set of times that are calculated in the following format: F<sub>V</sub> &times; X ^ N, where N is any integer, F<sub>V</sub> is the final value for that stage. To figure out X for each stage, you must use the table underneath. All operators with an "=" deontes to set the value as such. <strong>Drop all modifications if the "=" is satsfied.</strong> Drop remainders after each "/" operation if present. Note that each starting phrase only refers to the starting phrase on the given stage, not the other stages.</p>
+					<p>Now that you have made your final value for both stages, you must figure out a set of times that are calculated in the following format: F<sub>V</sub> &times; X ^ N, where N is any integer, F<sub>V</sub> is the final value for that stage. To figure out X for each stage, you must use the table underneath. All operators with an "=" deontes to set the value as such. <strong>Drop all modifications if the "=" is satsfied.</strong> Drop remainders after each "/" operation if present. Note that each starting phrase only refers to the starting phrase on the given stage, not the other stages. Perform each pperator from top to bottom.</p>
 					<table>
 						<tr>
 							<th colspan="2">Stage 1</th>
@@ -877,21 +880,21 @@
 							<td>-1 per holder</td>
 						</tr>
 						<tr>
-							<th>"Ultimate Cycle" is present</th>
+							<th>"Forget This" is present</th>
 							<td>+1</td>
 							<th>"Forget Enigma" is present</th>
 							<td>+1</td>
 						</tr>
 						<tr>
-							<th>More than 4 Serial Number Digits</th>
+							<th>4 or more Serial Number Digits</th>
 							<td>+3</td>
-							<th>More than 4 Serial Number Letters</th>
+							<th>4 or more Serial Number Letters</th>
 							<td>+3</td>
 						</tr>
 						<tr>
-							<th>"Hogwarts" is present</th>
+							<th>"The Time Keeper" is present</th>
 							<td>+2</td>
-							<th>"Encryption Bingo" is present</th>
+							<th>"Turn The Key" is present</th>
 							<td>-2</td>
 						</tr>
 						<tr>
@@ -929,7 +932,7 @@
 							<td colspan="2">=2</td>
 						</tr>
 					</table>
-					<p>After using the tables, set X to 2 if X &lt; 2 or X to 5 if X is &gt; 5. Round X down.</p>
+					<p>After using the tables, set X to 2 if X &lt; 2 or X to 5 if X is &gt; 5.</p>
                 </div>
                 <div class="page-footer relative-footer">Page 6 of 17</div>
             </div>
@@ -963,7 +966,7 @@
                 </div>
                 <div class="page-content">
 					<h2>Determining the State of the Correct Button</h2>
-					<p>Now that you have determined the correct scale factor, value, and the correct button, note as many possible times as possible from the given value and possible scale factors. Then refer to the conditions underneath when pressing the button at the right time. A tap can be substituted as a hold at a cost of a strike if the bomb's timer is 120 or fewer seconds away from blowing up. The error margin for starting a tap or a hold are within 5 seconds on the bomb's timer.</p>
+					<p>Now that you have determined the correct scale factor, value, and the correct button, note as many possible times as possible from the given value and possible scale factors. Round down if you are dividing the value by the scale factor. Then refer to the conditions underneath when pressing the button at the right time. A tap can be substituted as a hold at a cost of a strike if the bomb's timer is 120 or fewer seconds away from blowing up. The error margin for starting a tap or a hold are within 5 seconds on the bomb's timer.</p>
 					<ol>
 						<li>If the module, "The Very Annoying Button" is present, tap the correct button.</li>
 						<li>Otherwise, if both of the other button's labels are present in the display in either numerical form or digit form, hold the correct button.</li>
@@ -1108,7 +1111,7 @@
 						<li>A button flashing irregularrly is indicated by uneven times inbetween each flash, excluding the rest time, which is extended to 2 seconds instead.</li>
 						<li>The button flashing irregularrly is flashing in Morse code.</li>
 						<li>If both buttons are flashing irregularrly, use both.</li>
-						<li>Take the base 36 digit of the button that is flashing irregularrly as the initial value.</li>
+						<li>Take the alphabetical position of the button that is flashing irregularrly as the initial value.</li>
 						<li>Modify that value based on Table Morse.</li>
 					</ul>
 					<table>
@@ -1186,15 +1189,15 @@
 							<th>Release Condition</th>
 						</tr>
 						<tr>
-							<th>2 values used, both values are identical</th>
+							<th>2 values used, both values are identical and NOT 0</th>
 							<td>The value is not present on the bomb timer's seconds digits</td>
 						</tr>
 						<tr>
-							<th>2 values used, both buttons flashed a vowel (excluding Y)</th>
+							<th>2 values used, both values are 0</th>
 							<td>Bomb's seconds timer shows the sum of the base 36 digits flashed in Morse, modulo 60</td>
 						</tr>
 						<tr>
-							<th>2 values used, 1 button flashed a vowel (excluding Y)</th>
+							<th>2 values used, 0 or 2 buttons flashed a vowel (excluding Y)</th>
 							<td>Bomb's seconds timer shows the product of the 2 values</td>
 						</tr>
 						<tr>
