@@ -70,7 +70,7 @@
                     
                     <p class="appendix-reference" id="appendix-reference">See Appendix A for indicator identification reference.<br>See Appendix B for battery identification reference.<br>See Appendix C for port identification reference.<br>See Appendix Two Factor for Two Factor identification reference.<br>See Appendix Color References for color referencing.<br>See Appendix One Tap Holds for referring to One Tap Hold.<br>See Appendix Extended Terminlogy for other terminlogies used in this manual.</p>
 					<p>This module consists of a screen displaying various phrases; 3 buttons revealed by a sliding hatch, each with a digit on the button; and a stage indicator. The defuser can switch between the 2 stages by pressing the respective half at the bottom indicator. A flashing yellow bar represents the current stage and a green stage represents a completed stage. To complete a stage, the defuser must hold or tap the button at a very specific time and release the button with the correct conditions. Complete both stages to disarm the module.</p>
-					<p>A strike incurred from this module will <strong>NOT</strong> generate a new set of buttons from the current stage nor reset the progress of the number of stages completed. If you have to hold the button for that stage, the condition to release will alter upon holding the button again.</p>
+					<p>A strike incurred from this module will <strong>NOT</strong> generate a new set of buttons for both stages, generate a new starting value, nor reset the progress of the number of stages completed. If you have to hold the button for that stage, the condition to release will alter upon holding the button again.</p>
                     <h3>For All Stages</h3>
                     <p>Each screen will display 3-7 parts of the display ranging from a set of possible values.<br>All displays follow these rules: </p>
 					<ol>
@@ -952,7 +952,7 @@
 						<li>Otherwise, if there are no shared colors between the buttons and the phrases (excluding white), the correct button is the right button.</li>
 						<li>Otherwise, if all of the phrases are white, and exactly one button's label is not present in numerical form or digit form, that button is the correct button.</li>
 						<li>Otherwise, if the buttons are red, green, and blue, in any order, the correct button is the blue button.</li>
-						<li>Otherwise, if all of the buttons' colors' name has a cipher module made by Sean, the correct button is the middle button.</li>
+						<li>Otherwise, if all of the buttons' colors' name has a cipher module made by Sean (except Cyan, which is bundled within a big cipher module), the correct button is the middle button.</li>
 						<li>Otherwise take your final value and modulo by 3. Add one to this to get the number of buttons to count to get your correct button.</li>
 						<li>Count from left to right if you are on stage 1, right to left if you are on stage 2 with the number you got from the previous step.</li>
 					</ol>
@@ -991,7 +991,7 @@
 					<h2>Holding The Button:</h2>
 					<p class="flavour-text">You got this far... For what?</p>
 					<p>Upon holding the button, the defuser will hear a hum that gradually gets louder until the popping sound is heard. If you release the button before the popping sound is heard, that counts as a tap. Once the popping sound has occured, the other buttons not held will start flashing a set of up to 4 primary colors. The other buttons rest for 1 second in black before repeating the set. The display will also show a timer counting up in the format "MM:SS."</p>
-					<p>"Bomb timer" will refer to the current time on the bomb, while "Display" will refer to the display's timer. If you are unable to release a button based on the current condition, skip to the next "Otherwise," when necessary.</p>
+					<p>"Bomb timer" will refer to the current time on the bomb, while "Display" will refer to the display's timer. If the current condition gives a value that is impossible to reach, skip to the next "Otherwise," when necessary.</p>
 					<ol>
 						<li>If both buttons that are not held are flashing the same color as its previous flashes four times in a row with consistent rest inbetween, use the table below to release the button:</li>
 					</ol>
