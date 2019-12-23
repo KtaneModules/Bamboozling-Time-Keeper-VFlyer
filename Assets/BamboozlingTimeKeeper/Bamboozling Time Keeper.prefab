@@ -368,6 +368,7 @@ GameObject:
   - component: {fileID: 114978345553011046}
   - component: {fileID: 114458797743407398}
   - component: {fileID: 114779804093732402}
+  - component: {fileID: 114581733408576776}
   - component: {fileID: 114467669849536644}
   m_Layer: 0
   m_Name: Bamboozling Time Keeper
@@ -1096,7 +1097,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: a57e935f0868acb43a3e001a8989b01e, type: 2}
+  - {fileID: 2100000, guid: 0a2be656067891f459b5dea34e4f5b93, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1266,7 +1267,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: a57e935f0868acb43a3e001a8989b01e, type: 2}
+  - {fileID: 2100000, guid: 0a2be656067891f459b5dea34e4f5b93, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1334,7 +1335,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: a57e935f0868acb43a3e001a8989b01e, type: 2}
+  - {fileID: 2100000, guid: 0a2be656067891f459b5dea34e4f5b93, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1891,17 +1892,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dc0caff549407488228197b522deaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  info: {fileID: 0}
-  colorblindMode: {fileID: 0}
-  sound: {fileID: 0}
-  buttonL: {fileID: 0}
-  buttonM: {fileID: 0}
-  buttonR: {fileID: 0}
-  highlightStage1: {fileID: 0}
-  hightlightStage2: {fileID: 0}
-  animationPoints: {fileID: 0}
-  display: {fileID: 0}
-  buttonColors:
+  info: {fileID: 114779804093732402}
+  modSelf: {fileID: 114834760832062404}
+  colorblindMode: {fileID: 114620759695133140}
+  ModConfig: {fileID: 114581733408576776}
+  sound: {fileID: 114978345553011046}
+  buttonL: {fileID: 1434886599339708}
+  buttonM: {fileID: 1877991637340342}
+  buttonR: {fileID: 1378658663123268}
+  buttonGroup: {fileID: 1776770753612620}
+  highlightStage1: {fileID: 1649633701671466}
+  highlightStage2: {fileID: 1412379640000446}
+  door: {fileID: 1219970736126300}
+  animationPointDoorA: {fileID: 1824033995979658}
+  animationPointDoorB: {fileID: 1653525780437492}
+  animationPointButtonA: {fileID: 1109144786509626}
+  animationPointButtonB: {fileID: 1229385453308730}
+  display: {fileID: 102110469584694310}
+  buttonsSelectable:
+  - {fileID: 114303540167379220}
+  - {fileID: 114703035992273392}
+  - {fileID: 114195570837463868}
+  stageSelectables:
+  - {fileID: 114641173469093628}
+  - {fileID: 114450894278680328}
+  btnmtls:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -1910,10 +1925,10 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  indicatorStatus:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  indcmtls:
+  - {fileID: 2100000, guid: 069d57da8b2171242a59097fd0f2e94b, type: 2}
+  - {fileID: 2100000, guid: 055b00fd3cc5034449455d176b534d12, type: 2}
+  - {fileID: 2100000, guid: 358b6f37f13671349bb32c9bffaf3f7b, type: 2}
 --- !u!114 &114485012100424936
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1940,6 +1955,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 0, y: 0, z: 0}
   OutlineAmount: 0
+--- !u!114 &114581733408576776
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1616991881013016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -289456416, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Settings: 
+  SettingsPath: 
 --- !u!114 &114587326194519650
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1977,7 +2005,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1cfb889a07d5fd4e9baed7960bb397f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _colorblindMode: 0
+  _colorblindMode: 1
 --- !u!114 &114632497693532870
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2109,7 +2137,7 @@ MonoBehaviour:
   m_Script: {fileID: -119419473, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ModuleType: bamboozlingtimekeeper_VFlyer
+  ModuleType: bamboozlingTimeKeeper
   ModuleDisplayName: Bamboozling Time Keeper
   RequiresTimerVisibility: 1
 --- !u!114 &114978345553011046
