@@ -121,9 +121,11 @@
                 </div>
                 <div class="page-content">
 					<p>An "<strong class="stop">END</strong>" denotes to stop on the given step. Upon approaching, that value up to this point in the calculations will be your final value. If the final value is less than 10, repetitively add 15 until it isn't.</p>
-					<h3>Process for All Stages:</h3>
+					<h2>Process for All Stages:</h2>
+					<p class="flavour-text">How much calculations do I have to do again? Sin( Cos( Tan( ALGORITHIMS + CALCULUS )))?</p>
+					<p>Do the steps for each stage.</p>
 					<ol>
-						<li>Get the starting value from the display. Refer to "Appendix: Grabbing the Starting Value" for examples.</li>
+						<li>Get the starting value from the display on that stage. Refer to "Appendix: Grabbing the Starting Value" for examples.</li>
 						<li>Subtract the sum of the first 3 base-36 digits in the serial number.</li>
 						<li>Add the product of 4 and the sum of the number of ports on the bomb and the number of port plates on the same bomb.</li>
 						<li>Multiply the number by the positive difference between the number of modules on the bomb with the word "Forget" in its name (1 minimum, "Forget Them All" counts as 5, "Forget Me Now" counts as 2) and the number of modules made by SpeakingEvil on the bomb (1 minimum, "UltraStores" count as 5, "Simon Stores" count as 2).</li>
@@ -153,7 +155,7 @@
                     <span class="page-header-section-title">Bamboozling Time Keeper</span>
                 </div>
                 <div class="page-content">
-					<h3>Process for Stage 1:</h3>
+					<h2>Process for Stage 1:</h2>
 					<ol start="16">
 						<li>Get the current value from the previous steps.</li>
 						<li>Use the table on the next page to modify the current value or get the correct button if you haven't found the correct button.</li>
@@ -162,7 +164,7 @@
 							<li>Don't use the part if the phrase is not on the table.</li>
 						</ul>
 						<li>If the starting phrase is a definable amount, add the alphabetical position of the first letter on each unlit indicator.</li>
-						<li>If the phrase "HUNDRED" is included, divide your current value by 100.</li>
+						<li>If the phrase "HUNDRED" is included, divide your current value by 100. Drop remainders.</li>
 						<li>If there are no modules named "Simon's Stages" but there is a module named "Übermodule," <strong class="stop">END</strong>.</li>
 						<li>If there are needies on the bomb, add the product of 99 and the number of needy modules on the bomb.</li>
 						<li>If the phrase contains parathenses or a numeral digit, perform the operations from Step 17 with each button's label and color.</li>
@@ -827,12 +829,12 @@
                     <span class="page-header-section-title">Bamboozling Time Keeper</span>
                 </div>
                 <div class="page-content">
-					<h3>Process for Stage 2:</h3>
+					<h2>Process for Stage 2:</h2>
 					<ol start="17">
 						<li>Get the current value from the previous steps.</li>
 						<li>If the first display is a definable amount, take the next screen's part and color and preform the operation from the previous table. Drop remainders after preforming the operation. <strong>HOWEVER</strong>:</li>
 						<ul>
-							<li>If the operator is "<strong class="stop">STOP</strong>", divide your current value by 17. </li>
+							<li>If the operator is "<strong class="stop">STOP</strong>", divide your current value by 17. Drop remainders.</li>
 							<li>If the operator is "B#" multiply your current value by (#+1).</li>
 						</ul>
 						<li>If the starting phrase is in the last row of Table Start, perform step 18 except use the 2nd to last part, unless the 2nd to last part is "HUNDRED", multiply your current value by 100 instead.</li>
@@ -843,13 +845,12 @@
 						<li>If step 9 was applied to stage 1, add 25. Otherwise if step 9 was applied to stage 2, add 150. Otherwise, subtract 250.</li>
 						<li>Subtract the product of the number of Kristy's modules on the bomb and 10.</li>
 						<li>If your current value is less than 0 at this point, multiply that value by -65 and <strong class="stop">END</strong>.</li>
-						<li>If by adding up the number of letters in each of the color's names from each button, you get a number greater than 12, divide your current value by the sum of the number of letters in each of colors' names of the non-white parts. If you are attempting to divide by 0, double the current value instead.</li>
+						<li>If by adding up the number of letters in each of the color's names from each button, you get a number greater than 12, divide your current value by the sum of the number of letters in each of colors' names of the non-white parts on stage 2. If you are attempting to divide by 0, double the current value instead.</li>
 						<li>If there are Two Factors on this bomb, add the product of the number of Two Factors on the bomb and 50 and <strong class="stop">END</strong>.</li>
 						<li>If there are 7 parts in this stage, divide the current value by 7, dropping reminders if present.</li>
 						<li>Change the correct button to the button with the most letters in the name of the button's color, unless there is a tie or a D battery is present.</li>
 						<li>Divide your value by 3, drop remainders if present.</li>
-						<li>Add product of 10 and the number of modded and vanilla indicators that share at least 1 letter in the phrase, "SPEAKINGEVIL."</li>
-						<li><strong class="stop">END</strong>.</li>
+						<li>Add product of 10 and the number of modded and vanilla indicators that share at least 1 letter in the phrase, "SPEAKINGEVIL" and <strong class="stop">END</strong>.</li>
 					</ol>
                 </div>
                 <div class="page-footer relative-footer">Page 5 of 18</div>
@@ -899,9 +900,9 @@
 						</tr>
 						<tr>
 							<th>Starting Phrase is not considered definable</th>
-							<td>-2</td>
+							<td>+2</td>
 							<th>Starting Phrase is considered definable</th>
-							<td>-2</td>
+							<td>+2</td>
 						</tr>
 						<tr>
 							<th>The bomb's starting time is 30:00 or greater</th>
@@ -911,14 +912,14 @@
 						</tr>
 						<tr>
 							<th>Exactly 3 Serial Number Letters</th>
-							<td>-2</td>
+							<td>+2</td>
 							<th>Exactly 3 Serial Number Digits</th>
-							<td>-2</td>
+							<td>+2</td>
 						</tr>
 						<tr>
-							<th>No Modded Widgets</th>
+							<th>"Forget Me Not" is present</th>
 							<td>+1</td>
-							<th>No Modded Widgets</th>
+							<th>"Forget It Not" is NOT present</th>
 							<td>+1</td>
 						</tr>
 						<tr>
@@ -946,7 +947,7 @@
 					<p>If you still have not found a correct button for both stages, refer to these for each stage:</p>
 					<ol>
 						<li>If your final value for the given stage is between 0 and 9999 inclusive, the correct button is the left button.</li>
-						<li>Otherwise, if there is a parallel port on the bomb and exactly 1 magenta button is present, that magenta button the correct button.</li>
+						<li>Otherwise, if there is a parallel port on the bomb and exactly 1 magenta button is present, that magenta button is the correct button.</li>
 						<li>Otherwise, if there is a Stereo RCA port on the bomb and exactly one white button and one red button is present, the correct button is neither the white button nor the red button.</li>
 						<li>Otherwise, if there are no black colored parts and exactly one of the buttons is black, that button is correct.</li>
 						<li>Otherwise, if there are no shared colors between the buttons and the phrases (excluding white), the correct button is the right button.</li>
