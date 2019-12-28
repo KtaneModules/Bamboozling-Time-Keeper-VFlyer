@@ -12,6 +12,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     public KMColorblindMode colorblindMode;
     public KMModSettings ModConfig;
     public KMAudio sound;
+    public KMAudio.KMAudioRef soundwithRef;
     public GameObject buttonL, buttonM, buttonR, buttonGroup, highlightStage1, highlightStage2, door, backing;
     public GameObject animationPointDoorA, animationPointDoorB, animationPointButtonA, animationPointButtonB;
     public TextMesh display;
@@ -184,18 +185,19 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     private List<string> stage1PhrClr = new List<string>(), stage2PhrClr = new List<string>();
     private int[] stage1ButtonDigits = new int[3], stage2ButtonDigits = new int[3];
 
-    public long startValueA, startValueB;
-    private long finalValueA, finalValueB;
+    private long startValueA, startValueB, finalValueA, finalValueB, bTimeOnHold, bTimeEndHold;
     private int scaleFactorA = 0, scaleFactorB = 0;
     private int? crtBtnIdxStg1, crtBtnIdxStg2;
     private List<long> possibleTimesA = new List<long>(), possibleTimesB = new List<long>();
 
     private int TodaysDay = DateTime.Today.Day;
     private int TodaysMonth = DateTime.Today.Month;
-    private bool oneTapHolds = false, playingAnim = false, interactable = false, colorBlindActive = false, started = false, specialDay, holdCorStg1, holdCorStg2, isHeld = false;
-    
+    private bool oneTapHolds = false, playingAnim = false, interactable = false, colorBlindActive = false, started = false, specialDay, holdCorStg1, holdCorStg2, isHeld = false, isLeftFlashingConsistent, isRightFlashingConsistent;
 
-    private int curbtnHeld = -1, currentStage = 0, timeHeldSec = 0;
+    private List<string> leftHoldColors = new List<string>(), rightHoldColors = new List<string>();
+    private string inconsistMorseLetterL, inconsistMorseLetterR;
+
+    private int curbtnHeld = -1, currentStage = 0, timeHeldSec = 0, leftmostIdxFlashable, rightmostIdxFlashable;
     private static int modID = 1;
     public int curModId;
     private bool[] stagesCompleted = new bool[] { false, false };
@@ -207,7 +209,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     private readonly string[] specialDayStartPhrases = new string[] {
         "Iku zo.",
         "Showtime.",
-        "Are we starting soon?",
+        "Are we starting\nsoon?",
         "Let's do this.",
         "Yaru no ka."
     }, specialDayStrikePhrases = new string[] {
@@ -217,7 +219,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "Oof.",
         "Huh, too bad.",
         "Aw...",
-    }, awakePhrases = new string[] { 
+    }, awakePhrases = new string[] {
         "YOU WON'T WIN",
         "YOU WILL SUFFER",
         "NOTHING SPARED",
@@ -236,7 +238,15 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "NO U",
         "GET BAMBOOZLED",
         "STILL WRONG"
-    };
+    }, actionPhrases = new string[] {
+        "HOLD",
+        "TAP"
+    }, disarmPhrases = new string[] {
+        "EXCELLENT", "AWESOME", "AMAZING", "STUPENDOUS", "REMARKABLE", "MAGNIFICENT", "IMPRESSIVE", "PHENOMENAL", "ASTOUNDING", "EXTRAORDINARY", "TRUE LEGEND", "LEGENDARY", "GODLIKE"
+    }, disarmSpecialPhrases = new string[] {
+        "So I won huh?","Katta no ka.","Katteta.", "Oh, hey I won?", "I won?"
+    }, letters = new string[] {
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
 
     // Use this for initialization
     void Awake()
@@ -254,12 +264,9 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
     }
     void Start() {
-
-        
         specialDay = isSpecialDay();
         if (specialDay)
         {
-            sound.PlaySoundAtTransform("SigFeverEnter", transform);
             long[] listValues = new long[] { 2424, 4949 };
             int idxSwap = UnityEngine.Random.Range(0, 2);
             long tempvalue = listValues[idxSwap];
@@ -270,19 +277,26 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             startValueB = listValues[1];
             stage1ButtonColors[0] = "Cyan";
             stage2ButtonColors[0] = "Cyan";
-            display.text = specialDayStartPhrases[UnityEngine.Random.Range(0, specialDayStartPhrases.Length)];
+            display.text = specialDayStartPhrases[UnityEngine.Random.Range(0, specialDayStartPhrases.Length)].ToUpper();
         }
         else
         {
-            sound.PlaySoundAtTransform("KefkaLaugh", transform);
             startValueA = UnityEngine.Random.Range(0, 10000);
             startValueB = UnityEngine.Random.Range(0, 10000);
-            display.text = awakePhrases[UnityEngine.Random.Range(0, awakePhrases.Length)];
+            display.text = awakePhrases[UnityEngine.Random.Range(0, awakePhrases.Length)].ToUpper();
         }
         modSelf.OnActivate += delegate
         {
             oneTapHolds = TwitchPlaysEnabled || oneTapHolds;
-            
+
+            if (specialDay)
+            {
+                sound.PlaySoundAtTransform("SigFeverEnter", transform);
+            }
+            else
+            {
+                sound.PlaySoundAtTransform("KefkaLaugh", transform);
+            }
             GenerateRandomPhrases();
             GenerateRandomButtons();
 
@@ -302,7 +316,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             while (finalValueA < 10)
                 finalValueA += 15;
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The final value for stage 1 is {1}", curModId, finalValueA);
-            
+
 
             CalculateStage2();
             while (finalValueB < 10)
@@ -315,16 +329,21 @@ public class BamTimeKeeperHandler : MonoBehaviour {
 
             DetermineCorrectButton(1);
             DetermineCorrectButton(2);
+
+            DetermineStateConditions();
+
             //End Redirect to Calculation Methods
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 FINAL VALUE: {1}", curModId, finalValueA);
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 SCALE FACTOR: {1}", curModId, scaleFactorA);
-            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 POSSIBLE TIMES:\n {1}", curModId, FormatDebugList(possibleTimesA.Where(a => a < int.MaxValue).ToList()));
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 POSSIBLE TIMES: {1}", curModId, FormatDebugList(possibleTimesA.Where(a => a < int.MaxValue).ToList()));
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 CORRECT BUTTON: {1}", curModId, buttonPos[(int)crtBtnIdxStg1]);
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 CORRECT ACTION: {1}", curModId, holdCorStg1 ? actionPhrases[0] : actionPhrases[1]);
 
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 2 FINAL VALUE: {1}", curModId, finalValueB);
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 2 SCALE FACTOR: {1}", curModId, scaleFactorB);
-            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 2 POSSIBLE TIMES:\n {1}", curModId, FormatDebugList(possibleTimesB.Where(a => a < int.MaxValue).ToList()));
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 2 POSSIBLE TIMES: {1}", curModId, FormatDebugList(possibleTimesB.Where(a => a < int.MaxValue).ToList()));
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 2 CORRECT BUTTON: {1}", curModId, buttonPos[(int)crtBtnIdxStg2]);
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 2 CORRECT ACTION: {1}", curModId, holdCorStg2 ? actionPhrases[0] : actionPhrases[1]);
             started = true;
         };
         for (int x = 0; x < stageSelectables.Length; x++)
@@ -332,7 +351,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             int y = x;
             stageSelectables[x].OnInteract += delegate {
                 sound.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
-                if (!playingAnim && interactable && started)
+                if (!playingAnim && interactable && started && curbtnHeld == -1)
                 {
                     if (currentStage != y + 1)
                     {
@@ -352,19 +371,28 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     {
                         if (curbtnHeld == y)
                         {
+                            bTimeEndHold = Mathf.FloorToInt(info.GetTime());
+                            if (soundwithRef != null)
+                                soundwithRef.StopSound();
+                            StopCoroutine(HandleExtendedHold());
+                            HandleRelease(y);
                             curbtnHeld = -1;
                             sound.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonRelease, transform);
                         }
                         else if (curbtnHeld == -1)
                         {
+                            bTimeOnHold = Mathf.FloorToInt(info.GetTime());
                             sound.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, transform);
                             curbtnHeld = y;
+                            StartCoroutine(HandleExtendedHold());
                         }
                     }
                     else
                     {
+                        bTimeOnHold = Mathf.FloorToInt(info.GetTime());
                         sound.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, transform);
                         curbtnHeld = y;
+                        StartCoroutine(HandleExtendedHold());
                     }
                 }
                 return false;
@@ -376,11 +404,21 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     {
                         if (curbtnHeld != -1)
                         {
+                            bTimeEndHold = Mathf.FloorToInt(info.GetTime());
+                            if (soundwithRef != null)
+                                soundwithRef.StopSound();
+                            HandleRelease(y);
                             curbtnHeld = -1;
-                            sound.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonRelease,transform);
+                            sound.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonRelease, transform);
+                            StopCoroutine(HandleExtendedHold());
                         }
                     }
                 }
+            };
+            info.OnBombExploded += delegate
+            {
+                if (soundwithRef != null)
+                    soundwithRef.StopSound();
             };
         }
 
@@ -651,7 +689,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     string FormatDebugList(List<string> listString)
     {
         string output = "";
-        for (int x = 0; x < listString.Count;x++)
+        for (int x = 0; x < listString.Count; x++)
         {
             if (x != 0)
                 output += ", ";
@@ -686,10 +724,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         //print(xidx + "," + yidx);
         return xidx >= 0 && xidx < ManualOperationsList.GetLength(0) && yidx >= 0 && yidx < ManualOperationsList.GetLength(1) ? ManualOperationsList[xidx, yidx] : "";
     }// Grab the operation from the operation list.
-    readonly string[] buttonPos = new string[] { "LEFT", "MIDDLE", "RIGHT" };
-    readonly string[] vanillaInds = new string[] { "SND", "CLR", "CAR", "IND", "FRQ", "SIG", "NSA", "MSA", "TRN", "BOB", "FRK" };
-    readonly string[] vanillaPorts = new string[] { "DVI", "Parallel", "PS/2", "RJ45", "Serial", "StereoRCA" };
-    readonly string[] definablePhrases = new string[] { "ONE NUMBER", "TWO NUMBERS", "THREE NUMBERS", "FOUR NUMBERS", "1 NUMBER", "2 NUMBERS", "3 NUMBERS", "4 NUMBERS", "A NUMBER" };
+    readonly string[] buttonPos = new string[] { "LEFT", "MIDDLE", "RIGHT" },
+        vanillaInds = new string[] { "SND", "CLR", "CAR", "IND", "FRQ", "SIG", "NSA", "MSA", "TRN", "BOB", "FRK" },
+        vanillaPorts = new string[] { "DVI", "Parallel", "PS/2", "RJ45", "Serial", "StereoRCA" },
+        definablePhrases = new string[] { "ONE NUMBER", "TWO NUMBERS", "THREE NUMBERS", "FOUR NUMBERS", "1 NUMBER", "2 NUMBERS", "3 NUMBERS", "4 NUMBERS", "A NUMBER" };
     int stageRuleApplied = 0;
     void CalculateStage1()
     {
@@ -699,8 +737,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             finalValueA = 15;
             scaleFactorA = 2;
             crtBtnIdxStg1 = stage1ButtonColors.IndexOf("Cyan");
-            Debug.LogFormat("[Bamboozling Time Keeper #{0}]:"+" Override present! Final Value for this stage is actually 15 seconds, with a scale factor of 2, with the correct button being the {1} button!".ToUpper(), curModId, buttonPos[(int)crtBtnIdxStg1]);
-            return; 
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]:" + " Override present! Final Value for this stage is actually 15 seconds, with a scale factor of 2, with the correct button being the {1} button!".ToUpper(), curModId, buttonPos[(int)crtBtnIdxStg1]);
+            return;
         }
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 1 is {1}", curModId, startValueA);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The phrases for stage 1 are {1}", curModId, FormatDebugList(stage1Phrases));
@@ -759,7 +797,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 6: True", curModId);
             crtBtnIdxStg1 = 0;
         }
-        else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 6: False", curModId); 
+        else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 6: False", curModId);
         // Step 7
         if (!stage1PhrClr[1].Equals("Red") && stage1ButtonColors.Contains("Red"))
         {
@@ -896,7 +934,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         // Step 21
         int needyCount = nameModsonBomb.Count - info.GetSolvableModuleNames().Count;
         finalValueA += 99 * needyCount;
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 21: There are this many needies on the bomb: {1}", curModId,needyCount);
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 21: There are this many needies on the bomb: {1}", curModId, needyCount);
         // Step 22
         if (stage1Phrases[0].Contains("(") || stage1Phrases[0].RegexMatch(@"^\d\sNUMBERS?"))
         {
@@ -964,7 +1002,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             finalValueB = 15;
             scaleFactorB = 2;
             crtBtnIdxStg2 = stage2ButtonColors.IndexOf("Cyan");
-            Debug.LogFormat("[Bamboozling Time Keeper #{0}]:"+" Override present! Final Value for this stage is actually 15 seconds, with a scale factor of 2, with the correct button being the {1} button!".ToUpper(), curModId, buttonPos[(int)crtBtnIdxStg2]);
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]:" + " Override present! Final Value for this stage is actually 15 seconds, with a scale factor of 2, with the correct button being the {1} button!".ToUpper(), curModId, buttonPos[(int)crtBtnIdxStg2]);
             return;
         }
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 2 is {1}", curModId, startValueB);
@@ -1235,7 +1273,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: End of Step 21", curModId);
             // Step 22
-            curCell = GrabCellFromManualTable((colIndex.IndexOf(stage2ButtonColors[0].ToUpper()) + colIndex.IndexOf(stage2ButtonColors[2].ToUpper()))%8, Math.Abs(rowIndex.IndexOf(stage1Phrases[1].ToUpper()) - rowIndex.IndexOf(stage2Phrases[1].ToUpper())));
+            curCell = GrabCellFromManualTable((colIndex.IndexOf(stage2ButtonColors[0].ToUpper()) + colIndex.IndexOf(stage2ButtonColors[2].ToUpper())) % 8, Math.Abs(rowIndex.IndexOf(stage1Phrases[1].ToUpper()) - rowIndex.IndexOf(stage2Phrases[1].ToUpper())));
             if (curCell.Length != 0) Debug.LogFormat("[Bamboozling Time Keeper #{0}]: \"{1}\" is a valid cell from the table.", curModId, curCell);
             if (curCell.Equals("STOP"))
             {
@@ -1391,66 +1429,125 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     }
     void CalcScaleFactors()
     {
+        if (canOverride()) return;
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: SCALE FACTOR CALCULATIONS:", curModId);
         if (startValueA < 5000)
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Starting value for stage 1 is less than 5000", curModId);
             scaleFactorA += 1;
+        }
         if (startValueB < 5000)
+        {
             scaleFactorB += 1;
-
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Starting value for stage 2 is less than 5000", curModId);
+        }
         scaleFactorA -= batteryCount / 2;
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Detected this many batteries: {1} , subtracting {2} from stage 1's scale factor", curModId, batteryCount, batteryCount / 2);
         scaleFactorB -= batteryholdCount;
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Detected this many holders: {1}", curModId, batteryholdCount);
 
         if (idModsonBomb.Contains("forgetThis"))
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Forget This is present", curModId);
             scaleFactorA += 1;
+        }
+
         if (idModsonBomb.Contains("forgetEnigma"))
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Forget Enigma is present", curModId);
             scaleFactorB += 1;
+        }
 
         if (info.GetSerialNumberNumbers().Count() >= 4)// In a world where symbols can show up in the serial number.
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The serial number has 4 or more digits", curModId);
             scaleFactorA += 3;
+        }
         if (info.GetSerialNumberLetters().Count() >= 4)// In a world where symbols can show up in the serial number.
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The serial number has 4 or more letters", curModId);
             scaleFactorB += 3;
+        }
 
         if (idModsonBomb.Contains("timeKeeper"))
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The Time Keeper is present", curModId);
             scaleFactorA += 2;
+        }
+
         if (idModsonBomb.Contains("TurnTheKey"))
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Turn The Key is present", curModId);
             scaleFactorB += 2;
+        }
 
         if (!definablePhrases.Contains(stage1Phrases[0]))
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 1's starting phrase is not definable", curModId);
             scaleFactorA += 2;
+        }
         if (definablePhrases.Contains(stage2Phrases[0]))
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 2's starting phrase is definable", curModId);
             scaleFactorB += 2;
+        }
 
         if (startTime >= 1800)
         {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The bomb's starting time is 30:00+", curModId);
             scaleFactorA += 2;
             scaleFactorB += 2;
         }
-        
-        if (info.GetSerialNumberNumbers().Count() == 3)// In a world where symbols can show up in the serial number.
-            scaleFactorA += 2;
+
         if (info.GetSerialNumberLetters().Count() == 3)// In a world where symbols can show up in the serial number.
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The serial number has exactly 3 letters", curModId);
+            scaleFactorA += 2;
+        }
+        if (info.GetSerialNumberNumbers().Count() == 3)// In a world where symbols can show up in the serial number.
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The serial number has exactly 3 digits", curModId);
             scaleFactorB += 2;
+        }
 
         if (idModsonBomb.Contains("MemoryV2"))
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Forget Me Not is present", curModId);
             scaleFactorA += 1;
+        }
         if (!idModsonBomb.Contains("forgetItNot"))
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Forget It Not is not present", curModId);
             scaleFactorB += 1;
+        }
 
         if (finalValueA >= 10000)
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The final value for stage 1 is at least 10000", curModId);
             scaleFactorA /= 2;
+        }
         if (finalValueB >= 10000)
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The final value for stage 2 is at least 10000", curModId);
             scaleFactorB /= 2;
+        }
 
         if (info.IsIndicatorOn(Indicator.BOB) && info.IsIndicatorOn(Indicator.FRK) && batteryCount == 4 && batteryholdCount == 2)
-        { 
+        {
             scaleFactorA = 2;
-            scaleFactorB = 2; 
+            scaleFactorB = 2;
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Laundry Unicorn and Radiator Unicorn are present; this overrode stage 1 and 2's scale factor", curModId);
         }
 
         scaleFactorA = Math.Max(Math.Min(scaleFactorA, 5), 2);
         scaleFactorB = Math.Max(Math.Min(scaleFactorB, 5), 2);
+
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The scale factor for stage 1 is {1}", curModId, scaleFactorA);
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The scale factor for stage 2 is {1}", curModId, scaleFactorB);
     }
     void DetermineCorrectButton(int stageNum)
     {
+        if (canOverride()) return;
         if (stageNum == 1)
         {
             int presentInStage = 0;
@@ -1536,7 +1633,700 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         destination.Sort();
     }
+    void DetermineStateConditions()
+    {
+        if (canOverride()) return;
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STATE CALCULATIONS:", curModId);
+        if (idModsonBomb.Contains("veryAnnoyingButton"))
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 1 takes highest priority for both stages", curModId);
+            holdCorStg1 = false;
+            holdCorStg2 = false;
+        }
+        else
+        {
+            bool isOtherLabelsPresent = true;
+            bool isCorrectPresent = false;
+            // Stage 1
+            for (int x = 0; x < stage1ButtonDigits.Length; x++)
+            {
+                if (x == crtBtnIdxStg1)
+                {
+                    isCorrectPresent = stage1Phrases.Contains(phraseNumList[phraseNumList.IndexOf(stage1ButtonDigits[x].ToString())]) || stage1Phrases.Contains(phraseNumList[phraseNumList.IndexOf(stage1ButtonDigits[x].ToString()) + 1]);
+                }
+                else
+                {
+                    isOtherLabelsPresent = isOtherLabelsPresent && (stage1Phrases.Contains(phraseNumList[phraseNumList.IndexOf(stage1ButtonDigits[x].ToString())]) || stage1Phrases.Contains(phraseNumList[phraseNumList.IndexOf(stage1ButtonDigits[x].ToString()) + 1]));
+                }
+            }
+            if (isOtherLabelsPresent)
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 2 takes highest priority for stage 1", curModId);
+                holdCorStg1 = true;
+            }
+            else if (isCorrectPresent)
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 3 takes highest priority for stage 1", curModId);
+                holdCorStg1 = false;
+            }
+            else if ((stage1ButtonDigits[0] <= stage1ButtonDigits[1] && stage1ButtonDigits[1] <= stage1ButtonDigits[2]) || (stage1ButtonDigits[0] >= stage1ButtonDigits[1] && stage1ButtonDigits[1] >= stage1ButtonDigits[2]))
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 4 takes highest priority for stage 1", curModId);
+                holdCorStg1 = true;
+            }
+            else
+            {
 
+                int productOthers = 1;
+                int sumOthers = 0;
+                int? otherPosDifference = 0;
+
+                int correctButtonDigit = 0;
+
+                for (int x = 0; x < stage1ButtonDigits.Length; x++)
+                {
+                    if (x == crtBtnIdxStg1)
+                    {
+                        correctButtonDigit = stage1ButtonDigits[x];
+                    }
+                    else
+                    {
+                        productOthers *= stage1ButtonDigits[x];
+                        sumOthers += stage1ButtonDigits[x];
+                        if (otherPosDifference == null)
+                        {
+                            otherPosDifference = stage1ButtonDigits[x];
+                        }
+                        else
+                            otherPosDifference = Math.Abs((int)otherPosDifference - stage1ButtonDigits[x]);
+                    }
+                }
+                if (Math.Abs((int)otherPosDifference - correctButtonDigit) <= 2)
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 5 takes highest priority for stage 1", curModId);
+                    holdCorStg1 = false;
+                }
+                else if (sumOthers % 10 == correctButtonDigit)
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 6 takes highest priority for stage 1", curModId);
+                    holdCorStg1 = true;
+                }
+                else
+                {
+                    holdCorStg1 = productOthers % 10 != correctButtonDigit;
+                    if (productOthers % 10 == correctButtonDigit)
+                    {
+                        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 7 takes highest priority for stage 1", curModId);
+                    }
+                    else
+                    {
+                        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: No other conditions take highest priority for stage 1", curModId);
+                    }
+                }
+            }
+            // Stage 2
+            isOtherLabelsPresent = true;
+            isCorrectPresent = false;
+            for (int x = 0; x < stage2ButtonDigits.Length; x++)
+            {
+                if (x == crtBtnIdxStg2)
+                {
+                    isCorrectPresent = stage2Phrases.Contains(phraseNumList[phraseNumList.IndexOf(stage2ButtonDigits[x].ToString())]) || stage2Phrases.Contains(phraseNumList[phraseNumList.IndexOf(stage2ButtonDigits[x].ToString()) + 1]);
+                }
+                else
+                {
+                    isOtherLabelsPresent = isOtherLabelsPresent && (stage2Phrases.Contains(phraseNumList[phraseNumList.IndexOf(stage2ButtonDigits[x].ToString())]) || stage2Phrases.Contains(phraseNumList[phraseNumList.IndexOf(stage2ButtonDigits[x].ToString()) + 1]));
+                }
+            }
+            if (isOtherLabelsPresent)
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 2 takes highest priority for stage 2", curModId);
+                holdCorStg2 = true;
+            }
+            else if (isCorrectPresent)
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 3 takes highest priority for stage 2", curModId);
+                holdCorStg2 = false;
+            }
+            else if ((stage2ButtonDigits[0] <= stage2ButtonDigits[1] && stage2ButtonDigits[1] <= stage1ButtonDigits[2]) || (stage2ButtonDigits[0] >= stage2ButtonDigits[1] && stage2ButtonDigits[1] >= stage2ButtonDigits[2]))
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 4 takes highest priority for stage 2", curModId);
+                holdCorStg2 = true;
+            }
+            else
+            {
+
+                int productOthers = 1;
+                int sumOthers = 0;
+                int? otherPosDifference = 0;
+
+                int correctButtonDigit = 0;
+
+                for (int x = 0; x < stage2ButtonDigits.Length; x++)
+                {
+                    if (x == crtBtnIdxStg2)
+                    {
+                        correctButtonDigit = stage2ButtonDigits[x];
+                    }
+                    else
+                    {
+                        productOthers *= stage2ButtonDigits[x];
+                        sumOthers += stage2ButtonDigits[x];
+                        if (otherPosDifference == null)
+                        {
+                            otherPosDifference = stage2ButtonDigits[x];
+                        }
+                        else
+                            otherPosDifference = Math.Abs((int)otherPosDifference - stage2ButtonDigits[x]);
+                    }
+                }
+                if (Math.Abs((int)otherPosDifference - correctButtonDigit) <= 2)
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 5 takes highest priority for stage 2", curModId);
+                    holdCorStg2 = false;
+                }
+                else if (sumOthers % 10 == correctButtonDigit)
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 6 takes highest priority for stage 2", curModId);
+                    holdCorStg2 = true;
+                }
+                else
+                {
+                    holdCorStg2 = productOthers % 10 != correctButtonDigit;
+                    if (productOthers % 10 == correctButtonDigit)
+                    {
+                        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 7 takes highest priority for stage 2", curModId);
+                    }
+                    else
+                    {
+                        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: No other conditions take highest priority for stage 2", curModId);
+                    }
+                }
+            }
+        }
+    }
+
+    string getMorseStringofLetter(char letter)
+    {
+        switch (letter.ToString().ToLower().ToCharArray()[0])
+        {
+            case 'a':
+                return ".-";
+            case 'b':
+                return "-...";
+            case 'c':
+                return "-.-.";
+            case 'd':
+                return "-..";
+            case 'e':
+                return ".";
+            case 'f':
+                return "..-.";
+            case 'g':
+                return "--.";
+            case 'h':
+                return "....";
+            case 'i':
+                return "..";
+            case 'j':
+                return ".---";
+            case 'k':
+                return "-.-";
+            case 'l':
+                return ".-..";
+            case 'm':
+                return "--";
+            case 'n':
+                return "-.";
+            case 'o':
+                return "---";
+            case 'p':
+                return ".--.";
+            case 'q':
+                return "--.-";
+            case 'r':
+                return ".-.";
+            case 's':
+                return "...";
+            case 't':
+                return "-";
+            case 'u':
+                return "..-";
+            case 'v':
+                return "...-";
+            case 'w':
+                return ".--";
+            case 'x':
+                return "-..-";
+            case 'y':
+                return "-.--";
+            case 'z':
+                return "--..";
+            default:
+                return "";
+        }
+    }
+    private readonly string[] primaryColorList = new string[] {"Red","Green","Blue"};
+    int resetCount = 0;
+
+    IEnumerator FlashLeftMostUnHeldButton(string MorseCharacter, bool isConsistent, string[] colorListIn)
+    {
+        GameObject[] GameOBJArray = new GameObject[] { buttonL, buttonM };
+        leftmostIdxFlashable = 0;
+        if (curbtnHeld == 0)
+        {
+            leftmostIdxFlashable = 1;
+        }
+        int curFlashPart = 0;
+        TextMesh curText = GameOBJArray[leftmostIdxFlashable].GetComponentInChildren<TextMesh>();
+        MeshRenderer curMeshRdr = GameOBJArray[leftmostIdxFlashable].GetComponent<MeshRenderer>();
+        curText.text = "";
+
+        if (isConsistent)
+        {
+            while (curbtnHeld != -1)
+            {
+
+                if (curFlashPart < colorListIn.Length)
+                {
+                    curMeshRdr.material.color = colorList[colorString.IndexOf(colorListIn[curFlashPart])];
+                    curFlashPart++;
+                    yield return new WaitForSeconds(0.25f);
+                    if (curbtnHeld == -1) yield break;
+                    curMeshRdr.material.color = Color.black;
+                }
+                else
+                {
+                    curFlashPart = 0;
+                    yield return new WaitForSeconds(0.5f);
+                    if (curbtnHeld == -1) yield break;
+                }
+                yield return new WaitForSeconds(0.25f);
+            }
+        }
+        else
+        {
+            while (curbtnHeld != -1)
+            {
+                if (curFlashPart < colorListIn.Length)
+                {
+                    curMeshRdr.material.color = colorList[colorString.IndexOf(colorListIn[curFlashPart])];
+                    if (MorseCharacter.Substring(curFlashPart,1).Equals("-"))
+                        yield return new WaitForSeconds(0.75f);
+                    else
+                        yield return new WaitForSeconds(0.25f);
+                    if (curbtnHeld == -1) yield break;
+                    curFlashPart++;
+                    curMeshRdr.material.color = Color.black;
+                }
+                else
+                {
+                    curFlashPart = 0;
+                    yield return new WaitForSeconds(1.5f);
+                    if (curbtnHeld == -1) yield break;
+                }
+                yield return new WaitForSeconds(UnityEngine.Random.Range(0.2f,0.5f));
+            }
+        }
+        yield return null;
+    }
+    IEnumerator FlashRightMostUnHeldButton(string MorseCharacter, bool isConsistent, string[] colorListIn)
+    {
+        GameObject[] GameOBJArray = new GameObject[] { buttonM, buttonR };
+        rightmostIdxFlashable = 1;
+        if (curbtnHeld == 2)
+        {
+            rightmostIdxFlashable = 0;
+        }
+        int curFlashPart = 0;
+        TextMesh curText = GameOBJArray[rightmostIdxFlashable].GetComponentInChildren<TextMesh>();
+        MeshRenderer curMeshRdr = GameOBJArray[rightmostIdxFlashable].GetComponent<MeshRenderer>();
+        curText.text = "";
+
+        if (isConsistent)
+        {
+            while (curbtnHeld != -1)
+            {
+
+                if (curFlashPart < colorListIn.Length)
+                {
+                    curMeshRdr.material.color = colorList[colorString.IndexOf(colorListIn[curFlashPart])];
+                    curFlashPart++;
+                    yield return new WaitForSeconds(0.25f);
+                    if (curbtnHeld == -1) yield break;
+                    curMeshRdr.material.color = Color.black;
+                }
+                else
+                {
+                    curFlashPart = 0;
+                    yield return new WaitForSeconds(0.5f);
+                    if (curbtnHeld == -1) yield break;
+                }
+                yield return new WaitForSeconds(0.25f);
+            }
+        }
+        else
+        {
+            while (curbtnHeld != -1)
+            {
+                if (curFlashPart < colorListIn.Length)
+                {
+                    curMeshRdr.material.color = colorList[colorString.IndexOf(colorListIn[curFlashPart])];
+                    if (MorseCharacter.Substring(curFlashPart, 1).Equals("-"))
+                        yield return new WaitForSeconds(0.75f);
+                    else
+                        yield return new WaitForSeconds(0.25f);
+                    if (curbtnHeld == -1) yield break;
+                    curFlashPart++;
+                    curMeshRdr.material.color = Color.black;
+                }
+                else
+                {
+                    curFlashPart = 0;
+                    yield return new WaitForSeconds(1.5f);
+                    if (curbtnHeld == -1) yield break;
+                }
+                yield return new WaitForSeconds(UnityEngine.Random.Range(0.2f, 0.5f));
+            }
+        }
+        yield return null;
+    }
+    IEnumerator HandleExtendedHold()
+    {
+        isHeld = false;
+        soundwithRef = sound.PlaySoundAtTransformWithRef("HumProgressing", transform);
+        yield return new WaitForSeconds(3);
+        if (curbtnHeld == -1) yield break;
+        soundwithRef.StopSound();
+        sound.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CapacitorPop, transform);
+        if (curbtnHeld != -1)
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: For holding at {1} reset(s):", curModId, resetCount);
+            resetCount++;
+            
+
+            // Handle Left flashing
+            leftHoldColors.Clear();
+
+            isLeftFlashingConsistent = UnityEngine.Random.value < .5f;
+            int flashCountLeft;
+            string leftFlashChar = "";
+
+            if (!isLeftFlashingConsistent)
+            {
+                inconsistMorseLetterL = letters[UnityEngine.Random.Range(0, letters.Length)];
+                leftFlashChar = getMorseStringofLetter(inconsistMorseLetterL.ToCharArray()[0]);
+                flashCountLeft = leftFlashChar.Length;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The left-most unheld button is flashing inconsistently the Morse letter {1}", curModId, inconsistMorseLetterL);
+            }
+            else
+            {
+                flashCountLeft = UnityEngine.Random.Range(1, 5);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The left-most unheld button is flashing consistently", curModId);
+            }
+            for (int x = 0; x < flashCountLeft; x++)
+            {
+                leftHoldColors.Add(primaryColorList[UnityEngine.Random.Range(0,primaryColorList.Length)]);
+            }
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The left-most unheld button is flashing the following colors in order: {1}", curModId,FormatDebugList(leftHoldColors));
+            // Handle Right flashing
+            rightHoldColors.Clear();
+
+            isRightFlashingConsistent = UnityEngine.Random.value < .5f;
+            int flashCountRight;
+            string rightFlashChar = "";
+
+            if (!isRightFlashingConsistent)
+            {
+                inconsistMorseLetterR = letters[UnityEngine.Random.Range(0, letters.Length)];
+                rightFlashChar = getMorseStringofLetter(inconsistMorseLetterR.ToCharArray()[0]);
+                flashCountRight = rightFlashChar.Length;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The right-most unheld button is flashing inconsistently the Morse letter {1}", curModId, inconsistMorseLetterR);
+            }
+            else
+            {
+                flashCountRight = UnityEngine.Random.Range(1, 5);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The right button is flashing consistently", curModId);
+            }
+            for (int x = 0; x < flashCountRight; x++)
+            {
+                rightHoldColors.Add(primaryColorList[UnityEngine.Random.Range(0, primaryColorList.Length)]);
+            }
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The right-most unheld button is flashing the following colors in order: {1}", curModId, FormatDebugList(rightHoldColors));
+            timeHeldSec = 0;
+            isHeld = true;
+            backing.GetComponent<MeshRenderer>().material.color = Color.black;
+
+            StartCoroutine(FlashLeftMostUnHeldButton(leftFlashChar, isLeftFlashingConsistent, leftHoldColors.ToArray()));
+            StartCoroutine(FlashRightMostUnHeldButton(rightFlashChar, isRightFlashingConsistent, rightHoldColors.ToArray()));
+
+            while (curbtnHeld != -1)
+            {
+                display.text = (timeHeldSec / 60).ToString("00") + ":" + (timeHeldSec % 60).ToString("00");
+                display.color = Color.white;
+                yield return new WaitForSeconds(1);
+                if (curbtnHeld == -1) yield break;
+                timeHeldSec++;
+            }
+        }
+        yield return null;
+    }
+    bool IsCorrectOnHold()
+    {
+        string formattedTime = info.GetFormattedTime();
+        int localTimeHr = DateTime.Today.Hour;
+        int localTimeMin = DateTime.Today.Minute;
+        if (isLeftFlashingConsistent && leftHoldColors.Distinct().Count() == 1 && leftHoldColors.Count() == 4 && isRightFlashingConsistent && rightHoldColors.Distinct().Count() == 1 && rightHoldColors.Count() == 4)
+        {// If both buttons that are not held are flashing the same color as its previous flashes four times in a row with consistent rest inbetween
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Both buttons not held are flashing the same color 4 times in a row with consistent rest inbetween", curModId);
+            if (leftHoldColors.Contains("Red"))
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The leftmost button is flashing all red", curModId);
+                if (rightHoldColors.Contains("Red"))
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all red", curModId);
+                    List<char> bombTimerDigits = new List<char>();
+                    List<char> displayTimerDigits = new List<char>();
+                    foreach (char digit in formattedTime.ToCharArray())
+                    {
+                        if (digit.ToString().RegexMatch(@"[0-9]") && !bombTimerDigits.Contains(digit))
+                            bombTimerDigits.Add(digit);
+                    }
+                    string displayFormattedTime = (timeHeldSec / 60).ToString("00") + (timeHeldSec % 60).ToString("00");
+                    foreach (char digit in displayFormattedTime.ToCharArray())
+                    {
+                        if (digit.ToString().RegexMatch(@"[0-9]") && !displayTimerDigits.Contains(digit))
+                            displayTimerDigits.Add(digit);
+                    }
+                    
+                    return displayTimerDigits.Intersect(bombTimerDigits).Count() >= 2;
+                }
+                else if (rightHoldColors.Contains("Green"))
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all green", curModId);
+                    int[] valuesUnder60 = new int[] { 0, 2, 6, 12, 20, 30, 42, 56 };
+                    return valuesUnder60.Contains(timeHeldSec % 60);
+                }
+                else if (rightHoldColors.Contains("Blue"))
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all blue", curModId);
+                    int[] valuesUnder60 = new int[] { 0, 2, 6, 12, 20, 30, 42, 56 };
+                    return valuesUnder60.Contains((int)info.GetTime() % 60);
+                }
+            }
+            else if (leftHoldColors.Contains("Green"))
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The leftmost button is flashing all green", curModId);
+                if (rightHoldColors.Contains("Red"))
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all red", curModId);
+                    List<char> nonZeroDigits = new List<char>();
+                    foreach (char num in localTimeHr.ToString().ToCharArray())
+                    {
+                        if (!nonZeroDigits.Contains(num) && !num.Equals('0'))
+                            nonZeroDigits.Add(num);
+                    }
+                    bool isCorrect = false;
+                    foreach (char chr in formattedTime)
+                    {
+                        isCorrect = isCorrect || nonZeroDigits.Contains(chr);
+                    }
+                    return isCorrect;
+                }
+                else if (rightHoldColors.Contains("Green"))
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all green", curModId);
+                    return Math.Abs((int)info.GetTime() % 10 - (timeHeldSec % 10)) <= 1 || ((int)info.GetTime() % 10 == 9 && (timeHeldSec % 10) == 0) || ((int)info.GetTime() % 10 == 0 && (timeHeldSec % 10) == 9);
+                }
+                else if (rightHoldColors.Contains("Blue"))
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all blue", curModId);
+                    List<char> nonZeroDigits = new List<char>();
+                    foreach (char num in localTimeHr.ToString().ToCharArray())
+                    {
+                        if (!nonZeroDigits.Contains(num) && !num.Equals('0'))
+                            nonZeroDigits.Add(num);
+                    }
+                    bool isCorrect = false;
+                    string displayFormattedTime = (timeHeldSec / 60).ToString("00") + (timeHeldSec % 60).ToString("00");
+                    foreach (char chr in displayFormattedTime)
+                    {
+                        isCorrect = isCorrect || nonZeroDigits.Contains(chr);
+                    }
+                    return isCorrect;
+
+                }
+            }
+            else if (leftHoldColors.Contains("Blue"))
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The leftmost button is flashing all blue", curModId);
+                if (rightHoldColors.Contains("Red"))
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all red", curModId);
+                    return timeHeldSec % 60 == 4 || timeHeldSec % 60 == 40;
+                }
+                else if (rightHoldColors.Contains("Green"))
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all green", curModId);
+                    return (int)info.GetTime() % 60 == 40 || (int)info.GetTime() % 60 == 4;
+                }
+                else if (rightHoldColors.Contains("Blue"))
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all blue", curModId);
+                    string secondsDisplayTimer = (timeHeldSec % 60).ToString("00");
+                    string bombTimer = ((int)info.GetTime() % 60).ToString();
+                    return !(secondsDisplayTimer.Contains("0") || secondsDisplayTimer.Contains("4") || bombTimer.Contains("0") || bombTimer.Contains("4"));
+                }
+            }
+        }
+        if ((isLeftFlashingConsistent && leftHoldColors.Distinct().Count() == 1 && leftHoldColors.Count() == 4) || (isRightFlashingConsistent && rightHoldColors.Distinct().Count() == 1 && rightHoldColors.Count() == 4))
+        { // Otherwise, if exactly 1 button is flashing the same color four times in a row with consistent rest in between
+            int idxConsistent = -1;
+            if (isLeftFlashingConsistent)
+                idxConsistent = leftmostIdxFlashable;
+            else if (isRightFlashingConsistent)
+                idxConsistent = rightmostIdxFlashable;
+
+        }
+        int TFC = info.GetTwoFactorCounts();
+        if (TFC > 0)
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: There are Two Factors on this bomb", curModId);
+            List<int> TwoCodes = new List<int>();
+            foreach (int oneCode in info.GetTwoFactorCodes())
+            {
+                TwoCodes.Add(oneCode);
+            }
+            if (TwoCodes.Count == 1)
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exactly 1 is present which displayed {1} at the time of the release.", curModId, TwoCodes[0]);
+                return (int)info.GetTime() % 60 == TwoCodes[0] % 60;
+            }
+        }
+        return false;
+    }
+    bool hasStruck = false;
+    void HandleRelease(int buttonIdx)
+    {
+        interactable = false;
+        bool isAllCorrect = true;
+        hasStruck = false;
+        if (currentStage == 1)
+        {
+            isAllCorrect = isAllCorrect && buttonIdx == crtBtnIdxStg1;
+            if (info.GetTime() <= 120 && holdCorStg1 == true && isHeld == false)
+            {
+                hasStruck = true;
+                modSelf.HandleStrike();
+                isAllCorrect = true;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exchanged a strike for tapping the button versus holding a button at < 2:00 remaining", curModId);
+            }
+            else
+                isAllCorrect = isAllCorrect && holdCorStg1 == isHeld;
+            bool withinRange = false;
+            for (int x = 0; x < possibleTimesA.Count; x++)
+            {
+                withinRange = withinRange || Math.Abs(bTimeOnHold - possibleTimesA[x]) <= 5;
+            }
+            isAllCorrect = isAllCorrect && withinRange;
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The {1} button was {2} at {3}:{4} for stage 1", curModId, buttonPos[buttonIdx], !isHeld ? "TAPPED" : "HELD", (bTimeOnHold / 60).ToString("00"), (bTimeOnHold % 60).ToString("00"));
+        }
+        else if (currentStage == 2)
+        {
+            isAllCorrect = isAllCorrect && buttonIdx == crtBtnIdxStg2;
+            if (info.GetTime() <= 120 && holdCorStg2 == true && isHeld == false)
+            {
+                hasStruck = true;
+                modSelf.HandleStrike();
+                isAllCorrect = true;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exchanged a strike for tapping the button versus holding a button at < 2:00 remaining", curModId);
+            }
+            else
+                isAllCorrect = isAllCorrect && holdCorStg2 == isHeld;
+            bool withinRange = false;
+            for (int x = 0; x < possibleTimesB.Count; x++)
+            {
+                withinRange = withinRange || Math.Abs(bTimeOnHold - possibleTimesB[x]) <= 5;
+            }
+            isAllCorrect = isAllCorrect && withinRange;
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The {1} button was {2} at {3}:{4} for stage 2", curModId, buttonPos[buttonIdx], !isHeld ? "TAPPED" : "HELD", (bTimeOnHold / 60).ToString("00"), (bTimeOnHold % 60).ToString("00"));
+        }
+        if (isHeld)
+        {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: And was released at {3}:{4} ({1}:{2} on display)", curModId, (timeHeldSec/60).ToString("00"), (timeHeldSec%60).ToString("00"), (bTimeEndHold / 60).ToString("00"), (bTimeEndHold % 60).ToString("00"));
+        }
+        if (!isAllCorrect)
+        {
+            if (!hasStruck)
+                modSelf.HandleStrike();
+
+            StartCoroutine(PlayIncorrectAnim());
+        }
+        else
+        {
+            if (currentStage == 1)
+                stagesCompleted[0] = true;
+            else if (currentStage == 2)
+                stagesCompleted[1] = true;
+            if (specialDay)
+            {
+                sound.PlaySoundAtTransform("Sig20PlusALT", transform);
+            }
+            sound.PlaySoundAtTransform("InputCorrect", transform);
+            highlightStage1.GetComponent<MeshRenderer>().material.color = stagesCompleted[0] ? indcColors[2] : indcColors[0];
+            highlightStage2.GetComponent<MeshRenderer>().material.color = stagesCompleted[1] ? indcColors[2] : indcColors[0];
+            interactable = true;
+            UpdateButtons(currentStage);
+            StartCoroutine(UpdateDisplay(currentStage));
+            if (stagesCompleted.ToList().TrueForAll(a => a))
+            {
+                StartCoroutine(PlaySolveAnim());
+            }
+        }
+    }
+
+    private IEnumerator PlaySolveAnim()
+    {
+        interactable = false;
+        GameObject[] GameOBJArray = new GameObject[] { buttonL, buttonM, buttonR };
+        for (int x = 0; x < GameOBJArray.Length; x++)
+        {
+            TextMesh curText = GameOBJArray[x].GetComponentInChildren<TextMesh>();
+            MeshRenderer curMeshRdr = GameOBJArray[x].GetComponent<MeshRenderer>();
+            curText.text = x == 1 ? "O" : "W";
+            curText.color = Color.black;
+            curMeshRdr.material.color = Color.green;
+        }
+        display.text = specialDay ? disarmSpecialPhrases[UnityEngine.Random.Range(0, disarmSpecialPhrases.Length)] : disarmPhrases[UnityEngine.Random.Range(0, disarmPhrases.Length)].ToUpper();
+        display.color = Color.white;
+        modSelf.HandlePass();
+        yield return new WaitForSeconds(1);
+        StartCoroutine(HideButtons());
+        yield return null;
+    }
+
+    IEnumerator PlayIncorrectAnim()
+    {
+        display.text = specialDay ? specialDayStrikePhrases[UnityEngine.Random.Range(0,specialDayStrikePhrases.Length)] : strikePhrases[UnityEngine.Random.Range(0,strikePhrases.Length)].ToUpper();
+        display.color = Color.white;
+        if (specialDay)
+        {
+            sound.PlaySoundAtTransform("SigHeavy", transform);
+        }
+        GameObject[] GameOBJArray = new GameObject[] { buttonL, buttonM, buttonR };
+        for (int x = 0; x < GameOBJArray.Length; x++)
+        {
+            TextMesh curText = GameOBJArray[x].GetComponentInChildren<TextMesh>();
+            MeshRenderer curMeshRdr = GameOBJArray[x].GetComponent<MeshRenderer>();
+            curText.text = "";
+            curMeshRdr.material.color = Color.red;
+        }
+
+
+        yield return new WaitForSeconds(3);
+        StartCoroutine(ChangeToStage(currentStage));
+        yield return null;
+    }
     private readonly int AnimTime = 20;
     IEnumerator HideButtons()
     {
@@ -1656,12 +2446,21 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 {
                     display.text = stage1Phrases[currentPart];
                     display.color = colorList[colorString.IndexOf(stage1PhrClr[currentPart])];
+                    if (display.color.Equals(Color.black))
+                    {
+                        backing.GetComponent<MeshRenderer>().material.color = Color.white;
+                    }
+                    else
+                    {
+                        backing.GetComponent<MeshRenderer>().material.color = Color.black;
+                    }
                     if (colorBlindActive && !startingPhrases.Contains(display.text) && !display.text.Equals("HUNDRED") && !display.text.Equals("POINT ZERO"))
                     {
                         yield return new WaitForSeconds(0.75f);
                         if (currentStage != stage || curbtnHeld != -1 || !interactable) break;
                         display.text = "IN " + stage1PhrClr[currentPart].ToUpper();
                         display.color = Color.white;
+                        backing.GetComponent<MeshRenderer>().material.color = Color.black;
                     }
                 }
                 else
@@ -1677,12 +2476,21 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 {
                     display.text = stage2Phrases[currentPart];
                     display.color = colorList[colorString.IndexOf(stage2PhrClr[currentPart])];
+                    if (display.color.Equals(Color.black))
+                    {
+                        backing.GetComponent<MeshRenderer>().material.color = Color.white;
+                    }
+                    else
+                    {
+                        backing.GetComponent<MeshRenderer>().material.color = Color.black;
+                    }
                     if (colorBlindActive && !startingPhrases.Contains(display.text) && !display.text.Equals("HUNDRED") && !display.text.Equals("POINT ZERO"))
                     {
                         yield return new WaitForSeconds(0.75f);
                         if (currentStage != stage || curbtnHeld != -1 || !interactable) break;
                         display.text = "IN " + stage2PhrClr[currentPart].ToUpper();
                         display.color = Color.white;
+                        backing.GetComponent<MeshRenderer>().material.color = Color.black;
                     }
                 }
                 else
@@ -1691,14 +2499,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     display.color = Color.white;
                     currentPart = -1;
                 }
-            }
-            if (display.color.Equals(Color.black))
-            {
-                backing.GetComponent<MeshRenderer>().material.color = Color.white;
-            }
-            else
-            {
-                backing.GetComponent<MeshRenderer>().material.color = Color.black;
             }
             yield return new WaitForSeconds(0.75f);
         }
@@ -1758,6 +2558,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         {
             display.text = "SWITCHING";
             display.color = Color.white;
+            backing.GetComponent<MeshRenderer>().material.color = Color.black;
             for (int x = 0; x < cnt; x++)
                 display.text += ".";
             cnt = (cnt + 1) % 4;
