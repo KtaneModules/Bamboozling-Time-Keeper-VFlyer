@@ -677,7 +677,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1485448873130164}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.0141, z: -0.0575}
+  m_LocalPosition: {x: 0, y: 0.01, z: -0.0575}
   m_LocalScale: {x: 0.14, y: 0.0019999999, z: 0.03}
   m_Children:
   - {fileID: 4507214272849704}
@@ -718,7 +718,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1026399791816842}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.02, y: 0.015, z: 0.058}
+  m_LocalPosition: {x: -0.02, y: 0.01, z: 0.058}
   m_LocalScale: {x: 0.115, y: 0.001, z: 0.04}
   m_Children:
   - {fileID: 4323304098040148}
@@ -862,13 +862,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1782855368757520}
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 4261498834082620}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!4 &4783698522487296
 Transform:
   m_ObjectHideFlags: 1
@@ -915,8 +915,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1922308495801896}
   m_LocalRotation: {x: -0, y: 1, z: -0, w: -0.00000004371139}
-  m_LocalPosition: {x: 0.0225, y: -0.01, z: 0.005}
-  m_LocalScale: {x: 1.2, y: 1, z: 0.6}
+  m_LocalPosition: {x: 0.0225, y: -0.0096, z: 0.005}
+  m_LocalScale: {x: 1.2, y: 1.3, z: 0.6}
   m_Children: []
   m_Father: {fileID: 4261498834082620}
   m_RootOrder: 2
@@ -1063,7 +1063,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: b1042f33bf68e504da2e1d1e9e65960c, type: 2}
+  - {fileID: 2100000, guid: e63c9d3530defef4fb9b5a5593dd7f43, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1166,7 +1166,7 @@ MeshRenderer:
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 1df94179db39acc41a994f772ef8891a, type: 2}
+  - {fileID: 2100000, guid: 069d57da8b2171242a59097fd0f2e94b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1586,7 +1586,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1444327955423780}
-  m_Text: YOU WONT WIN
+  m_Text: NO CHANCES LEFT
   m_OffsetZ: 0
   m_CharacterSize: 0.75
   m_LineSpacing: 1
@@ -1920,8 +1920,6 @@ MonoBehaviour:
   stageSelectables:
   - {fileID: 114641173469093628}
   - {fileID: 114450894278680328}
-  startValueA: 0
-  startValueB: 0
   curModId: 0
 --- !u!114 &114485012100424936
 MonoBehaviour:

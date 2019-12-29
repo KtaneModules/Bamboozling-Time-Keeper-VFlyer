@@ -123,7 +123,7 @@ Prefab:
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.size
-      value: 8
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 439642, guid: 8814ea52310d2614a9feda02ec355ae4, type: 2}
       propertyPath: m_LocalPosition.x
@@ -160,7 +160,7 @@ Prefab:
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: TwitchPlaysActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
@@ -176,32 +176,32 @@ Prefab:
         type: 2}
       propertyPath: AudioClips.Array.data[2]
       value: 
-      objectReference: {fileID: 8300000, guid: 526e5778326600f4f860423dabba8e5c, type: 3}
+      objectReference: {fileID: 8300000, guid: 7275cfd285e7c47489f195b26c265f93, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[3]
       value: 
-      objectReference: {fileID: 8300000, guid: 1ff827981e94a864685bfc24fd029171, type: 3}
+      objectReference: {fileID: 8300000, guid: 43e1587eb244e8c4eb984d56c0d9d8e4, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[4]
       value: 
-      objectReference: {fileID: 8300000, guid: 7275cfd285e7c47489f195b26c265f93, type: 3}
+      objectReference: {fileID: 8300000, guid: 58ac46e6c5d7f584e9fbacc61ad72491, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[5]
       value: 
-      objectReference: {fileID: 8300000, guid: 58ac46e6c5d7f584e9fbacc61ad72491, type: 3}
+      objectReference: {fileID: 8300000, guid: 54cabcba2b9d83a43b5dddf2602ad0a2, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[6]
       value: 
-      objectReference: {fileID: 8300000, guid: 54cabcba2b9d83a43b5dddf2602ad0a2, type: 3}
+      objectReference: {fileID: 8300000, guid: 387f7915445b53c448cdcfd568737689, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[7]
       value: 
-      objectReference: {fileID: 8300000, guid: 1aba6c2fd912f5b4089aacf5dec5ee2b, type: 3}
+      objectReference: {fileID: 8300000, guid: e7c1357e2c6e6f241b4b1f3d4413755f, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: EdgeworkConfiguration
@@ -215,7 +215,7 @@ Prefab:
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: TimeLimit
-      value: 3600
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
@@ -460,32 +460,6 @@ Prefab:
     - target: {fileID: 4519127487248690, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}
       propertyPath: m_RootOrder
       value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1616991881013016, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1219970736126300, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4814228730221280, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}
-      propertyPath: m_LocalScale.z
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 4814228730221280, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}
-      propertyPath: m_LocalScale.y
-      value: 1.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 102110469584694310, guid: bcfb1dca9e0b02946a427af11d87c10e,
-        type: 2}
-      propertyPath: m_Text
-      value: SOME NUMBER(S)
-      objectReference: {fileID: 0}
-    - target: {fileID: 114620759695133140, guid: bcfb1dca9e0b02946a427af11d87c10e,
-        type: 2}
-      propertyPath: _colorblindMode
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}

@@ -848,7 +848,7 @@
 						<li>If by adding up the number of letters in each of the color's names from each button, you get a number greater than 12, divide your current value by the sum of the number of letters in each of colors' names of the non-white parts on stage 2. If you are attempting to divide by 0, double the current value instead.</li>
 						<li>If there are Two Factors on this bomb, add the product of the number of Two Factors on the bomb and 50 and <strong class="stop">END</strong>.</li>
 						<li>If there are 7 parts in this stage, divide the current value by 7, dropping reminders if present.</li>
-						<li>Change the correct button to the button with the most letters in the name of the button's color, unless there is a tie or a D battery is present.</li>
+						<li>Change the correct button to the button with the most letters in the name of the button's color, unless there is a tie or an RT sensitive module is present.</li>
 						<li>Divide your value by 3, drop remainders if present.</li>
 						<li>Add product of 10 and the number of modded and vanilla indicators that share at least 1 letter in the phrase, "SPEAKINGEVIL" and <strong class="stop">END</strong>.</li>
 					</ol>
@@ -1022,7 +1022,7 @@
 							</tr>
 							<tr>
 								<th>Green</th>
-								<td>The last digit from both the seconds timer from the display and the bomb are within 1 from each other (0, 9 pairs are OK)</td>
+								<td>The last digit from both the seconds timer from the display and the bomb are within 1 from each other (0/9 pairs are considered within 1 apart)</td>
 							</tr>
 							<tr>
 								<th>Blue</th>
@@ -1091,7 +1091,7 @@
 						<li>Otherwise, if there are Two Factors on this bomb:</li>
 						<ol>
 							<li>If there is exactly 1 Two Factor on this bomb, release the button when the bomb's seconds timer display the value of the Two Factor, modulo 60.</li>
-							<li>Otherwise, if there are exactly 2 Two Factors on this bomb, release when the bomb's second digits contains the average of the Two Factors, modulo 10. Unless the Two Factors are equal, go to the next "Otherwise."</li>
+							<li>Otherwise, if there are exactly 2 Two Factors on this bomb, release when the bomb's second digits contains the average of the Two Factors, modulo 10. Round down when averaging. Unless the Two Factors are equal, go to the next "Otherwise."</li>
 							<li>Otherwise, release when the bomb's timer and the display have combined at least 4 digits in the highest Two Factor on the bomb. Unless the highest Two Factor on the bomb has 3 or fewer distant digits, go to the next "Otherwise."</li>
 						</ol>
 					</ol>
@@ -1113,7 +1113,7 @@
 						<li>The button flashing irregularrly is flashing in Morse code.</li>
 						<li>If both buttons are flashing irregularrly, use both.</li>
 						<li>Take the alphabetical position of the button that is flashing irregularrly as the initial value.</li>
-						<li>Modify that value based on Table Irregular Flashes.</li>
+						<li>Modify that initial value based on Table Irregular Flashes, one at a time.</li>
 					</ul>
 					<table>
 						<caption><h2>Table Irregular Flashes</h2></caption>
@@ -1275,7 +1275,7 @@
 					<ul>
 						<li>Primary colors referred from the manual are red, green and blue.</li>
 						<li>For the black text, the screen will momentarily flash white to indicate a black colored text.</li>
-						<li>If colorblind mode is enabled on this module, the module will add "IN X" where X is the color of the previous text. It will not show "IN X" if the color is white or black.</li>
+						<li>If colorblind mode is enabled on this module, the module will add "IN X" where X is the color of the previous text, unless the rules state a specific color.</li>
 						<li>E.G. If the color of the text for "THREE" is magenta the module will display "THREE" first, then "IN MAGENTA," and then the rest of the text.</li>
 					</ul>
 					<p>Example Text Displays without colorblind mode:</p>
@@ -1534,7 +1534,7 @@
                 <div class="page-content">
 					<h2>Appendix: Morse Code</h2>
 					<p class="flavour-text">How did that not fit in the main page?</p>
-					<img src="img/Micro-Modules/Morse/International-Morse-Code.png" width="100%">
+					<img src="img/BamTimeKeeper/MorseCodeReferenceSheet.png" width="100%">
                 </div>
 				<div class="page-footer relative-footer">Page 18 of 18</div>
             </div>
