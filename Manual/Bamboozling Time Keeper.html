@@ -7,6 +7,7 @@
         <link rel="stylesheet" type="text/css" href="css/normalize.css">
         <link rel="stylesheet" type="text/css" href="css/main.css">
         <link rel="stylesheet" type="text/css" href="css/font.css">
+		<!--<link rel="stylesheet" type="text/css" href="css/bamtimekeeper.css">-->
         <script src="js/ktane-utils.js"></script>
         <style>
             table {
@@ -29,7 +30,7 @@
 					position: relative;
 				}
 					div.footnote::before {
-						content: '*';
+						content: '';
 						position: absolute;
 						left: -1em;
 					}
@@ -50,9 +51,19 @@
 				border-top-style: hidden;
 				
 			}
+			.page-bg-alt-btk {
+				background-image: url(img/BamTimeKeeper/page-bg-noise-ALT-BTK.png);
+			}
 			.stop
 			{
 				color: red;
+			}
+			.verticaltext
+			{
+				position: absolute;
+				transform: rotate(-90deg) translate(5%,-495%);
+				text-align: center;
+				text-orientation: mixed;
 			}
         </style>
     </head>
@@ -69,8 +80,7 @@
                     <p class="flavour-text">I needed a few more minutes, not just a few more seconds!</p>
                     
                     <p class="appendix-reference" id="appendix-reference">See Appendix A for indicator identification reference.<br>See Appendix B for battery identification reference.<br>See Appendix C for port identification reference.<br>See Appendix Two Factor for Two Factor identification reference.<br>See Appendix Color References for color referencing.<br>See Appendix One Tap Holds for referring to One Tap Hold.<br>See Appendix Extended Terminlogy for other terminlogies used in this manual.</p>
-					<p>This module consists of a screen displaying various phrases; 3 buttons revealed by a sliding hatch, each with a digit on the button; and a stage indicator. The defuser can switch between the 2 stages by pressing the respective half at the bottom indicator. A flashing yellow bar represents the current stage and a green stage represents a completed stage. To complete a stage, the defuser must hold or tap the button at a very specific time and release the button with the correct conditions. Complete both stages to disarm the module.</p>
-					<p>A strike incurred from this module will <strong>NOT</strong> generate a new set of buttons for both stages, generate a new starting value, nor reset the progress of the number of stages completed. If you have to hold the button for that stage, the condition to release will alter upon holding the button again.</p>
+					<p>This module consists of a screen displaying various phrases; 3 buttons revealed by a sliding hatch, each with a digit on the button; and a stage indicator. The defuser can switch between the 2 stages by pressing the respective half at the bottom indicator. A flashing yellow bar represents the current stage and a green bar represents a completed stage. To complete a stage, the defuser must hold or tap the button at a very specific time and release the button correctly. Complete both stages to disarm the module.<br>A strike incurred from this module will <strong>NOT</strong> generate a new set of buttons for both stages, generate a new starting value for both stages, nor reset the progress of the number of stages completed. If you have to hold the button for that stage, the condition to release will alter upon holding the button again.</p>
                     <h3>For All Stages</h3>
                     <p>Each screen will display 3-7 parts of the display ranging from a set of possible values.<br>All displays follow these rules: </p>
 					<ol>
@@ -144,7 +154,7 @@
 					</ol>
                 </div>
 				<div class="footnote">
-					<p>See Appendix Extended Terminlogy for info.</p>
+					<p>*See Appendix Extended Terminlogy for info.</p>
 					<p>&dagger;See Appendix 3 Stage modules for a list of 3 stage modules.</p>
 				</div>
                 <div class="page-footer relative-footer">Page 2 of 18</div>
@@ -838,9 +848,8 @@
 							<li>If the operator is "B#" multiply your current value by (#+1).</li>
 						</ul>
 						<li>If the starting phrase is in the last row of Table Start, perform step 18 except use the 2nd to last part, unless the 2nd to last part is "HUNDRED", multiply your current value by 100 instead.</li>
-						<li>If the starting phrase contains parentheses or a number, do the next 2 steps. Otherwise, skip to step 23.</li>
-						<li>Perform Step 19 except with the cell at ( ([P2<sub>1</sub>]+[P2<sub>2</sub>])%56, 7-[MBC<sub>2</sub>] ); where P2<sub>n</sub> is the index of the 2nd phrase for the given stage and MBC<sub>n</sub> is the color index of the middle button in the given stage; in (row,col) format.</li>
-						<li>Also perform Step 19 except with the cell at ( |[P2<sub>1</sub>]-[P2<sub>2</sub>]|, ([LBC<sub>2</sub>]+[RBC<sub>2</sub>])%8 ); where RBC<sub>n</sub> is the color index of the right button for the given stage, LBC<sub>n</sub> is the color index of the left button for the given stage; in (row,col) format.</li>
+						<li>If the starting phrase contains parentheses or a number, do the next step. Otherwise, skip to step 22.</li>
+						<li>Perform Step 19 except with the cell at ( ([P2<sub>1</sub>]+[P2<sub>2</sub>])%56, 7-[MBC<sub>2</sub>] ); where P2<sub>n</sub> is the index of the 2nd phrase for the given stage and MBC<sub>n</sub> is the color index of the middle button in the given stage; and with the cell at ( |[P2<sub>1</sub>]-[P2<sub>2</sub>]|, ([LBC<sub>2</sub>]+[RBC<sub>2</sub>])%8 ); where RBC<sub>n</sub> is the color index of the right button for the given stage, LBC<sub>n</sub> is the color index of the left button for the given stage; in (row,col) format.</li>
 						<li>If the left and right buttons have the same color as the 2nd part of the display, but the middle button is a different button, change the correct button to  be the middle button.</li>
 						<li>If step 9 was applied to stage 1, add 25. Otherwise if step 9 was applied to stage 2, add 150. Otherwise, subtract 250.</li>
 						<li>Subtract the product of the number of Kristy's modules on the bomb and 10.</li>
@@ -960,7 +969,7 @@
                 </div>
                 <div class="page-footer relative-footer">Page 7 of 18</div>
             </div>
-            <div class="page page-bg-02">
+            <div class="page page-bg-alt-btk">
                 <div class="page-header">
                     <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
                     <span class="page-header-section-title">Bamboozling Time Keeper</span>
@@ -1067,10 +1076,10 @@
 							<th>Right</th>
 						</tr>
 						<tr>
-							<th rowspan="3">The Color from 1 button's flashes share</th>
+							<th rowspan="3" style="width: 5%"><span class="verticaltext">The Shared Flashing Color</span></th>
 							<th>Red</th>
 							<td>Bomb timer's seconds digits are not in serial no.</td>
-							<td>Display's seconds timer shows part of a code from <a href="https://ktane.timwi.de/HTML/The%20Swan.html">The Swan</a></td>
+							<td>Display's seconds timer shows part of a code from The Swan</td>
 							<td>At least 1 bomb timer's seconds digit in serial no.</td>
 						</tr>
 						<tr>
@@ -1082,12 +1091,11 @@
 						<tr>
 							<th>Blue</th>
 							<td>Display's seconds timer add up to a prime number</td>
-							<td>Bomb's seconds timer shows part of a code from <a href="https://ktane.timwi.de/HTML/The%20Swan.html">The Swan</a></td>
+							<td>Bomb's seconds timer shows part of a code from The Swan</td>
 							<td>Display's seconds digits not in serial no.</td>
 						</tr>
 					</table>
 					<ol start="3">
-						
 						<li>Otherwise, if there are Two Factors on this bomb:</li>
 						<ol>
 							<li>If there is exactly 1 Two Factor on this bomb, release the button when the bomb's seconds timer display the value of the Two Factor, modulo 60.</li>
@@ -1096,6 +1104,7 @@
 						</ol>
 					</ol>
                 </div>
+				<div class="footnote">The Swan's manual can be found <a href="https://ktane.timwi.de/HTML/The%20Swan.html">here</a>.</div>
                 <div class="page-footer relative-footer">Page 10 of 18</div>
             </div>
             <div class="page page-bg-02">

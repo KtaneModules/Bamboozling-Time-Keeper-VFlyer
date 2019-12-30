@@ -215,7 +215,7 @@ Prefab:
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: TimeLimit
-      value: 120
+      value: 3600
       objectReference: {fileID: 0}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
@@ -226,6 +226,11 @@ Prefab:
         type: 2}
       propertyPath: FrontFaceOnly
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
+        type: 2}
+      propertyPath: TwitchPlaysMode
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8814ea52310d2614a9feda02ec355ae4, type: 2}
@@ -460,6 +465,11 @@ Prefab:
     - target: {fileID: 4519127487248690, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}
       propertyPath: m_RootOrder
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114620759695133140, guid: bcfb1dca9e0b02946a427af11d87c10e,
+        type: 2}
+      propertyPath: _colorblindMode
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}

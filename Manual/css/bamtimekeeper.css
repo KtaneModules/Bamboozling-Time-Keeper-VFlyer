@@ -1,0 +1,11 @@
+.page-bg-alt-btk {
+    background-image: url("../img/BamTimeKeeper/page-bg-noise-ALT-BTK.png");
+}
+
+.verticaltext
+{
+	position: absolute;
+	transform: rotate(-90deg) translate(5%,-485%);
+	text-align: center;
+	text-orientation: mixed;
+}
