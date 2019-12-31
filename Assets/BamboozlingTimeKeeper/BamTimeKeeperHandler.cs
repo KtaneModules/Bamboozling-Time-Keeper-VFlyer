@@ -4,19 +4,19 @@ using UnityEngine;
 using KModkit;
 using System.Linq;
 using System;
-
 public class BamTimeKeeperHandler : MonoBehaviour {
 
     public KMBombInfo info;
     public KMBombModule modSelf;
     public KMColorblindMode colorblindMode;
-    public KMModSettings ModConfig;
     public KMAudio sound;
     public KMAudio.KMAudioRef soundwithRef;
     public GameObject buttonL, buttonM, buttonR, buttonGroup, highlightStage1, highlightStage2, door, backing;
     public GameObject animationPointDoorA, animationPointDoorB, animationPointButtonA, animationPointButtonB;
     public TextMesh display;
     public KMSelectable[] buttonsSelectable = new KMSelectable[3], stageSelectables = new KMSelectable[2];
+    public Material[] materialList = new Material[2];
+    public KMModSettings ModSettings;
 
     private List<Color> colorList = new List<Color>()
     {   new Color(1, 0, 0),
@@ -203,7 +203,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     private bool[] stagesCompleted = new bool[] { false, false };
 
     private string curSerNo;
-    private List<string> idModsonBomb = new List<string>(), nameModsonBomb = new List<string>();
+    private List<string> idModsonBomb, nameModsonBomb;
     private int batteryCount, batteryholdCount, startTime;
 
     private readonly string[] specialDayStartPhrases = new string[] {
@@ -247,20 +247,40 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "So I won huh?","Katta no ka.","Katteta.", "Oh, hey I won?", "I won?"
     }, letters = new string[] {
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
-
     // Use this for initialization
+
+    private BamTimeKeeperSettings Settings = new BamTimeKeeperSettings();
+
     void Awake()
     {
         curModId = modID++;
-        oneTapHolds = false;
-
         try
         {
-            colorBlindActive = colorblindMode.ColorblindModeActive;
+            ModConfig<BamTimeKeeperSettings> modconfig = new ModConfig<BamTimeKeeperSettings>("BamTimeKeeperSettings");
+            Settings = modconfig.Settings;
+
+
+            ModSettings.RefreshSettings();
+            
+            oneTapHolds = Settings.OneTapHolds;
+
+
         }
         catch
         {
-            colorBlindActive = false;
+            Debug.LogWarningFormat("[Bamboozling Time Keeper #{0}]: WARNING! Config does not exist for Bamboozling Time Keeper, using default settings.", curModId);
+            oneTapHolds = false;
+        }
+        finally
+        {
+            try
+            {
+                colorBlindActive = colorblindMode.ColorblindModeActive;
+            }
+            catch
+            {
+                colorBlindActive = false;
+            }
         }
     }
     void Start() {
@@ -774,8 +794,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             else
                 forgetCount++;
         }
-        forgetCount = Math.Max(1, speakingCount);
-        int positiveDifference = Math.Abs(speakingCount - forgetCount);
+        forgetCount = Math.Max(1, forgetCount);
+        int positiveDifference = Mathf.Abs(forgetCount - speakingCount);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 4: The positive difference between the number of modules on the bomb with the word \"Forget\" in its name and the number of modules made by SpeakingEvil on the bomb is {1}", curModId, positiveDifference);
         finalValueA *= positiveDifference;
         // Step 5
@@ -1039,7 +1059,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             else
                 forgetCount++;
         }
-        forgetCount = Math.Max(1, speakingCount);
+        forgetCount = Math.Max(1, forgetCount);
         int positiveDifference = Math.Abs(speakingCount - forgetCount);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 4: The positive difference between the number of modules on the bomb with the word \"Forget\" in its name and the number of modules made by SpeakingEvil on the bomb is {1}", curModId, positiveDifference);
         finalValueB *= positiveDifference;
@@ -1883,7 +1903,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         TextMesh curText = GameOBJArray[leftmostIdxFlashable].GetComponentInChildren<TextMesh>();
         MeshRenderer curMeshRdr = GameOBJArray[leftmostIdxFlashable].GetComponent<MeshRenderer>();
         curText.text = "";
-
+        curMeshRdr.material = materialList[0];
         if (isConsistent)
         {
             while (curbtnHeld != -1)
@@ -1946,17 +1966,17 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     }
     IEnumerator FlashRightMostUnHeldButton(string MorseCharacter, bool isConsistent, string[] colorListIn)
     {
-        GameObject[] GameOBJArray = new GameObject[] { buttonM, buttonR };
-        rightmostIdxFlashable = 1;
+        GameObject[] GameOBJArray = new GameObject[] { buttonL, buttonM, buttonR };
+        rightmostIdxFlashable = 2;
         if (curbtnHeld == 2)
         {
-            rightmostIdxFlashable = 0;
+            rightmostIdxFlashable = 1;
         }
         int curFlashPart = 0;
         TextMesh curText = GameOBJArray[rightmostIdxFlashable].GetComponentInChildren<TextMesh>();
         MeshRenderer curMeshRdr = GameOBJArray[rightmostIdxFlashable].GetComponent<MeshRenderer>();
         curText.text = "";
-
+        curMeshRdr.material = materialList[0];
         if (isConsistent)
         {
             while (curbtnHeld != -1)
@@ -2489,7 +2509,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
 
             if (irregularFlashesValue.Count() == 1)
             {
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exactly 1 value was used which is set as {1}", curModId, irregularFlashesValue[0]);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exactly 1 value was used which is {1}", curModId, irregularFlashesValue[0]);
                 return secondsbombTimer.Contains(irregularFlashesValue[0].ToString());
             }
             if (irregularFlashesValue.Count() == 2)
@@ -2498,7 +2518,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 if (irregularFlashesValue[0] == 0 && irregularFlashesValue[1] != 0)
                 {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: 2 values were used; one of them was a 0, the other is {1}", curModId, irregularFlashesValue[1]);
-                    return secondsbombTimer.Contains(irregularFlashesValue[1].ToString());
+                    return secondsDisplayTimer.Contains(irregularFlashesValue[1].ToString());
                 }
                 if (irregularFlashesValue[0] != 0 && irregularFlashesValue[1] == 0)
                 {
@@ -2533,7 +2553,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 if (productValues < 60)
                 {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The given product is {1} which is possible", curModId, productValues);
-                    return secondsbombTimer.Equals(productValues.ToString("00"));
+                    return secondsDisplayTimer.Equals(productValues.ToString("00"));
                 }
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The given product is not possible to reach on the seconds display timer", curModId);
             }
@@ -2642,6 +2662,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
             isAllCorrect = isAllCorrect && withinRange;
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The {1} button was {2} at {3}:{4} for stage 2", curModId, buttonPos[buttonIdx], !isHeld ? "TAPPED" : "HELD", (bTimeOnHold / 60).ToString("00"), (bTimeOnHold % 60).ToString("00"));
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: ({1} seconds left on the bomb)", curModId, bTimeOnHold);
         }
         if (isHeld)
         {
@@ -2671,14 +2692,16 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             sound.PlaySoundAtTransform("InputCorrect", transform);
             highlightStage1.GetComponent<MeshRenderer>().material.color = stagesCompleted[0] ? indcColors[2] : indcColors[0];
             highlightStage2.GetComponent<MeshRenderer>().material.color = stagesCompleted[1] ? indcColors[2] : indcColors[0];
-            interactable = true;
-            UpdateButtons(currentStage);
-            currentPart = 0;
-            StartCoroutine(UpdateDisplay(currentStage));
             if (stagesCompleted.ToList().TrueForAll(a => a))
             {
                 StartCoroutine(PlaySolveAnim());
+                return;
             }
+            interactable = true;
+            UpdateButtons(currentStage);
+            curbtnHeld = -1;
+            StartCoroutine(UpdateDisplay(currentStage));
+
         }
     }
     readonly string[] forceSolveMessages = new string[] { "FORCE SOLVED", "SOLVE FORCED", "NOTHING? REALLY", "REALLY NOTHING?" };
@@ -2692,6 +2715,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             MeshRenderer curMeshRdr = GameOBJArray[x].GetComponent<MeshRenderer>();
             curText.text = x == 1 ? "O" : "W";
             curText.color = Color.black;
+            curMeshRdr.material = materialList[1];
             curMeshRdr.material.color = Color.green;
         }
 
@@ -2717,6 +2741,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         {
             TextMesh curText = GameOBJArray[x].GetComponentInChildren<TextMesh>();
             MeshRenderer curMeshRdr = GameOBJArray[x].GetComponent<MeshRenderer>();
+            curMeshRdr.material = materialList[1];
             curText.text = "";
             curMeshRdr.material.color = Color.red;
         }
@@ -2928,7 +2953,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         yield return null;
     }
-
     readonly string[] colorblindInit = new string[] {"R", "Y", "G", "C", "B", "M", "W", "K" };
     void UpdateButtons(int stageNum)
     {
@@ -2954,6 +2978,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 curText.text = "?";
             }
             int idxDtr = colorString.IndexOf(detectStr);
+            curMeshRdr.material = materialList[1];
             curMeshRdr.material.color = colorList[idxDtr];
             if (colorBlindActive)
             {
@@ -2995,7 +3020,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         display.text = "";
         yield return null;
     }
-
     // Update is called once per frame
     int delay = 90;
     int currentPart = 0;
@@ -3037,16 +3061,36 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
         }
     }
+    // BamTimeKeeper Settings
+    class BamTimeKeeperSettings
+    {
+        public bool OneTapHolds = false;
+    }
 
+    static Dictionary<string, object>[] TweaksEditorSettings = new Dictionary<string, object>[]
+    {
+        new Dictionary<string, object>
+        {
+            { "Filename", "BamTimeKeeperSettings.json" },
+            { "Name", "Bamboozling Time Keeper Settings" },
+            { "Listing", new List<Dictionary<string, object>>{
+                new Dictionary<string, object>
+                {
+                    { "Key", "OneTapHolds" },
+                    { "Text", "Allows holding the button by just clicking on the button instead." }
+                }
+            } }
+        }
+    };
 
+    // Begin TP Handler
     bool TwitchPlaysActive;
     bool ZenModeActive;
 #pragma warning disable IDE0044 // Add readonly modifier
     readonly string TwitchHelpMessage = "To hold a given button at a specific time: \"!{0} hold l[eft]/m[iddle]/r[ight] at ##:##\" To tap a given button at a specific time: \"!{0} tap l[eft]/m[iddle]/r[ight] at ##:##\"\n" +
         "To release a button at a specific time based on the display: \"!{0} release display ##:##\" To release a button at a specific time based on the bomb timer: \"!{0} release bombtime ##:##\"\n" +
-        "Time format is MM:SS with MM being able to exceed 99 min. To switch between stages: \"!{0} toggle/switch\" You can only switch stages if you are NOT holding a button! \n"+"To activate colorblind mode: \"!{0} colorblind\"";
+        "Time format is MM:SS with MM being able to exceed 99 min. To switch between stages: \"!{0} toggle/switch\" To activate colorblind mode: \"!{0} colorblind\"\nYou can only activate colorblind mode or switch stages if you are NOT holding a button! ";
 #pragma warning restore IDE0044 // End Adding readonly modifier
-
     void TwitchHandleForcedSolve()
     {
         forcedSolve = true;
@@ -3057,14 +3101,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         highlightStage2.GetComponent<MeshRenderer>().material.color = indcColors[2];
         modSelf.HandlePass();
     }
-
-
     readonly List<string> buttonPosInit = new List<string>() { "l", "m", "r" };
     private IEnumerator ProcessTwitchCommand(string input)
     {
         string curinput = input.ToLowerInvariant();
-        string rgxStartHold = @"^(tap|hold) (l(eft)?|m(iddle)?|r(ight)?) (at|on) [0-9]?[0-9]?[0-9]:[0-5][0-9]$";
-        string rgxEndHoldSpecific = @"^release (display|bombtime) (at|on)? [0-9]?[0-9]?[0-9]:[0-5][0-9]$";
+        string rgxStartHold = @"^(tap|hold) (l(eft)?|m(iddle)?|r(ight)?) (at|on) [0-9]+:[0-5][0-9]$";
+        string rgxEndHoldSpecific = @"^release (display|bombtime) (at |on )?[0-9]+:[0-5][0-9]$";
+        string rgxGetDisplayTime = @"^display time$";
+        if (!started) yield break;
         if (curinput.Equals("colorblind"))
         {
             if (curbtnHeld != -1)
@@ -3074,9 +3118,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
             if (interactable)
             {
+                if (colorBlindActive)
+                {
+                    yield return "sendtochaterror Colorblind mode is already enabled! You can't disable it!";
+                    yield break;
+                }
                 colorBlindActive = true;
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}] Colorblind mode enabled via TP command.", curModId);
-                ChangeToStage(currentStage);
+                StartCoroutine(ChangeToStage(currentStage));
                 yield return null;
                 yield break;
             }
@@ -3095,17 +3144,27 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 stageSelectables[0].OnInteract();
             yield break;
         }
+        else if (curinput.RegexMatch(rgxGetDisplayTime))
+        {
+            if (curbtnHeld == -1)
+            {
+                yield return "sendtochaterror The module is not holding a button! Hold the button by using the \"hold\" command on this module first.";
+                yield break;
+            }
+            yield return "sendtochat The display showed at the time this command was invoked " +(timeHeldSec / 60).ToString("00")+":" + (timeHeldSec % 60).ToString("00");
+            yield break;
+        }
         else if (curinput.RegexMatch(rgxEndHoldSpecific))
         {
             if (curbtnHeld == -1)
             {
-                yield return "sendtochaterror The module is not holding a button! Hold the button by using the \"hold\" command on this module.";
+                yield return "sendtochaterror The module is not holding a button! Hold the button by using the \"hold\" command on this module first.";
                 yield break;
             }
             var split = input.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-            var time = split[split.Length-1].ToLowerInvariant().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+            var time = split[split.Length - 1].ToLowerInvariant().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
 
-            int seconds = 60 * int.Parse(time[0]) + int.Parse(time[1]);
+            long seconds = 60 * int.Parse(time[0]) + int.Parse(time[1]);
             if (split[1].Equals("bombtime"))
             {
                 if (!zenModeDetected)
@@ -3136,12 +3195,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     }
                 }
                 while (timeHeldSec != seconds) yield return "trycancel The button that was going to be interacted got canceled.";
+                yield return new WaitForSeconds(0.1f);
             }
             else
             {
                 yield return "sendtochaterror Sorry but which timer does the command need to refer to?";
                 yield break;
             }
+            yield return null;
             buttonsSelectable[curbtnHeld].OnInteract();
         }
         else if (curinput.RegexMatch(rgxStartHold))
@@ -3155,7 +3216,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             var time = split[3].ToLowerInvariant().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
 
             int buttonSpecified = buttonPosInit.IndexOf(split[1]) != -1 ? buttonPosInit.IndexOf(split[1]) : buttonPos.ToList().IndexOf(split[1]);
-            int seconds = 60 * int.Parse(time[0]) + int.Parse(time[1]);
+            long seconds = 60 * int.Parse(time[0]) + int.Parse(time[1]);
             if (buttonSpecified < 0 || buttonSpecified >= 3)
             {
                 yield return "sendtochaterror Sorry but what button is \"" + split[1] + "?\"";
@@ -3180,8 +3241,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 }
             }
 
-            var timeToSkipTo = seconds;
             var music = false;
+            long timeToSkipTo;
             if (zenModeDetected)
             {
                 timeToSkipTo = seconds - 5;

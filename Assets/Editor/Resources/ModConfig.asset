@@ -11,9 +11,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 615501dbe4f3fe94fbf4b564abb10237, type: 3}
   m_Name: ModConfig
   m_EditorClassIdentifier: 
-  id: testModules
-  title: Test Build
-  description: 
+  id: bamboozlingTimeKeeper
+  title: Bamboozling Time Keeper
+  description: '"I needed a few more minutes not just a few more seconds!"
+
+
+    Hold or tap the correct button at a very specific time and then release it correctly
+    to finish a stage. Complete both stages to dusarm the module.
+
+    Good luck. I really mean it this time.
+
+
+    Source Code: [url=https://github.com/VFlyer/Bamboozling-Time-Keeper]https://github.com/VFlyer/Bamboozling-Time-Keeper[/url]'
   version: 1.0
   outputFolder: build
   previewImage: {fileID: 0}

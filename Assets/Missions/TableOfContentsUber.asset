@@ -11,10 +11,8 @@ MonoBehaviour:
   m_Script: {fileID: -434690030, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
   m_Name: TableOfContentsUber
   m_EditorClassIdentifier: 
-  Title: Ubermodule Test Mission Pack
+  Title: Bamboozling Time Keeper
   Sections:
-  - Title: This Better Work...
+  - Title: True Challenge
     MissionIDs:
-    - missionDoesItWork
-    - missionDoesItWorkMods
-    - missionDoesItIgnore
+    - missionSingleTimeKeeper
