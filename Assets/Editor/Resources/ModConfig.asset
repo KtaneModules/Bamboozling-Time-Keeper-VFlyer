@@ -13,16 +13,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: bamboozlingTimeKeeper
   title: Bamboozling Time Keeper
-  description: '"I needed a few more minutes not just a few more seconds!"
-
-
-    Hold or tap the correct button at a very specific time and then release it correctly
-    to finish a stage. Complete both stages to dusarm the module.
-
-    Good luck. I really mean it this time.
-
-
-    Source Code: [url=https://github.com/VFlyer/Bamboozling-Time-Keeper]https://github.com/VFlyer/Bamboozling-Time-Keeper[/url]'
+  author: VFlyer, Speakingevil
+  description: "\"I needed a few more minutes not just a few more seconds!\"\n\nReimagining
+    The Time Keeper, Bamboozling Button, Hexabutton, \n\nHold or tap the correct button
+    at a very specific time and then release it correctly to finish a stage. Complete
+    both stages to disarm the module.\n\n\nGood luck. I really mean it this time.\n\nSource
+    Code: [url=https://github.com/VFlyer/Bamboozling-Time-Keeper]https://github.com/VFlyer/Bamboozling-Time-Keeper[/url]\n\nSound
+    effects during the special days are from Puyo Puyo Champions, standard startup
+    animation "
   version: 1.0
   outputFolder: build
   previewImage: {fileID: 0}
