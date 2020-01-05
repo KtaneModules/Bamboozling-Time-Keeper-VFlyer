@@ -219,15 +219,16 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "Wait, what?",
         "Oof.",
         "Huh, too bad.",
-        "Aw...",
+        "Aw..."
     }, awakePhrases = new string[] {
         "YOU WON'T WIN",
         "YOU WILL SUFFER",
         "NOTHING SPARED",
         "YOU'RE NOT SAFE",
         "NOTHING'S SAFE",
-        "THIS BLOCKS YOU",
-        "BLOCKED BY HATE"
+        "NO CHANCES LEFT",
+        "DON'T LEAVE\nTHIS BEHIND",
+        "DO YOU FACE IT?"
     }, strikePhrases = new string[] {
         "THAT'S A STRIKE",
         "FAILED AGAIN",
@@ -243,7 +244,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "HOLD",
         "TAP"
     }, disarmPhrases = new string[] {
-        "EXCELLENT", "AWESOME", "AMAZING", "STUPENDOUS", "REMARKABLE", "MAGNIFICENT", "IMPRESSIVE", "PHENOMENAL", "ASTOUNDING", "EXTRAORDINARY", "TRUE LEGEND", "LEGENDARY", "GODLIKE"
+        "EXCELLENT", "AWESOME", "AMAZING", "STUPENDOUS", "REMARKABLE", "MAGNIFICENT", "IMPRESSIVE", "PHENOMENAL", "ASTOUNDING", "EXTRAORDINARY", "WHAT A PRO", "YOU DEFEATED", "GODLIKE"
     }, disarmSpecialPhrases = new string[] {
         "So I won huh?","Katta no ka.","Katteta.", "Oh, hey I won?", "I won?"
     }, letters = new string[] {
@@ -742,11 +743,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]:" + " Override present! Final Value for this stage is actually 15 seconds, with a scale factor of 2, with the correct button being the {1} button!".ToUpper(), curModId, buttonPos[(int)crtBtnIdxStg1]);
             return;
         }
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 1 is {1}", curModId, startValueA);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The phrases for stage 1 are {1}", curModId, FormatDebugList(stage1Phrases));
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The color of the phrases for stage 1 are {1}", curModId, FormatDebugList(stage1PhrClr));
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The button colors for stage 1 are {1}", curModId, FormatDebugList(stage1ButtonColors));
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The digits on the buttons for stage 1 are {1}", curModId, FormatDebugList(stage1ButtonDigits.ToList()));
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 1 is {1}", curModId, startValueA);
         finalValueA = startValueA;
         // Step 2
         string firstSerNos = curSerNo.Substring(0, curSerNo.Length / 2);
@@ -1010,11 +1011,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]:" + " Override present! Final Value for this stage is actually 15 seconds, with a scale factor of 2, with the correct button being the {1} button!".ToUpper(), curModId, buttonPos[(int)crtBtnIdxStg2]);
             return;
         }
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 2 is {1}", curModId, startValueB);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The phrases for stage 2 are {1}", curModId, FormatDebugList(stage2Phrases));
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The color of the phrases for stage 2 are {1}", curModId, FormatDebugList(stage2PhrClr));
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The button colors for stage 2 are {1}", curModId, FormatDebugList(stage2ButtonColors));
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The digits on the buttons for stage 2 are {1}", curModId, FormatDebugList(stage2ButtonDigits.ToList()));
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 2 is {1}", curModId, startValueB);
         finalValueB = startValueB;
         // Step 2
         string firstSerNos = curSerNo.Substring(0, curSerNo.Length / 2);
@@ -1589,8 +1590,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             else if (stage1ButtonColors.Where(a => !a.Equals("White")).ToList().Intersect(stage1PhrClr.Where(a => !a.Equals("White")).ToList()).Count() == 0) crtBtnIdxStg1 = 2;
             else if (stage1PhrClr.Where(a => a.Equals("White")).Count() == stage1PhrClr.Count() && presentInStage == 2) crtBtnIdxStg1 = idxCon6;
             else if (stage1ButtonColors.Where(a => a.Equals("Blue")).Count() == 1 && stage1ButtonColors.Where(a => a.Equals("Green")).Count() == 1 && stage1ButtonColors.Where(a => a.Equals("Red")).Count() == 1) crtBtnIdxStg1 = stage1ButtonColors.IndexOf("Blue");
-            else if (!stage1ButtonColors.Contains("Cyan") && !stage1ButtonColors.Contains("Magenta")) crtBtnIdxStg2 = 1;
-            else crtBtnIdxStg2 = (int?)(finalValueB % 3);
+            else if (!stage1ButtonColors.Contains("Cyan") && !stage1ButtonColors.Contains("Magenta")) crtBtnIdxStg1 = 1;
+            else crtBtnIdxStg1 = (int?)(finalValueA % 3);
         }
         else if (stageNum == 2)
         {
@@ -3032,7 +3033,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         int cnt = 0;
         while (playingAnim)
         {
-            display.text = "SWITCHING";
+            display.text = currentStage != stageNum ? "SWITCHING" : "REFRESHING";
             display.color = Color.white;
             backing.GetComponent<MeshRenderer>().material.color = Color.black;
             for (int x = 0; x < cnt; x++)
@@ -3178,7 +3179,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 yield return "sendtochaterror The module is not holding a button! Hold the button by using the \"hold\" command on this module first.";
                 yield break;
             }
-            yield return "sendtochat The display showed at the time this command was invoked " +(timeHeldSec / 60).ToString("00")+":" + (timeHeldSec % 60).ToString("00");
+            yield return "sendtochat The display showed at the time this command was invoked \"" +(timeHeldSec / 60).ToString("00")+":" + (timeHeldSec % 60).ToString("00")+"\"";
             yield break;
         }
         else if (curinput.RegexMatch(rgxEndHoldSpecific))
@@ -3217,7 +3218,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 {
                     if (Mathf.FloorToInt(timeHeldSec) > seconds)
                     {
-                        yield return "sendtochaterror Sorry but the specified time is not possible in Zen Mode.";
+                        yield return "sendtochaterror Sorry but the specified time is not possible.";
                         yield break;
                     }
                 }
