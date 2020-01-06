@@ -608,7 +608,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     }
     bool isSpecialDay()
     {
-        return (TodaysDay == 4 && TodaysMonth == 2) || (TodaysDay == 9 && TodaysMonth == 4);
+        return (TodaysDay == 4 && TodaysMonth == 2) || (TodaysDay == 9 && TodaysMonth == 4) || (TodaysDay == 22 && TodaysMonth == 6);
     } // Return true if the module showed up on the 4th of Feb or 9th of April.
     int GetValueofBase36Digit(char oneDigit)
     {
@@ -1238,7 +1238,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 19: False", curModId);
         // Step 20,21,22
-        if (stage1Phrases[0].Contains("(") || stage1Phrases[0].RegexMatch(@"^\d\sNUMBERS?"))
+        if (stage2Phrases[0].Contains("(") || stage2Phrases[0].RegexMatch(@"^\d NUMBERS?$"))
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 20: True", curModId);
             // Step 21
@@ -1949,7 +1949,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     yield return new WaitForSeconds(1.5f);
                     if (curbtnHeld == -1) yield break;
                 }
-                yield return new WaitForSeconds(UnityEngine.Random.Range(0.2f,0.5f));
+                yield return new WaitForSeconds(UnityEngine.Random.Range(0.1f,0.5f));
             }
         }
         yield return null;
@@ -2022,7 +2022,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     yield return new WaitForSeconds(1.5f);
                     if (curbtnHeld == -1) yield break;
                 }
-                yield return new WaitForSeconds(UnityEngine.Random.Range(0.2f, 0.5f));
+                yield return new WaitForSeconds(UnityEngine.Random.Range(0.1f, 0.5f));
             }
         }
         yield return null;
@@ -3114,14 +3114,17 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     // Begin TP Handler
     bool TwitchPlaysActive;
     bool ZenModeActive;
+    bool TwitchPlaysSkipTimeAllowed = true;
 #pragma warning disable IDE0044 // Add readonly modifier
     readonly string TwitchHelpMessage = "To hold a given button at a specific time: \"!{0} hold l[eft]/m[iddle]/r[ight] at ##:##\" To tap a given button at a specific time: \"!{0} tap l[eft]/m[iddle]/r[ight] at ##:##\"\n" +
-        "To release a button at a specific time based on the display: \"!{0} release display ##:##\" To release a button at a specific time based on the bomb timer: \"!{0} release bombtime ##:##\"\n" +
-        "Time format is MM:SS with MM being able to exceed 99 min.\nTo get the current time on the display: \"!{0} display time\"\nTo switch between stages: \"!{0} toggle/switch\" To activate colorblind mode: \"!{0} colorblind\"\nYou can only activate colorblind mode or switch stages if you are NOT holding a button! ";
+        "To release a button at a specific time based on the display or bomb timer : \"!{0} release display/bombtime at ##:##\" To release a button based on the seconds timer: \"!{0} release display/bombtime at ## ##\"\n" +
+        "Time format is MM:SS with MM being able to exceed 99 min, multiple time stamps are acceptable when releasing. To get the current time on the display: \"!{0} display time\"\nTo switch between stages: \"!{0} toggle/switch\" To activate colorblind mode: \"!{0} colorblind\" You can only activate colorblind mode or switch stages if you are NOT holding a button! ";
 #pragma warning restore IDE0044 // End Adding readonly modifier
     void TwitchHandleForcedSolve()
     {
         forcedSolve = true;
+        StopAllCoroutines();
+        curbtnHeld = -1;
         StartCoroutine(PlaySolveAnim());
         stagesCompleted[0] = true;
         stagesCompleted[1] = true;
@@ -3134,8 +3137,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     {
         string curinput = input.ToLowerInvariant();
         string rgxStartHold = @"^(tap|hold) (l(eft)?|m(iddle)?|r(ight)?) (at|on) [0-9]+:[0-5][0-9]$";
-        string rgxEndHoldSpecific = @"^release (display|bombtime) (at |on )?[0-9]+:[0-5][0-9]$";
+        string rgxEndHoldSpecific = @"^release (display|bombtime)( at| on)?( [0-9]+:[0-5][0-9])+$";// End the Hold at a specific time
+        string rgxEndHoldGeneral = @"^release (display|bombtime)( at| on)?( [0-5]?[0-9])+$";// End the Hold when the seconds digits show those digits
         string rgxGetDisplayTime = @"^display time$";
+        List<long> possibleReleaseTimes = new List<long>();
+        var music = false;
+        long timeToSkipTo;
         if (!started) yield break;
         if (curinput.Equals("colorblind"))
         {
@@ -3179,50 +3186,86 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 yield return "sendtochaterror The module is not holding a button! Hold the button by using the \"hold\" command on this module first.";
                 yield break;
             }
-            yield return "sendtochat The display showed at the time this command was invoked \"" +(timeHeldSec / 60).ToString("00")+":" + (timeHeldSec % 60).ToString("00")+"\"";
+            while (!isHeld) yield return new WaitForSeconds(0);
+            yield return "sendtochat The display showed at the time this command was invoked \"" + (timeHeldSec / 60).ToString("00") + ":" + (timeHeldSec % 60).ToString("00") + "\"";
             yield break;
         }
-        else if (curinput.RegexMatch(rgxEndHoldSpecific))
+        else if (curinput.RegexMatch(rgxEndHoldSpecific))// End the hold at a specific time stamps
         {
             if (curbtnHeld == -1)
             {
                 yield return "sendtochaterror The module is not holding a button! Hold the button by using the \"hold\" command on this module first.";
                 yield break;
             }
+            while (!isHeld) yield return new WaitForSeconds(0);
             var split = input.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-            var time = split[split.Length - 1].ToLowerInvariant().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+            int posCurrent = split.Length - 1;
+            while (split[posCurrent].RegexMatch(@"^[0-9]+:[0-5][0-9]$"))
+            {
+                var timeLocal = split[posCurrent].ToLowerInvariant().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                long secondsLocal = 60 * int.Parse(timeLocal[0]) + int.Parse(timeLocal[1]);
+                possibleReleaseTimes.Add(secondsLocal);
+                posCurrent--;
+            }
 
-            long seconds = 60 * int.Parse(time[0]) + int.Parse(time[1]);
             if (split[1].Equals("bombtime"))
             {
                 if (!zenModeDetected)
                 {
-                    if (Mathf.FloorToInt(info.GetTime()) < seconds)
-                    {
-                        yield return "sendtochaterror Sorry but the specified time is not possible.";
-                        yield break;
-                    }
+                    for (int x = 0; x < possibleReleaseTimes.Count; x++)
+                        if (Mathf.FloorToInt(info.GetTime()) < possibleReleaseTimes[x])
+                        {
+                            possibleReleaseTimes.RemoveAt(x);
+                            x--;
+                        }
+                    possibleReleaseTimes.Sort();
                 }
                 else
                 {
-                    if (Mathf.FloorToInt(info.GetTime()) > seconds)
-                    {
-                        yield return "sendtochaterror Sorry but the specified time is not possible in Zen Mode.";
-                        yield break;
-                    }
+                    for (int x = 0; x < possibleReleaseTimes.Count; x++)
+                        if (Mathf.FloorToInt(info.GetTime()) > possibleReleaseTimes[x])
+                        {
+                            possibleReleaseTimes.RemoveAt(x);
+                            x--;
+                        }
+                    possibleReleaseTimes.Sort();
+                    possibleReleaseTimes.Reverse();
                 }
-                while (Mathf.FloorToInt(info.GetTime()) != seconds) yield return "trycancel The button that was going to be interacted got canceled.";
+                if (possibleReleaseTimes.Count == 0)
+                {
+                    yield return "sendtochaterror Sorry but the specified time(s) cannot be reached.";
+                    yield break;
+                }
+                
+                yield return "strike";
+                yield return "sendtochat Next bomb time to release: " + (possibleReleaseTimes[0] / 60).ToString("00") + ":" + (possibleReleaseTimes[0] % 60).ToString("00");
+                music = Math.Abs(info.GetTime() - possibleReleaseTimes[0]) > 30;
+                if (music) yield return "waiting music";
+                while (Mathf.FloorToInt(info.GetTime()) != possibleReleaseTimes[0]) yield return "trycancel The button that was going to be interacted got canceled.";
+                if (music) yield return "end waiting music";
             }
             else if (split[1].Equals("display"))
             {
-                {
-                    if (Mathf.FloorToInt(timeHeldSec) > seconds)
+
+                for (int x = 0; x < possibleReleaseTimes.Count; x++)
+                    if (timeHeldSec > possibleReleaseTimes[x])
                     {
-                        yield return "sendtochaterror Sorry but the specified time is not possible.";
-                        yield break;
+                        possibleReleaseTimes.RemoveAt(x);
+                        x--;
                     }
+
+                if (possibleReleaseTimes.Count == 0)
+                {
+                    yield return "sendtochaterror Sorry but the specified time(s) cannot be reached.";
+                    yield break;
                 }
-                while (timeHeldSec != seconds) yield return "trycancel The button that was going to be interacted got canceled.";
+                possibleReleaseTimes.Sort();
+                yield return "strike";
+                yield return "sendtochat Next display time to release: " + (possibleReleaseTimes[0] / 60).ToString("00") + ":" + (possibleReleaseTimes[0] % 60).ToString("00");
+                music = Math.Abs(timeHeldSec - possibleReleaseTimes[0]) > 30;
+                if (music) yield return "waiting music";
+                while (timeHeldSec != possibleReleaseTimes[0]) yield return "trycancel The button that was going to be interacted got canceled.";
+                if (music) yield return "end waiting music";
                 yield return new WaitForSeconds(0.1f);
             }
             else
@@ -3230,7 +3273,109 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 yield return "sendtochaterror Sorry but which timer does the command need to refer to?";
                 yield break;
             }
-            yield return null;
+            yield return "solve";
+            buttonsSelectable[curbtnHeld].OnInteract();
+        }
+        else if (curinput.RegexMatch(rgxEndHoldGeneral))
+        {
+            if (curbtnHeld == -1)
+            {
+                yield return "sendtochaterror The module is not holding a button! Hold the button by using the \"hold\" command on this module first.";
+                yield break;
+            }
+            while (!isHeld) yield return new WaitForSeconds(0);
+            var split = input.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+            int posCurrent = split.Length - 1;
+
+            long curDisplayTimeMin = timeHeldSec / 60;
+            long curBombTimeMin = (long)info.GetTime() / 60;
+
+            if (split[1].Equals("bombtime"))
+            {
+                while (split[posCurrent].RegexMatch(@"^[0-5]?[0-9]$"))
+                {
+                    var timeLocal = split[posCurrent];
+                    for (long x = -1; x <= 1; x++)
+                    {
+                        long secondsLocal = (60 * (curBombTimeMin+x)) + int.Parse(timeLocal);
+                        possibleReleaseTimes.Add(secondsLocal);
+                    }
+                    posCurrent--;
+                }
+
+                if (!zenModeDetected)
+                {
+                    for (int x = 0; x < possibleReleaseTimes.Count; x++)
+                        if (Mathf.FloorToInt(info.GetTime()) < possibleReleaseTimes[x])
+                        {
+                            possibleReleaseTimes.RemoveAt(x);
+                            x--;
+                        }
+                    possibleReleaseTimes.Sort();
+                    possibleReleaseTimes.Reverse();
+                }
+                else
+                {
+                    for (int x=0;x<possibleReleaseTimes.Count;x++)
+                        if (Mathf.FloorToInt(info.GetTime()) > possibleReleaseTimes[x])
+                        {
+                            possibleReleaseTimes.RemoveAt(x);
+                            x--;
+                        }
+                    possibleReleaseTimes.Sort();
+                }
+                if (possibleReleaseTimes.Count == 0)
+                {
+                    yield return "sendtochaterror Sorry but the specified time(s) cannot be reached.";
+                    yield break;
+                }
+                
+                yield return "strike";
+                yield return "sendtochat Next bomb time to release: " + (possibleReleaseTimes[0] / 60).ToString("00") + ":" + (possibleReleaseTimes[0] % 60).ToString("00");
+                music = Math.Abs(info.GetTime() - possibleReleaseTimes[0]) > 30;
+                if (music) yield return "waiting music";
+                while (Mathf.FloorToInt(info.GetTime()) != possibleReleaseTimes[0]) yield return "trycancel The button that was going to be interacted got canceled.";
+                if (music) yield return "end waiting music";
+            }
+            else if (split[1].Equals("display"))
+            {
+                while (split[posCurrent].RegexMatch(@"^[0-5]?[0-9]$"))
+                {
+                    var timeLocal = split[posCurrent];
+                    for (long x = 0; x <= 1; x++)
+                    {
+                        long secondsLocal = (60 * (curDisplayTimeMin + x)) + int.Parse(timeLocal);
+                        possibleReleaseTimes.Add(secondsLocal);
+                    }
+                    posCurrent--;
+                }
+                for (int x = 0; x < possibleReleaseTimes.Count; x++)
+                    if (timeHeldSec > possibleReleaseTimes[x])
+                    {
+                        possibleReleaseTimes.RemoveAt(x);
+                        x--;
+                    }
+
+                if (possibleReleaseTimes.Count == 0)
+                {
+                    yield return "sendtochaterror Sorry but the specified time(s) cannot be reached.";
+                    yield break;
+                }
+                possibleReleaseTimes.Sort();
+                yield return "strike";
+                yield return "sendtochat Next display time to release: " + (possibleReleaseTimes[0] / 60).ToString("00") + ":" + (possibleReleaseTimes[0] % 60).ToString("00");
+                music = Math.Abs(timeHeldSec - possibleReleaseTimes[0]) > 30;
+                if (music) yield return "waiting music";
+                while (timeHeldSec != possibleReleaseTimes[0]) yield return "trycancel The button that was going to be interacted got canceled.";
+                if (music) yield return "end waiting music";
+                yield return new WaitForSeconds(0.1f);
+            }
+            else
+            {
+                yield return "sendtochaterror Sorry but which timer does the command need to refer to?";
+                yield break;
+            }
+            yield return "solve";
             buttonsSelectable[curbtnHeld].OnInteract();
         }
         else if (curinput.RegexMatch(rgxStartHold))
@@ -3250,8 +3395,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 yield return "sendtochaterror Sorry but what button is \"" + split[1] + "?\"";
                 yield break;
             }
-            yield return null;
-
             if (!zenModeDetected)
             {
                 if (Mathf.FloorToInt(info.GetTime()) < seconds)
@@ -3268,9 +3411,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     yield break;
                 }
             }
-
-            var music = false;
-            long timeToSkipTo;
             if (zenModeDetected)
             {
                 timeToSkipTo = seconds - 5;
@@ -3283,7 +3423,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 if (info.GetTime() - seconds > 15) yield return "skiptime " + timeToSkipTo;
                 if (info.GetTime() - seconds > 30) music = true;
             }
-
+            yield return null;
             if (music) yield return "waiting music";
             while (Mathf.FloorToInt(info.GetTime()) != seconds) yield return "trycancel The button that was going to be interacted got canceled.";
             if (music) yield return "end waiting music";
