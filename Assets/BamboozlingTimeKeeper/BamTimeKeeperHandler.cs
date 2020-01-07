@@ -2410,7 +2410,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 }
                 average /= TwoCodes.Count();
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: After averaging the non-unique Two Factors, the least significant digit in the average is {1}", curModId, average % 10);
-                return ((int)info.GetTime() % 60).ToString().Contains((average % 10).ToString());
+                return ((int)info.GetTime() % 60).ToString("00").Contains((average % 10).ToString());
             }
             int highestTwoFactor = TwoCodes[0];
             foreach (int oneCode in TwoCodes)
@@ -2652,20 +2652,21 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         interactable = false;
         bool isAllCorrect = true;
         bool withinRange = false;
+        bool correctButtonInt = false;
         hasStruck = false;
         StopCoroutine(UpdateDisplay(currentStage));
         if (currentStage == 1)
         {
-            if (info.GetTime() <= 120 && holdCorStg1 == true && isHeld == false)
+            if (info.GetTime() < 121 && holdCorStg1 == true && isHeld == false)
             {
                 hasStruck = true;
                 modSelf.HandleStrike();
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exchanged a strike for tapping the button versus holding the button at < 2:00 remaining", curModId);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exchanged a strike for tapping the button versus holding the button at 120 or fewer seconds remaining", curModId);
             }
             else
                 isAllCorrect = isAllCorrect && holdCorStg1 == isHeld;
-
-            isAllCorrect = isAllCorrect && buttonIdx == crtBtnIdxStg1;
+            correctButtonInt = buttonIdx == crtBtnIdxStg1;
+            isAllCorrect = isAllCorrect && correctButtonInt;
             for (int x = 0; x < possibleTimesA.Count; x++)
             {
                 withinRange = withinRange || Math.Abs(bTimeOnHold - possibleTimesA[x]) <= 5;
@@ -2676,16 +2677,16 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         else if (currentStage == 2)
         {
-            if (info.GetTime() <= 120 && holdCorStg2 == true && isHeld == false)
+            if (info.GetTime() < 121 && holdCorStg2 == true && isHeld == false)
             {
                 hasStruck = true;
                 modSelf.HandleStrike();
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exchanged a strike for tapping the button versus holding the button at < 2:00 remaining", curModId);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exchanged a strike for tapping the button versus holding the button at 120 or fewer seconds remaining", curModId);
             }
             else
                 isAllCorrect = isAllCorrect && holdCorStg2 == isHeld;
-
-            isAllCorrect = isAllCorrect && buttonIdx == crtBtnIdxStg2;
+            correctButtonInt = buttonIdx == crtBtnIdxStg2;
+            isAllCorrect = isAllCorrect && correctButtonInt;
             for (int x = 0; x < possibleTimesB.Count; x++)
             {
                 withinRange = withinRange || Math.Abs(bTimeOnHold - possibleTimesB[x]) <= 5;

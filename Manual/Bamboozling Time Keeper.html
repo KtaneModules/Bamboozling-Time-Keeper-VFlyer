@@ -848,7 +848,7 @@
 						</ul>
 						<li>If the starting phrase is in the last row of Table Start, perform step 18 except use the 2nd to last part, unless the 2nd to last part is "HUNDRED", multiply your current value by 100 instead.</li>
 						<li>If the starting phrase contains parentheses or a number, do the next step. Otherwise, skip to step 22.</li>
-						<li>Perform Step 19 except with the cell at ( ([P2<sub>1</sub>]+[P2<sub>2</sub>])%56, 7-[MBC<sub>2</sub>] ); where P2<sub>n</sub> is the index of the 2nd phrase for the given stage and MBC<sub>n</sub> is the color index of the middle button in the given stage; and with the cell at ( |[P2<sub>1</sub>]-[P2<sub>2</sub>]|, ([LBC<sub>2</sub>]+[RBC<sub>2</sub>])%8 ); where RBC<sub>n</sub> is the color index of the right button for the given stage, LBC<sub>n</sub> is the color index of the left button for the given stage; in (row,col) format.</li>
+						<li>Perform Step 18 except with the cell at ( ([P2<sub>1</sub>]+[P2<sub>2</sub>])%56, 7-[MBC<sub>2</sub>] ); where P2<sub>n</sub> is the index of the 2nd phrase for the given stage and MBC<sub>n</sub> is the color index of the middle button in the given stage; and with the cell at ( |[P2<sub>1</sub>]-[P2<sub>2</sub>]|, ([LBC<sub>2</sub>]+[RBC<sub>2</sub>])%8 ); where RBC<sub>n</sub> is the color index of the right button for the given stage, LBC<sub>n</sub> is the color index of the left button for the given stage; in (row,col) format.</li>
 						<li>If the left and right buttons have the same color as the 2nd part of the display, but the middle button is a different button, change the correct button to  be the middle button.</li>
 						<li>If step 9 was applied to stage 1, add 25. Otherwise if step 9 was applied to stage 2, add 150. Otherwise, subtract 250.</li>
 						<li>Subtract the product of the number of Kristy's modules on the bomb and 10.</li>
@@ -1098,7 +1098,7 @@
 						<li>Otherwise, if there are Two Factors on this bomb:</li>
 						<ol>
 							<li>If there is exactly 1 Two Factor on this bomb, release the button when the bomb's seconds timer display the value of the Two Factor, modulo 60.</li>
-							<li>Otherwise, if there are exactly 2 Two Factors on this bomb, release when the bomb's second digits contains the average of the Two Factors, modulo 10. Round down when averaging. Unless the Two Factors are equal, go to the next "Otherwise."</li>
+							<li>Otherwise, if there are exactly 2 Two Factors on this bomb, release when the bomb's second digits contain at least 1 digit from the average of the Two Factors, modulo 10. Round down when averaging. Unless the Two Factors are equal, go to the next "Otherwise."</li>
 							<li>Otherwise, release when the bomb's timer and the display have combined at least 4 digits in the highest Two Factor on the bomb. Unless the highest Two Factor on the bomb has 3 or fewer distant digits, go to the next "Otherwise."</li>
 						</ol>
 					</ol>
