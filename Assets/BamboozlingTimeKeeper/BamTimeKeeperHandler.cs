@@ -104,10 +104,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     }, ThreeStageModIDs = new List<string>() { // An ID List of 3 Stage Modules on the bomb.
         "3dTunnels",
         "algebra",
+        "binaryGrid",
         "binaryTree",
         "BookOfMarioModule",
         "challengeAndContact",
         "Color Decoding",
+        "CruelKeypads",
+        "EncryptedDice",
         "EnglishTest",
         "DateFinder",
         "FlavorTextCruel",
@@ -134,6 +137,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "simonSelectsModule",
         "SimonShrieksModule",
         "SimonSingsModule",
+        "simonsOnFirst",
         "simonStops",
         "simonStores",
         "sonic",
@@ -166,6 +170,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "ZooModule"
     }, RTSensitiveModIDs = new List<string>() {
         "lgndHyperactiveNumbers", // Can't strike by leaving it for too long, resets every now and then.
+        "lunchtime", // Can detonate a bomb by leaving it for too long, otherwise strikable by incorrect selection and timing
         "numberCipher", // Can't strike by leaving it for too long, resets every now and then.
         "theSwan", // Strikes by leaving it sit for too long or by incorrect set of presses.
         "taxReturns", // Strikes by leaving it sit for too long or by incorrect value.
@@ -340,13 +345,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             //Redirect to Calculation Methods
             CalculateStage1();
             while (finalValueA < 10)
-                finalValueA += 15;
+                finalValueA += 16;
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The final value for stage 1 is {1}", curModId, finalValueA);
 
 
             CalculateStage2();
             while (finalValueB < 10)
-                finalValueB += 15;
+                finalValueB += 16;
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The final value for stage 2 is {1}", curModId, finalValueB);
             CalcScaleFactors();
 
@@ -1650,7 +1655,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     {
         if (canOverride()) return;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STATE CALCULATIONS:", curModId);
-        if (idModsonBomb.Contains("veryAnnoyingButton"))
+        if (idModsonBomb.Contains("veryAnnoyingButton") || nameModsonBomb.Count - info.GetSolvableModuleNames().Count > 0)
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 1 takes highest priority for both stages", curModId);
             holdCorStg1 = false;
@@ -1881,6 +1886,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     private readonly List<string> primaryColorList = new List<string>() {"Red","Green","Blue"};
     private readonly List<string> primaryColorString = new List<string>() { "R","G","B" };
     int resetCount = 0;
+    private readonly string[] combinedcharacterList = new string[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
     IEnumerator FlashLeftMostUnHeldButton(string MorseCharacter, bool isConsistent, string[] colorListIn)
     {
         GameObject[] GameOBJArray = new GameObject[] { buttonL, buttonM };
@@ -2050,7 +2056,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 if (originalText.Substring(x, 1).RegexMatch(@"\s"))
                     scrambledText += " ";
                 else
-                    scrambledText += letters[UnityEngine.Random.Range(0, letters.Length)];
+                    scrambledText += combinedcharacterList[UnityEngine.Random.Range(0, combinedcharacterList.Length)];
             }
             display.text = scrambledText;
             display.color = new Color(1, 1, 1, display.color.a - 0.01f);
@@ -3114,10 +3120,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     // Begin TP Handler
     bool TwitchPlaysActive;
     bool ZenModeActive;
-    bool TwitchPlaysSkipTimeAllowed = true;
+    bool TwitchPlaysSkipTimeAllowed = true; // Enforce skipping time on the module when needed
 #pragma warning disable IDE0044 // Add readonly modifier
     readonly string TwitchHelpMessage = "To hold a given button at a specific time: \"!{0} hold l[eft]/m[iddle]/r[ight] at ##:##\" To tap a given button at a specific time: \"!{0} tap l[eft]/m[iddle]/r[ight] at ##:##\"\n" +
-        "To release a button at a specific time based on the display or bomb timer : \"!{0} release display/bombtime at ##:##\" To release a button based on the seconds timer: \"!{0} release display/bombtime at ## ##\"\n" +
+        "To release a button at a specific time based on the display or bomb timer: \"!{0} release display/bombtime at ##:##\" To release a button based on the seconds timer: \"!{0} release display/bombtime at ## ##\"\n" +
         "Time format is MM:SS with MM being able to exceed 99 min, multiple time stamps are acceptable when releasing. To get the current time on the display: \"!{0} display time\"\nTo switch between stages: \"!{0} toggle/switch\" To activate colorblind mode: \"!{0} colorblind\" You can only activate colorblind mode or switch stages if you are NOT holding a button! ";
 #pragma warning restore IDE0044 // End Adding readonly modifier
     void TwitchHandleForcedSolve()
@@ -3253,6 +3259,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                         possibleReleaseTimes.RemoveAt(x);
                         x--;
                     }
+
 
                 if (possibleReleaseTimes.Count == 0)
                 {
