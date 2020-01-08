@@ -17,11 +17,11 @@ MonoBehaviour:
   description: "\"I needed a few more minutes not just a few more seconds!\"\n\nReimagining
     The Time Keeper, Bamboozling Button, Hexabutton, and modules with complicated
     release times and you get a module for the ones who need a new challenge yet again.
-    \n\nHold or tap the correct button at a very specific time and then release it
-    correctly to finish a stage. Complete both stages to disarm the module.\n\nWith
-    help from\nSpeakingevil: For the assistance with reference code.\nR4Y: For some
-    help on how to obsecure cutouts in Blender\nAnd various users who came in to the
-    TP stream to help test this module.\n\nGood luck. I really mean it this time.\n\nSource
+    \n\nHold or tap the correct button at a very specific time and then release the
+    button at the correct time to finish a stage. Complete both stages to disarm the
+    module.\n\nWith help from\nSpeakingevil: For the assistance with reference code.\nR4Y:
+    On how to modify obsecure cutouts in Blender\nAnd various users who came in to
+    the TP stream to help test this module.\n\nGood luck. I really mean it this time.\n\nSource
     Code: [url=https://github.com/VFlyer/Bamboozling-Time-Keeper]https://github.com/VFlyer/Bamboozling-Time-Keeper[/url]
     (contains PDF and HTML for this module)\n\nSound effects during the special days
     are from Puyo Puyo Champions where the original game can be found [url=https://store.steampowered.com/app/971620/Puyo_Puyo_Champions___e/]here[/url],
