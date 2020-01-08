@@ -2546,7 +2546,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 if (irregularFlashesValue[0] == 0 && irregularFlashesValue[1] != 0)
                 {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: 2 values were used; one of them was a 0, the other is {1}", curModId, irregularFlashesValue[1]);
-                    return secondsDisplayTimer.Contains(irregularFlashesValue[1].ToString());
+                    return !secondsDisplayTimer.Contains(irregularFlashesValue[1].ToString());
                 }
                 if (irregularFlashesValue[0] != 0 && irregularFlashesValue[1] == 0)
                 {
