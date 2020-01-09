@@ -3172,7 +3172,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 yield break;
             }
         }
-        else if (curinput.EqualsIgnoreCase("switch"))
+        else if (curinput.EqualsIgnoreCase("switch") || curinput.EqualsIgnoreCase("toggle"))
         {
             if (curbtnHeld != -1)
             {
