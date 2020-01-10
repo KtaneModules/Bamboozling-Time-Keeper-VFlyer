@@ -2400,7 +2400,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             if (TwoCodes.Count == 1)
             {
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exactly 1 is present which displayed {1} at the time of the release.", curModId, TwoCodes[0]);
-                return secondsbombTimer.Contains((TwoCodes[0]%10).ToString());
+                return secondsDisplayTimer.Contains((TwoCodes[0]%10).ToString());
             }
             if (TwoCodes.Count == 2 && TwoCodes.Distinct().Count() != 1)
             {

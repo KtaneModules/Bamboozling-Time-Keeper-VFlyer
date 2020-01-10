@@ -1002,7 +1002,7 @@
                 <div class="page-content">
 					<h2>Holding The Button:</h2>
 					<p class="flavour-text">You got this far... For what?</p>
-					<p>Upon holding the button, the defuser will hear a hum that gradually gets louder until the popping sound is heard. If you release the button before the popping sound is heard, the module will interept the button interaction as a tap. Once the popping sound has occured, the other buttons not held will start flashing a set of up to 4 primary colors. The other buttons rest for 1 second in black before repeating the set. The display will also show a timer counting up in the format "MM:SS."</p>
+					<p>Upon holding the button, the defuser will hear a hum that gradually gets louder until the popping sound is heard. If you release the button before the popping sound is heard, the module will interept the button interaction as a tap. Once the popping sound has occured, the other buttons not held will start flashing a set of up to 4 primary colors. The other buttons rest for a short bit of time in black before repeating the flashes. The display will also show a timer counting up in the format "MM:SS."</p>
 					<p>"Bomb timer" will refer to the current time on the bomb, while "Display" will refer to the display's timer. If the current condition gives a value that is impossible to reach, skip to the next "Otherwise," when necessary.</p>
 					<ol>
 						<li>If both buttons that are not held are flashing consistently the same color as its previous flashes four times in a row, use the table below to release the button:</li>
@@ -1100,7 +1100,7 @@
 					<ol start="3">
 						<li>Otherwise, if there are Two Factors on this bomb:</li>
 						<ol>
-							<li>If there is exactly 1 Two Factor on this bomb, release the button when the bomb's seconds timer contains at least 1 digit from the rightmost digit in the Two Factor.</li>
+							<li>If there is exactly 1 Two Factor on this bomb, release the button when the display's seconds timer contains at least 1 digit from the rightmost digit in the Two Factor.</li>
 							<li>Otherwise, if there are exactly 2 Two Factors on this bomb, release when the bomb's second digits contain at least 1 digit from the average of the Two Factors, modulo 10. Round down when averaging. Unless the Two Factors are equal, go to the next "Otherwise."</li>
 							<li>Otherwise, release when the bomb's timer and the display have combined at least 4 digits in the highest Two Factor on the bomb. Unless the highest Two Factor on the bomb has 3 or fewer distant digits, go to the next "Otherwise."</li>
 						</ol>
