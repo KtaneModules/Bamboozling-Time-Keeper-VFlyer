@@ -110,6 +110,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "challengeAndContact",
         "Color Decoding",
         "CruelKeypads",
+        "divisibleNumbers",
+        "EdgeworkModule",
         "EncryptedDice",
         "EnglishTest",
         "DateFinder",
@@ -1952,7 +1954,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 else
                 {
                     curFlashPart = 0;
-                    yield return new WaitForSeconds(1.5f);
+                    yield return new WaitForSeconds(2.25f);
                     if (curbtnHeld == -1) yield break;
                 }
                 yield return new WaitForSeconds(UnityEngine.Random.Range(0.1f,0.5f));
@@ -2025,7 +2027,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 else
                 {
                     curFlashPart = 0;
-                    yield return new WaitForSeconds(1.5f);
+                    yield return new WaitForSeconds(2.25f);
                     if (curbtnHeld == -1) yield break;
                 }
                 yield return new WaitForSeconds(UnityEngine.Random.Range(0.1f, 0.5f));
@@ -2398,7 +2400,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             if (TwoCodes.Count == 1)
             {
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exactly 1 is present which displayed {1} at the time of the release.", curModId, TwoCodes[0]);
-                return (int)info.GetTime() % 60 == TwoCodes[0] % 60;
+                return secondsbombTimer.Contains((TwoCodes[0]%10).ToString());
             }
             if (TwoCodes.Count == 2 && TwoCodes.Distinct().Count() != 1)
             {
