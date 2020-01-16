@@ -3141,7 +3141,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     bool TwitchPlaysActive;
     bool ZenModeActive;
     bool TwitchPlaysSkipTimeAllowed = true; // Enforce skipping time on the module when needed
-    int TwitchModuleScore = 15; // Set default score by Ingame Code, currently uncommented out until further notice
 #pragma warning disable IDE0044 // Add readonly modifier
     readonly string TwitchHelpMessage = "To hold a given button at a specific time: \"!{0} hold l[eft]/m[iddle]/r[ight] at ##:##\" To tap a given button at a specific time: \"!{0} tap l[eft]/m[iddle]/r[ight] at ##:##\"\n" +
         "To release a button at a specific time based on the display or bomb timer: \"!{0} release display/bombtime at ##:##\" To release a button based on the seconds timer: \"!{0} release display/bombtime at ## ##\"\n" +
