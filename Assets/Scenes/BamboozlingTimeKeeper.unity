@@ -476,6 +476,11 @@ Prefab:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 102110469584694310, guid: bcfb1dca9e0b02946a427af11d87c10e,
+        type: 2}
+      propertyPath: m_Text
+      value: THAT IS A STRIKE
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}
   m_IsPrefabParent: 0

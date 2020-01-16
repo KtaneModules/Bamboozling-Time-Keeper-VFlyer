@@ -238,6 +238,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "DO YOU FACE IT?"
     }, strikePhrases = new string[] {
         "THAT'S A STRIKE",
+        "THAT IS A STRIKE",
         "FAILED AGAIN",
         "NOT YET",
         "TRY AGAIN",
@@ -360,8 +361,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             CalculateAllPossibleTimes(possibleTimesA, finalValueA, scaleFactorA);
             CalculateAllPossibleTimes(possibleTimesB, finalValueB, scaleFactorB);
 
-            DetermineCorrectButton(1);
-            DetermineCorrectButton(2);
+            DetermineCorrectButton();
 
             DetermineStateConditions();
 
@@ -742,6 +742,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     void CalculateStage1()
     {
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 CALCULATIONS:", curModId);
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The phrases for stage 1 are {1}", curModId, FormatDebugList(stage1Phrases));
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The color of the phrases for stage 1 are {1}", curModId, FormatDebugList(stage1PhrClr));
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The button colors for stage 1 are {1}", curModId, FormatDebugList(stage1ButtonColors));
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The digits on the buttons for stage 1 are {1}", curModId, FormatDebugList(stage1ButtonDigits.ToList()));
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 1 is {1}", curModId, startValueA);
+        finalValueA = startValueA;
         if (canOverride())
         {
             finalValueA = 15;
@@ -750,12 +756,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]:" + " Override present! Final Value for this stage is actually 15 seconds, with a scale factor of 2, with the correct button being the {1} button!".ToUpper(), curModId, buttonPos[(int)crtBtnIdxStg1]);
             return;
         }
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The phrases for stage 1 are {1}", curModId, FormatDebugList(stage1Phrases));
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The color of the phrases for stage 1 are {1}", curModId, FormatDebugList(stage1PhrClr));
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The button colors for stage 1 are {1}", curModId, FormatDebugList(stage1ButtonColors));
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The digits on the buttons for stage 1 are {1}", curModId, FormatDebugList(stage1ButtonDigits.ToList()));
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 1 is {1}", curModId, startValueA);
-        finalValueA = startValueA;
         // Step 2
         string firstSerNos = curSerNo.Substring(0, curSerNo.Length / 2);
         foreach (char srlchr in firstSerNos.ToCharArray())
@@ -879,6 +879,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         finalValueA -= modPortCnt * 6;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 14 applied. Going to Process for Stage 1", curModId);
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: At this point, the current value for this stage is {1}", curModId,finalValueA);
         // Step 17
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Begin Step 17", curModId);
         bool canStop = false;
@@ -1010,6 +1011,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     void CalculateStage2()
     {
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 2 CALCULATIONS:", curModId);
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The phrases for stage 2 are {1}", curModId, FormatDebugList(stage2Phrases));
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The color of the phrases for stage 2 are {1}", curModId, FormatDebugList(stage2PhrClr));
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The button colors for stage 2 are {1}", curModId, FormatDebugList(stage2ButtonColors));
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The digits on the buttons for stage 2 are {1}", curModId, FormatDebugList(stage2ButtonDigits.ToList()));
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 2 is {1}", curModId, startValueB);
+        finalValueB = startValueB;
         if (canOverride())
         {
             finalValueB = 15;
@@ -1018,12 +1025,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]:" + " Override present! Final Value for this stage is actually 15 seconds, with a scale factor of 2, with the correct button being the {1} button!".ToUpper(), curModId, buttonPos[(int)crtBtnIdxStg2]);
             return;
         }
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The phrases for stage 2 are {1}", curModId, FormatDebugList(stage2Phrases));
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The color of the phrases for stage 2 are {1}", curModId, FormatDebugList(stage2PhrClr));
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The button colors for stage 2 are {1}", curModId, FormatDebugList(stage2ButtonColors));
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The digits on the buttons for stage 2 are {1}", curModId, FormatDebugList(stage2ButtonDigits.ToList()));
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 2 is {1}", curModId, startValueB);
-        finalValueB = startValueB;
         // Step 2
         string firstSerNos = curSerNo.Substring(0, curSerNo.Length / 2);
         foreach (char srlchr in firstSerNos.ToCharArray())
@@ -1150,6 +1151,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         finalValueB -= modPortCnt * 6;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 14 applied. Going to Process for Stage 2...", curModId);
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: At this point, the current value for stage 2 is {1}", curModId, finalValueB);
         // Step 18
         if (definablePhrases.Contains(stage2Phrases[0]))
         {
@@ -1194,7 +1196,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 18: False", curModId);
         // Step 19
-        if (startingPhrases.IndexOf(stage2Phrases[0]) >= stage2Phrases.Count * 2 / 3)
+        if (startingPhrases.IndexOf(stage2Phrases[0]) >= 12)
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 19: True, performing like Step 18", curModId);
             if (!stage2Phrases[stage2Phrases.Count - 2].Equals("HUNDRED"))
@@ -1565,10 +1567,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The scale factor for stage 1 is {1}", curModId, scaleFactorA);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The scale factor for stage 2 is {1}", curModId, scaleFactorB);
     }
-    void DetermineCorrectButton(int stageNum)
+    void DetermineCorrectButton()
     {
         if (canOverride()) return;
-        if (stageNum == 1)
+        if (crtBtnIdxStg1 == null)
         {
             int presentInStage = 0;
             int idxCon6 = -1;
@@ -1580,7 +1582,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     idxCon6 = x;
             }
 
-            if (crtBtnIdxStg1 != null) return;
+
             if (finalValueA >= 0 && finalValueA <= 9999) crtBtnIdxStg1 = 0;
             else if (info.IsPortPresent(Port.Parallel) && stage2ButtonColors.Where(a => a.Equals("Magenta")).Count() == 1)
                 crtBtnIdxStg1 = stage1ButtonColors.IndexOf("Magenta");
@@ -1600,7 +1602,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             else if (!stage1ButtonColors.Contains("Cyan") && !stage1ButtonColors.Contains("Magenta")) crtBtnIdxStg1 = 1;
             else crtBtnIdxStg1 = (int?)(finalValueA % 3);
         }
-        else if (stageNum == 2)
+        if (crtBtnIdxStg2 == null)
         {
             int presentInStage = 0;
             int idxCon6 = -1;
@@ -1611,7 +1613,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 else
                     idxCon6 = x;
             }
-            if (crtBtnIdxStg2 != null) return;
+
             if (finalValueB >= 0 && finalValueB <= 9999) crtBtnIdxStg2 = 0;
             else if (info.IsPortPresent(Port.Parallel) && stage2ButtonColors.Where(a => a.Equals("Magenta")).Count() == 1)
                 crtBtnIdxStg2 = stage2ButtonColors.IndexOf("Magenta");
@@ -1631,6 +1633,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             else if (!stage2ButtonColors.Contains("Cyan") && !stage2ButtonColors.Contains("Magenta")) crtBtnIdxStg2 = 1;
             else crtBtnIdxStg2 = 2 - (int)(finalValueB % 3);
         }
+        
     }
     void CalculateAllPossibleTimes(List<long> destination, long finalValue, int scaleFactor)
     {
@@ -2649,12 +2652,15 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         return isDivisiblebyValues;
     }
     bool hasStruck = false;
+    bool?[] conditionsMet = new bool?[3];
     void HandleRelease(int buttonIdx)
     {
         interactable = false;
         bool isAllCorrect = true;
         bool withinRange = false;
         bool correctButtonInt = false;
+        bool isOnReleaseCorrect = false;
+        bool isInteractedCorrectly = false;
         hasStruck = false;
         StopCoroutine(UpdateDisplay(currentStage));
         if (currentStage == 1)
@@ -2663,10 +2669,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             {
                 hasStruck = true;
                 modSelf.HandleStrike();
+                isInteractedCorrectly = true;
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exchanged a strike for tapping the button versus holding the button at 120 or fewer seconds remaining", curModId);
             }
             else
-                isAllCorrect = isAllCorrect && holdCorStg1 == isHeld;
+            {
+                isInteractedCorrectly = holdCorStg1 == isHeld;
+                isAllCorrect = isAllCorrect && isInteractedCorrectly;
+            }
             correctButtonInt = buttonIdx == crtBtnIdxStg1;
             isAllCorrect = isAllCorrect && correctButtonInt;
             for (int x = 0; x < possibleTimesA.Count; x++)
@@ -2683,10 +2693,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             {
                 hasStruck = true;
                 modSelf.HandleStrike();
+                isInteractedCorrectly = true;
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exchanged a strike for tapping the button versus holding the button at 120 or fewer seconds remaining", curModId);
             }
             else
-                isAllCorrect = isAllCorrect && holdCorStg2 == isHeld;
+            {
+                isInteractedCorrectly = holdCorStg2 == isHeld;
+                isAllCorrect = isAllCorrect && isInteractedCorrectly;
+            }
             correctButtonInt = buttonIdx == crtBtnIdxStg2;
             isAllCorrect = isAllCorrect && correctButtonInt;
             for (int x = 0; x < possibleTimesB.Count; x++)
@@ -2700,11 +2714,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         if (isHeld)
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: And was released at {3}:{4} ({1}:{2} on display)", curModId, (timeHeldSec / 60).ToString("00"), (timeHeldSec % 60).ToString("00"), (bTimeEndHold / 60).ToString("00"), (bTimeEndHold % 60).ToString("00"));
-            bool isOnReleaseCorrect = IsCorrectOnHold();
+            isOnReleaseCorrect = IsCorrectOnHold();
             isAllCorrect = isAllCorrect && isOnReleaseCorrect;
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The release condition was handled {1}", curModId, isOnReleaseCorrect ? "CORRECTLY":"INCORRECTLY");
 
         }
+        conditionsMet[0] = correctButtonInt;
+        conditionsMet[1] = withinRange;
+        conditionsMet[2] = isInteractedCorrectly && isOnReleaseCorrect;
         if (!isAllCorrect)
         {
             if (!hasStruck)
@@ -2776,7 +2793,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             MeshRenderer curMeshRdr = GameOBJArray[x].GetComponent<MeshRenderer>();
             curMeshRdr.material = materialList[1];
             curText.text = "";
-            curMeshRdr.material.color = Color.red;
+            curMeshRdr.material.color = (bool)conditionsMet[x] ? Color.green : Color.red;
         }
 
 
@@ -3124,6 +3141,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     bool TwitchPlaysActive;
     bool ZenModeActive;
     bool TwitchPlaysSkipTimeAllowed = true; // Enforce skipping time on the module when needed
+    int TwitchModuleScore = 15; // Set default score by Ingame Code, currently uncommented out until further notice
 #pragma warning disable IDE0044 // Add readonly modifier
     readonly string TwitchHelpMessage = "To hold a given button at a specific time: \"!{0} hold l[eft]/m[iddle]/r[ight] at ##:##\" To tap a given button at a specific time: \"!{0} tap l[eft]/m[iddle]/r[ight] at ##:##\"\n" +
         "To release a button at a specific time based on the display or bomb timer: \"!{0} release display/bombtime at ##:##\" To release a button based on the seconds timer: \"!{0} release display/bombtime at ## ##\"\n" +
@@ -3250,7 +3268,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 yield return "sendtochat Next bomb time to release: " + (possibleReleaseTimes[0] / 60).ToString("00") + ":" + (possibleReleaseTimes[0] % 60).ToString("00");
                 music = Math.Abs(info.GetTime() - possibleReleaseTimes[0]) > 30;
                 if (music) yield return "waiting music";
-                while (Mathf.FloorToInt(info.GetTime()) != possibleReleaseTimes[0]) yield return "trycancel The button that was going to be interacted got canceled.";
+                while (Mathf.FloorToInt(info.GetTime()) != possibleReleaseTimes[0]) {
+                    if ((Mathf.FloorToInt(info.GetTime()) < possibleReleaseTimes[0] && !zenModeDetected) || (Mathf.FloorToInt(info.GetTime()) > possibleReleaseTimes[0] && zenModeDetected))
+                    {
+                        yield return "sendtochaterror Sorry, but a sudden change to the timer caused the interaction with the button to cancel automatically.";
+                        yield return "cancelled";
+                        yield break;
+                    }
+                    yield return "trycancel The button that was going to be interacted got canceled."; }
                 if (music) yield return "end waiting music";
             }
             else if (split[1].Equals("display"))
@@ -3308,7 +3333,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     for (long x = -1; x <= 1; x++)
                     {
                         long secondsLocal = (60 * (curBombTimeMin+x)) + int.Parse(timeLocal);
-                        possibleReleaseTimes.Add(secondsLocal);
+                        if (secondsLocal >= 0)
+                            possibleReleaseTimes.Add(secondsLocal);
                     }
                     posCurrent--;
                 }
@@ -3344,7 +3370,15 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 yield return "sendtochat Next bomb time to release: " + (possibleReleaseTimes[0] / 60).ToString("00") + ":" + (possibleReleaseTimes[0] % 60).ToString("00");
                 music = Math.Abs(info.GetTime() - possibleReleaseTimes[0]) > 30;
                 if (music) yield return "waiting music";
-                while (Mathf.FloorToInt(info.GetTime()) != possibleReleaseTimes[0]) yield return "trycancel The button that was going to be interacted got canceled.";
+                while (Mathf.FloorToInt(info.GetTime()) != possibleReleaseTimes[0]) {
+                    if ((Mathf.FloorToInt(info.GetTime()) < possibleReleaseTimes[0] && !zenModeDetected) || (Mathf.FloorToInt(info.GetTime()) > possibleReleaseTimes[0] && zenModeDetected))
+                    {
+                        yield return "sendtochaterror Sorry, but a sudden change to the bomb time caused the interaction with the button to cancel automatically.";
+                        yield return "cancelled";
+                        yield break;
+                    }
+                    yield return "trycancel The button that was going to be interacted got canceled.";
+                }
                 if (music) yield return "end waiting music";
             }
             else if (split[1].Equals("display"))
@@ -3435,7 +3469,15 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
             yield return null;
             if (music) yield return "waiting music";
-            while (Mathf.FloorToInt(info.GetTime()) != seconds) yield return "trycancel The button that was going to be interacted got canceled.";
+            while (Mathf.FloorToInt(info.GetTime()) != seconds) {
+                if ((Mathf.FloorToInt(info.GetTime()) < seconds && !zenModeDetected) || (Mathf.FloorToInt(info.GetTime()) > seconds && zenModeDetected))
+                {
+                    yield return "sendtochaterror A sudden change to the timer caused the interaction with the button to cancel automatically.";
+                    yield return "cancelled";
+                    yield break;
+                }
+                yield return "trycancel The button that was going to be interacted got canceled.";
+            }
             if (music) yield return "end waiting music";
             buttonsSelectable[buttonSpecified].OnInteract();
             if (split[0].EqualsIgnoreCase("tap"))
