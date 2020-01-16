@@ -2087,7 +2087,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             // Handle Left flashing
             leftHoldColors.Clear();
 
-            isLeftFlashingConsistent = UnityEngine.Random.value < .5f;
+            isLeftFlashingConsistent = UnityEngine.Random.Range(0,2) == 1;
             int flashCountLeft;
             string leftFlashChar = "";
 
@@ -2111,7 +2111,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             // Handle Right flashing
             rightHoldColors.Clear();
 
-            isRightFlashingConsistent = UnityEngine.Random.value < .5f;
+            isRightFlashingConsistent = UnityEngine.Random.Range(0, 2) == 1;
             int flashCountRight;
             string rightFlashChar = "";
 
@@ -2659,7 +2659,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         bool isAllCorrect = true;
         bool withinRange = false;
         bool correctButtonInt = false;
-        bool isOnReleaseCorrect = false;
+        bool isOnReleaseCorrect = true;
         bool isInteractedCorrectly = false;
         hasStruck = false;
         StopCoroutine(UpdateDisplay(currentStage));
