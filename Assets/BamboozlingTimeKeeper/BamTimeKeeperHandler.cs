@@ -1584,7 +1584,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
 
 
             if (finalValueA >= 0 && finalValueA <= 9999) crtBtnIdxStg1 = 0;
-            else if (info.IsPortPresent(Port.Parallel) && stage2ButtonColors.Where(a => a.Equals("Magenta")).Count() == 1)
+            else if (info.IsPortPresent(Port.Parallel) && stage1ButtonColors.Where(a => a.Equals("Magenta")).Count() == 1)
                 crtBtnIdxStg1 = stage1ButtonColors.IndexOf("Magenta");
             else if (info.IsPortPresent(Port.StereoRCA) && stage1ButtonColors.Where(a => a.Equals("Red")).Count() == 1 && stage1ButtonColors.Where(a => a.Equals("White")).Count() == 1)
             {
