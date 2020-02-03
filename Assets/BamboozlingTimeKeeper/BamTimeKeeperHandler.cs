@@ -2954,8 +2954,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         StartCoroutine(UpdateDisplay(currentStage));
         yield return null;
     }
+    bool isDisplayRunning = false;
     IEnumerator UpdateDisplay(int stage)
     {
+        if (isDisplayRunning) yield break;
+        isDisplayRunning = true;
         currentPart = -1;
         while (!interactable)
         {
@@ -2981,8 +2984,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     }
                     if (colorBlindActive && !startingPhrases.Contains(display.text) && !display.text.Equals("HUNDRED") && !display.text.Equals("POINT ZERO"))
                     {
-                        yield return new WaitForSeconds(0.75f);
-                        if (currentStage != stage || curbtnHeld != -1 || !interactable) break;
+                        for (int x = 0; x < 3; x++)
+                        {
+                            yield return new WaitForSeconds(0.25f);
+                            if (currentStage != stage || curbtnHeld != -1 || !interactable) break;
+                        }
                         display.text = "IN " + stage1PhrClr[currentPart].ToUpper();
                         display.color = Color.white;
                         backingRenderer.material.color = Color.black;
@@ -3011,8 +3017,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     }
                     if (colorBlindActive && !startingPhrases.Contains(display.text) && !display.text.Equals("HUNDRED") && !display.text.Equals("POINT ZERO"))
                     {
-                        yield return new WaitForSeconds(0.75f);
-                        if (currentStage != stage || curbtnHeld != -1 || !interactable) break;
+                        for (int x = 0; x < 3; x++)
+                        {
+                            yield return new WaitForSeconds(0.25f);
+                            if (currentStage != stage || curbtnHeld != -1 || !interactable) break;
+                        }
                         display.text = "IN " + stage2PhrClr[currentPart].ToUpper();
                         display.color = Color.white;
                         backingRenderer.material.color = Color.black;
@@ -3025,9 +3034,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     currentPart = -1;
                 }
             }
-            yield return new WaitForSeconds(0.75f);
+            for (int x = 0; x < 3; x++)
+            {
+                yield return new WaitForSeconds(0.25f);
+                if (currentStage != stage || curbtnHeld != -1 || !interactable) break;
+            }
         }
-        yield return null;
+        isDisplayRunning = false;
     }
     readonly string[] colorblindInit = new string[] {"R", "Y", "G", "C", "B", "M", "W", "K" };
     void UpdateButtons(int stageNum)

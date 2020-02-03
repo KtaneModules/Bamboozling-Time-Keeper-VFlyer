@@ -26,6 +26,6 @@ MonoBehaviour:
     (contains PDF and HTML for this module)\n\nSound effects during the special days
     are from Puyo Puyo Champions where the original game can be found [url=https://store.steampowered.com/app/971620/Puyo_Puyo_Champions___e/]here[/url],
     standard startup sound can be found  [url=https://www.youtube.com/watch?v=CyZoe-r9qb0]here[/url]"
-  version: 1.2
+  version: 1.2_01
   outputFolder: build
   previewImage: {fileID: 2800000, guid: 76e4d363631af4948adf00ba6524c307, type: 3}
