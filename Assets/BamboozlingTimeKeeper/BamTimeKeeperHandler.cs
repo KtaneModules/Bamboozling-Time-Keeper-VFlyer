@@ -66,8 +66,9 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "KritCMDPrompt",
         "KritConnectionDev",
         "KritFlipTheCoin",
-        "Krit4CardMonte",
+        "Krit4CardMonte", // Module has been retired from being fixed. 
         "KritHoldUps",
+        "KritLockpickMaze", // Test Build ATM
         "KritMicroModules",
         "KritHomework",
         "KritRadio",
@@ -96,6 +97,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "reorderedKeys",
         "rgbMaze",
         "simonStores",
+        "silhouettes",
         "tallorderedKeys",
         "ultimateCycle",
         "UltraStores",
@@ -104,6 +106,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     }, ThreeStageModIDs = new List<string>() { // An ID List of 3 Stage Modules on the bomb.
         "3dTunnels",
         "algebra",
+        "alphabeticalRuling",
         "binaryGrid",
         "binaryTree",
         "BookOfMarioModule",
@@ -160,17 +163,21 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "cruelCountdown",
         "crystalMaze",
         "fastMath",
+        "GoingBackwardsModule",
         "jackAttack",
+        "KritLockpickMaze", // Test Build ATM, may be changed in the final build
         "manometers",
         "KritHomework",
         "numberNimbleness",
         "quizBuzz",
         "simonStops",   // All other Simon modules are in a gray spot due to the fact that these either wait or don't wait to clear the inputs. Simon Stops strikes on waiting for a controlled input for too long.
-        "sonicKnuckles", // Grey spot, NOT TP compatible on most streams.
+        "sonicKnuckles", // Grey spot, TP compatible on most streams.
         "stopwatch",
+        "valves",   // Brush Strokes is considered a RT Controlled Module, why not Valves? - Asew
         "wire",
         "ZooModule"
     }, RTSensitiveModIDs = new List<string>() {
+        "blinkstopModule", // Can't strike by leaving it for too long, new sequence is given at the end of the previous set of flashes, starts flashing the sequence as soon as the bomb starts.
         "lgndHyperactiveNumbers", // Can't strike by leaving it for too long, resets every now and then.
         "lunchtime", // Can detonate a bomb by leaving it for too long, otherwise strikable by incorrect selection and timing
         "numberCipher", // Can't strike by leaving it for too long, resets every now and then.
