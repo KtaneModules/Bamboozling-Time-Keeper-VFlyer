@@ -66,7 +66,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "KritCMDPrompt",
         "KritConnectionDev",
         "KritFlipTheCoin",
-        "Krit4CardMonte", // Module has been retired from being fixed. 
+        "Krit4CardMonte", // Module now has a different maintainer however still counts as Kritsy's module.
         "KritHoldUps",
         "KritLockpickMaze", // Test Build ATM
         "KritMicroModules",
@@ -748,11 +748,70 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         //print(xidx + "," + yidx);
         return xidx >= 0 && xidx < ManualOperationsList.GetLength(0) && yidx >= 0 && yidx < ManualOperationsList.GetLength(1) ? ManualOperationsList[xidx, yidx] : "";
     }// Grab the operation from the operation list.
+    long PerformMultipleOperations(long curValue, string[] operation, bool isStage2)
+    {// Perform the said operations from ther operation list.
+        for (int x = 0; x < operation.Length; x++)
+        {
+            if (operation[x].Length != 0) Debug.LogFormat("[Bamboozling Time Keeper #{0}]: \"{1}\" is a valid cell from the table.", curModId, operation[x]);
+            if (operation[x].Equals("STOP"))
+            {
+                if (!isStage2)
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This ends step 17 for stage 1.", curModId);
+                    return curValue;
+                }
+                else
+                {
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divides the current value by 17", curModId);
+                    curValue /= 17;
+                }
+            }
+            else if (operation[x].RegexMatch(@"^B\d$"))
+            {
+                if (!isStage2)
+                {
+                    crtBtnIdxStg1 = int.Parse(operation[x].Substring(1, 1)) - 1;
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This changed the correct button to be on the {1}", curModId, buttonPos[(int)crtBtnIdxStg1]);
+                }
+                else
+                {
+                    int multiplier = int.Parse(operation[x].Substring(1, 1)) + 1;
+                    curValue *= multiplier;
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the value by {1}", curModId, multiplier);
+                }
+            }
+            else if (operation[x].RegexMatch(@"^\+\d+"))
+            {
+                int modifiedValue = int.Parse(operation[x].Substring(1));
+                curValue += modifiedValue;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This added the current value by {1}", curModId, modifiedValue);
+            }
+            else if (operation[x].RegexMatch(@"^\-\d+"))
+            {
+                int modifiedValue = int.Parse(operation[x].Substring(1));
+                curValue -= modifiedValue;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This subtracted the current value by {1}", curModId, modifiedValue);
+            }
+            else if (operation[x].RegexMatch(@"^\*\d+"))
+            {
+                int modifiedValue = int.Parse(operation[x].Substring(1));
+                curValue *= modifiedValue;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the current value by {1}", curModId, modifiedValue);
+            }
+            else if (operation[x].RegexMatch(@"^\/\d+"))
+            {
+                int modifiedValue = int.Parse(operation[x].Substring(1));
+                curValue /= modifiedValue;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divided the current value by {1}", curModId, modifiedValue);
+            }
+        }
+        return curValue;
+    }
     readonly string[] buttonPos = new string[] { "LEFT", "MIDDLE", "RIGHT" },
         vanillaInds = new string[] { "SND", "CLR", "CAR", "IND", "FRQ", "SIG", "NSA", "MSA", "TRN", "BOB", "FRK" },
         vanillaPorts = new string[] { "DVI", "Parallel", "PS/2", "RJ45", "Serial", "StereoRCA" },
         definablePhrases = new string[] { "ONE NUMBER", "TWO NUMBERS", "THREE NUMBERS", "FOUR NUMBERS", "1 NUMBER", "2 NUMBERS", "3 NUMBERS", "4 NUMBERS", "A NUMBER" };
-    int stageRuleApplied = 0;
+    int stageRuleApplied = 0, positiveDifference = 0, sumFirst3 = 0, vanillaIndOnCnt = 0, vanillaIndOffCnt = 0;
     void CalculateStage1()
     {
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 CALCULATIONS:", curModId);
@@ -772,14 +831,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         // Step 2
         string firstSerNos = curSerNo.Substring(0, curSerNo.Length / 2);
-        int sumDigits = 0;
         foreach (char srlchr in firstSerNos.ToCharArray())
         {
             int charValue = GetValueofBase36Digit(srlchr);
             finalValueA -= charValue;
-            sumDigits += charValue;
+            sumFirst3 += charValue;
         }
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 2 applied. The sum of the first 3 base-36 digits in the serial number are {1}", curModId, sumDigits);
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 2 applied. The sum of the first 3 base-36 digits in the serial number are {1}", curModId, sumFirst3);
         // Step 3
         finalValueA += 4 * (info.GetPortCount() + info.GetPortPlateCount());
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 3 applied.", curModId);
@@ -809,7 +867,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 forgetCount++;
         }
         forgetCount = Math.Max(1, forgetCount);
-        int positiveDifference = Mathf.Abs(forgetCount - speakingCount);
+        positiveDifference = Mathf.Abs(forgetCount - speakingCount);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 4: The positive difference between the number of modules on the bomb with the word \"Forget\" in its name and the number of modules made by SpeakingEvil on the bomb is {1}", curModId, positiveDifference);
         finalValueA *= positiveDifference;
         // Step 5
@@ -861,8 +919,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         finalValueA += TodaysDay;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 11 applied.", curModId);
         // Step 12
-        int vanillaIndOnCnt = 0;
-        int vanillaIndOffCnt = 0;
         foreach (string unlitIndc in info.GetOffIndicators())
         {
             if (vanillaInds.Contains(unlitIndc))
@@ -904,45 +960,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         // Step 17
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Begin Step 17", curModId);
         bool canStop = false;
+        List<string> requiredOperations = new List<string>();
         for (int x = 0; x < stage1Phrases.Count && !canStop; x++)
         {
             string curCell = GrabCellFromManualTable(colIndex.IndexOf(stage1PhrClr[x].ToUpper()), rowIndex.IndexOf(stage1Phrases[x].ToUpper()));
-            if (curCell.Length != 0) Debug.LogFormat("[Bamboozling Time Keeper #{0}]: \"{1}\" is a valid cell from the table.", curModId, curCell);
-            if (curCell.Equals("STOP"))
-            {
-                canStop = true;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This ends step 17.", curModId);
-            }
-            else if (curCell.RegexMatch(@"^B\d$"))
-            {
-                crtBtnIdxStg1 = int.Parse(curCell.Substring(1, 1)) - 1;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This changed the correct button to be on the {1}", curModId, buttonPos[(int)crtBtnIdxStg1]);
-            }
-            else if (curCell.RegexMatch(@"^\+\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueA += modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This added the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\-\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueA -= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This subtracted the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\*\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueA *= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\/\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueA /= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divided the current value by {1}", curModId, modifiedValue);
-            }
+            requiredOperations.Add(curCell);
         }
+        finalValueA = PerformMultipleOperations(finalValueA, requiredOperations.ToArray(), false); // Redirect to the method above. Required for compacting.
         // Step 18
         if (definablePhrases.Contains(stage1Phrases[0]))
         {
@@ -975,45 +999,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 22: True, processing like Step 17", curModId);
             canStop = false;
+            List<string> buttonRequiredOperations = new List<string>();
             for (int x = 0; x < stage1ButtonColors.Count && !canStop; x++)
             {
                 string curCell = GrabCellFromManualTable(colIndex.IndexOf(stage1ButtonColors[x].ToUpper()), rowIndex.IndexOf(stage1ButtonDigits[x].ToString()));
-                if (curCell.Length != 0) Debug.LogFormat("[Bamboozling Time Keeper #{0}]: \"{1}\" is a valid cell from the table.", curModId, curCell);
-                if (curCell.Equals("STOP"))
-                {
-                    canStop = true;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This ends step 22.", curModId);
-                }
-                else if (curCell.RegexMatch(@"^B\d$"))
-                {
-                    crtBtnIdxStg1 = int.Parse(curCell.Substring(1, 1)) - 1;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This changed the correct button to be on the {1}", curModId, buttonPos[(int)crtBtnIdxStg1]);
-                }
-                else if (curCell.RegexMatch(@"^\+\d+"))
-                {
-                    int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                    finalValueA += modifiedValue;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This added the current value by {1}", curModId, modifiedValue);
-                }
-                else if (curCell.RegexMatch(@"^\-\d+"))
-                {
-                    int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                    finalValueA -= modifiedValue;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This subtracted the current value by {1}", curModId, modifiedValue);
-                }
-                else if (curCell.RegexMatch(@"^\*\d+"))
-                {
-                    int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                    finalValueA *= modifiedValue;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the current value by {1}", curModId, modifiedValue);
-                }
-                else if (curCell.RegexMatch(@"^\/\d+"))
-                {
-                    int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                    finalValueA /= modifiedValue;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divided the current value by {1}", curModId, modifiedValue);
-                }
+                buttonRequiredOperations.Add(curCell);
             }
+            finalValueA = PerformMultipleOperations(finalValueA, buttonRequiredOperations.ToArray(), false); // Redirect to the method above. Required for compacting.
         }
         else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 22: False", curModId);
         if (finalValueA < 0)
@@ -1049,45 +1041,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             return;
         }
         // Step 2
-        string firstSerNos = curSerNo.Substring(0, curSerNo.Length / 2);
-        int sumDigits = 0;
-        foreach (char srlchr in firstSerNos.ToCharArray())
-        {
-            finalValueB -= GetValueofBase36Digit(srlchr);
-            sumDigits += GetValueofBase36Digit(srlchr);
-        }
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 2 applied. The sum of the first 3 base-36 digits in the serial number is {1}", curModId,sumDigits);
+        finalValueB -= sumFirst3; // Remove repeative calculations.
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 2 applied. The sum of the first 3 base-36 digits in the serial number is {1}", curModId, sumFirst3);
         // Step 3
         finalValueB += 4 * (info.GetPortCount() + info.GetPortPlateCount());
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 3 applied.", curModId);
         // Step 4
-        int speakingCount = 0;
-        int forgetCount = 0;
-
-        foreach (string modid in idModsonBomb.Where(a => SpeakingModIDs.Contains(a)))
-        {
-            if (modid.Equals("simonStores"))
-                speakingCount += 2;
-            else if (modid.Equals("UltraStores"))
-                speakingCount += 5;
-            else
-                speakingCount++;
-        }
-        speakingCount = Math.Max(1, speakingCount);
-        
-        foreach (string modName in nameModsonBomb.Where(a => a.Contains("Forget")))
-        {
-            if (modName.Equals("Forget Them All"))
-                forgetCount += 5;
-            else if (modName.Equals("Forget Me Now"))
-                forgetCount += 2;
-            else
-                forgetCount++;
-        }
-        forgetCount = Math.Max(1, forgetCount);
-        int positiveDifference = Math.Abs(speakingCount - forgetCount);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 4: The positive difference between the number of modules on the bomb with the word \"Forget\" in its name and the number of modules made by SpeakingEvil on the bomb is {1}", curModId, positiveDifference);
-        finalValueB *= positiveDifference;
+        finalValueB *= positiveDifference; // Remove repeative calculations.
         // Step 5
         if (nameModsonBomb.Contains("Simon Stops"))
         {
@@ -1140,22 +1101,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         finalValueB += TodaysDay;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 11 applied.", curModId);
         // Step 12
-        int vanillaIndOnCnt = 0;
-        int vanillaIndOffCnt = 0;
-        foreach (string unlitIndc in info.GetOffIndicators())
-        {
-            if (vanillaInds.Contains(unlitIndc))
-            {
-                vanillaIndOffCnt++;
-            }
-        }
-        foreach (string litIndc in info.GetOnIndicators())
-        {
-            if (vanillaInds.Contains(litIndc))
-            {
-                vanillaIndOnCnt++;
-            }
-        }
         finalValueB += 20 * (vanillaIndOnCnt - vanillaIndOffCnt);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 12 applied.", curModId);
         // Step 13
@@ -1186,42 +1131,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 18: True", curModId);
             string curCell = GrabCellFromManualTable(colIndex.IndexOf(stage2PhrClr[1].ToUpper()), rowIndex.IndexOf(stage2Phrases[1].ToUpper()));
-            if (curCell.Length != 0) Debug.LogFormat("[Bamboozling Time Keeper #{0}]: \"{1}\" is a valid cell from the table.", curModId, curCell);
-            if (curCell.Equals("STOP"))
-            {
-                finalValueB /= 17;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divides the current value by 17", curModId);
-            }
-            else if (curCell.RegexMatch(@"^B\d$"))
-            {
-                int multiplier = int.Parse(curCell.Substring(1, 1)) + 1;
-                finalValueB *= multiplier;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the value by {1}", curModId, multiplier);
-            }
-            else if (curCell.RegexMatch(@"^\+\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB += modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This added the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\-\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB -= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This subtracted the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\*\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB *= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\/\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB /= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divided the current value by {1}", curModId, modifiedValue);
-            }
+            finalValueB = PerformMultipleOperations(finalValueB, new string[] { curCell }, true);
         }
         else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 18: False", curModId);
         // Step 19
@@ -1231,42 +1141,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             if (!stage2Phrases[stage2Phrases.Count - 2].Equals("HUNDRED"))
             {
                 string curCell = GrabCellFromManualTable(colIndex.IndexOf(stage2PhrClr[stage2PhrClr.Count - 2].ToUpper()), rowIndex.IndexOf(stage2Phrases[stage2Phrases.Count - 2].ToUpper()));
-                if (curCell.Length != 0) Debug.LogFormat("[Bamboozling Time Keeper #{0}]: \"{1}\" is a valid cell from the table.", curModId, curCell);
-                if (curCell.Equals("STOP"))
-                {
-                    finalValueB /= 17;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divides the current value by 17", curModId);
-                }
-                else if (curCell.RegexMatch(@"^B\d$"))
-                {
-                    int multiplier = int.Parse(curCell.Substring(1, 1)) + 1;
-                    finalValueB *= multiplier;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the value by {1}", curModId, multiplier);
-                }
-                else if (curCell.RegexMatch(@"^\+\d+"))
-                {
-                    int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                    finalValueB += modifiedValue;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This added the current value by {1}", curModId, modifiedValue);
-                }
-                else if (curCell.RegexMatch(@"^\-\d+"))
-                {
-                    int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                    finalValueB -= modifiedValue;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This subtracted the current value by {1}", curModId, modifiedValue);
-                }
-                else if (curCell.RegexMatch(@"^\*\d+"))
-                {
-                    int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                    finalValueB *= modifiedValue;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the current value by {1}", curModId, modifiedValue);
-                }
-                else if (curCell.RegexMatch(@"^\/\d+"))
-                {
-                    int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                    finalValueB /= modifiedValue;
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divided the current value by {1}", curModId, modifiedValue);
-                }
+                finalValueB = PerformMultipleOperations(finalValueB, new string[] { curCell }, true);
             }
             else
             {
@@ -1280,81 +1155,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 20: True", curModId);
             // Step 21
-            string curCell = GrabCellFromManualTable(7 - colIndex.IndexOf(stage2ButtonColors[1].ToUpper()), (rowIndex.IndexOf(stage2Phrases[1].ToUpper()) + rowIndex.IndexOf(stage1Phrases[1].ToUpper())) % 56);
-            if (curCell.Length != 0) Debug.LogFormat("[Bamboozling Time Keeper #{0}]: \"{1}\" is a valid cell from the table.", curModId, curCell);
-            if (curCell.Equals("STOP"))
-            {
-                finalValueB /= 17;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divides the current value by 17", curModId);
-            }
-            else if (curCell.RegexMatch(@"^B\d$"))
-            {
-                int multiplier = int.Parse(curCell.Substring(1, 1)) + 1;
-                finalValueB *= multiplier;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the value by {1}", curModId, multiplier);
-            }
-            else if (curCell.RegexMatch(@"^\+\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB += modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This added the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\-\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB -= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This subtracted the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\*\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB *= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\/\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB /= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divided the current value by {1}", curModId, modifiedValue);
-            }
+            List<string> curStg2Operators = new List<string>();
+            curStg2Operators.Add(GrabCellFromManualTable(7 - colIndex.IndexOf(stage2ButtonColors[1].ToUpper()), (rowIndex.IndexOf(stage2Phrases[1].ToUpper()) + rowIndex.IndexOf(stage1Phrases[1].ToUpper())) % 56));
             // 2nd Cell from step 21
-            curCell = GrabCellFromManualTable((colIndex.IndexOf(stage2ButtonColors[0].ToUpper()) + colIndex.IndexOf(stage2ButtonColors[2].ToUpper())) % 8, Math.Abs(rowIndex.IndexOf(stage1Phrases[1].ToUpper()) - rowIndex.IndexOf(stage2Phrases[1].ToUpper())));
-            if (curCell.Length != 0) Debug.LogFormat("[Bamboozling Time Keeper #{0}]: \"{1}\" is a valid cell from the table.", curModId, curCell);
-            if (curCell.Equals("STOP"))
-            {
-                finalValueB /= 17;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divides the current value by 17", curModId);
-            }
-            else if (curCell.RegexMatch(@"^B\d$"))
-            {
-                int multiplier = int.Parse(curCell.Substring(1, 1)) + 1;
-                finalValueB *= multiplier;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the value by {1}", curModId, multiplier);
-            }
-            else if (curCell.RegexMatch(@"^\+\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB += modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This added the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\-\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB -= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This subtracted the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\*\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB *= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This multiplied the current value by {1}", curModId, modifiedValue);
-            }
-            else if (curCell.RegexMatch(@"^\/\d+"))
-            {
-                int modifiedValue = int.Parse(curCell.Substring(1, curCell.Length - 1));
-                finalValueB /= modifiedValue;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This divided the current value by {1}", curModId, modifiedValue);
-            }
+            curStg2Operators.Add(GrabCellFromManualTable((colIndex.IndexOf(stage2ButtonColors[0].ToUpper()) + colIndex.IndexOf(stage2ButtonColors[2].ToUpper())) % 8, Math.Abs(rowIndex.IndexOf(stage1Phrases[1].ToUpper()) - rowIndex.IndexOf(stage2Phrases[1].ToUpper()))));
+            finalValueB = PerformMultipleOperations(finalValueB, curStg2Operators.ToArray(),true);
+
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: End of Step 21", curModId);
         }
         else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 20: False, skipping to Step 22", curModId);
@@ -1470,7 +1276,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             char[] idcletters = idc.ToCharArray();
             for (int x = 0; x < idcletters.Length; x++)
             {
-                if ("SPEAKINGEVIL".Contains(idcletters[0]))
+                if ("SPEAKINGEVIL".Contains(idcletters[x]))
                 {
                     toAdd = true;
                 }
@@ -2195,7 +2001,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         return GetDigitalRoot(sum);
     }
-    bool IsCorrectOnHold()
+    bool IsCorrectOnHold()// Check if the button held is 100% correct.
     {
         
         int localTimeHr = DateTime.Today.Hour;
@@ -2277,7 +2083,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all green", curModId);
                     if (!(zenModeDetected && info.GetStrikes() == 0 && Math.Abs(timeRemainingBomb % 10 - (timeHeldSec % 10)) > 1))
                         return Math.Abs(timeRemainingBomb % 10 - (timeHeldSec % 10)) <= 1 || (timeRemainingBomb % 10 == 9 && (timeHeldSec % 10) == 0) || (timeRemainingBomb % 10 == 0 && (timeHeldSec % 10) == 9);
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The condition to release the button in this section is not possible due to very specific conditions being satsfied. Skipping to next otherwise", curModId);
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The condition to release the button in this section is not possible due to very specific conditions being satsfied. Skipping to next \"Otherwise\"", curModId);
                 }
                 else if (rightHoldColors.Contains("Blue"))
                 {
@@ -2395,12 +2201,16 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The right button is flashing red consistently 4 times", curModId);
                     List<int> uniqueDigits = info.GetSerialNumberNumbers().Distinct().ToList();
-                    bool containsDigit = false;
-                    foreach (char secondDigit in secondsbombTimer.ToCharArray())
+                    if (uniqueDigits.Any())
                     {
-                        containsDigit = containsDigit || uniqueDigits.Contains(int.Parse(secondDigit.ToString()));
+                        bool containsDigit = false;
+                        foreach (char secondDigit in secondsbombTimer.ToCharArray())
+                        {
+                            containsDigit = containsDigit || uniqueDigits.Contains(int.Parse(secondDigit.ToString()));
+                        }
+                        return containsDigit;
                     }
-                    return containsDigit;
+                    else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: There are no digits in the serial number, making this condition impossible. Skipping to the next \"Otherwise\"", curModId);
                 }
                 else if (colorReference.Equals("Green"))
                 {
@@ -2697,7 +2507,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         bool isInteractedCorrectly = false;
         hasStruck = false;
         StopCoroutine(UpdateDisplay(currentStage));
-        if (currentStage == 1)
+        if (currentStage == 1 && !stagesCompleted[0])
         {
             if (info.GetTime() < 121 && holdCorStg1 == true && isHeld == false)
             {
@@ -2718,10 +2528,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 withinRange = withinRange || Math.Abs(bTimeOnHold - possibleTimesA[x]) <= 5;
             }
             isAllCorrect = isAllCorrect && withinRange;
+            
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The {1} button was {2} at {3}:{4} for stage 1", curModId, buttonPos[buttonIdx], !isHeld ? "TAPPED" : "HELD", (bTimeOnHold / 60).ToString("00"), (bTimeOnHold % 60).ToString("00"));
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: ({1} seconds left on the bomb)", curModId, bTimeOnHold);
         }
-        else if (currentStage == 2)
+        else if (currentStage == 2 && !stagesCompleted[1])
         {
             if (info.GetTime() < 121 && holdCorStg2 == true && isHeld == false)
             {
@@ -2742,21 +2553,25 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 withinRange = withinRange || Math.Abs(bTimeOnHold - possibleTimesB[x]) <= 5;
             }
             isAllCorrect = isAllCorrect && withinRange;
+            
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The {1} button was {2} at {3}:{4} for stage 2", curModId, buttonPos[buttonIdx], !isHeld ? "TAPPED" : "HELD", (bTimeOnHold / 60).ToString("00"), (bTimeOnHold % 60).ToString("00"));
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: ({1} seconds left on the bomb)", curModId, bTimeOnHold);
+            
         }
         if (isHeld)
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: And was released at {3}:{4} ({1}:{2} on display)", curModId, (timeHeldSec / 60).ToString("00"), (timeHeldSec % 60).ToString("00"), (bTimeEndHold / 60).ToString("00"), (bTimeEndHold % 60).ToString("00"));
             isOnReleaseCorrect = IsCorrectOnHold();
             isAllCorrect = isAllCorrect && isOnReleaseCorrect;
-            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The release condition was handled {1}", curModId, isOnReleaseCorrect ? "CORRECTLY":"INCORRECTLY");
-
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The release condition was handled {1}", curModId, isOnReleaseCorrect ? "CORRECTLY" : "INCORRECTLY");
         }
         conditionsMet[0] = correctButtonInt;
         conditionsMet[1] = withinRange;
         conditionsMet[2] = isInteractedCorrectly && isOnReleaseCorrect;
-        if (!isAllCorrect)
+        // Check if the correct button is interated within the given time ranges, held/tapped correctly, and the following:
+        // Stage 1 is not finished yet and the module is on stage 1.
+        // Stage 2 is not finished yet and the module is on stage 2.
+        if (!isAllCorrect && ((currentStage == 1 && !stagesCompleted[0]) || (currentStage == 2 && !stagesCompleted[1]) ))
         {
             if (!hasStruck)
                 modSelf.HandleStrike();
@@ -2765,17 +2580,33 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         else
         {
-            if (currentStage == 1)
-                stagesCompleted[0] = true;
-            else if (currentStage == 2)
-                stagesCompleted[1] = true;
-            if (specialDay)
+            if (currentStage == 1 && !stagesCompleted[0])
             {
-                sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0,specialSoundCorrect.Length)], transform);
+                if (specialDay)
+                {
+                    sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0, specialSoundCorrect.Length)], transform);
+                }
+                sound.PlaySoundAtTransform("InputCorrect", transform);
+                stagesCompleted[0] = true;
+                highlightStage1.GetComponent<MeshRenderer>().material.color = stagesCompleted[0] ? indcColors[2] : indcColors[0];
             }
-            sound.PlaySoundAtTransform("InputCorrect", transform);
-            highlightStage1.GetComponent<MeshRenderer>().material.color = stagesCompleted[0] ? indcColors[2] : indcColors[0];
-            highlightStage2.GetComponent<MeshRenderer>().material.color = stagesCompleted[1] ? indcColors[2] : indcColors[0];
+            else if (currentStage == 1) {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 1 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
+            }
+            else if (currentStage == 2 && !stagesCompleted[1])
+            {
+                if (specialDay)
+                {
+                    sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0, specialSoundCorrect.Length)], transform);
+                }
+                sound.PlaySoundAtTransform("InputCorrect", transform);
+                stagesCompleted[1] = true;
+                highlightStage2.GetComponent<MeshRenderer>().material.color = stagesCompleted[1] ? indcColors[2] : indcColors[0];
+            }
+            else if (currentStage == 2)
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 2 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
+            }
             if (stagesCompleted.ToList().TrueForAll(a => a))
             {
                 StartCoroutine(PlaySolveAnim());
@@ -2793,11 +2624,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     {
         interactable = false;
         GameObject[] GameOBJArray = new GameObject[] { buttonL, buttonM, buttonR };
+        string buttonChars = specialDay ? "YEA" : "WOW";
         for (int x = 0; x < GameOBJArray.Length; x++)
         {
             TextMesh curText = GameOBJArray[x].GetComponentInChildren<TextMesh>();
             MeshRenderer curMeshRdr = GameOBJArray[x].GetComponent<MeshRenderer>();
-            curText.text = x == 1 ? "O" : "W";
+            curText.text = buttonChars.Substring(x,1);
             curText.color = Color.black;
             curMeshRdr.material = materialList[1];
             curMeshRdr.material.color = Color.green;
@@ -2812,7 +2644,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         StartCoroutine(TypeText(display.text, true));
         yield return null;
     }
-    IEnumerator PlayIncorrectAnim()
+
+    private IEnumerator PlayIncorrectAnim()
     {
         display.text = specialDay ? specialDayStrikePhrases[UnityEngine.Random.Range(0,specialDayStrikePhrases.Length)] : strikePhrases[UnityEngine.Random.Range(0,strikePhrases.Length)].ToUpper();
         display.color = Color.white;
@@ -2833,7 +2666,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         StartCoroutine(ChangeToStage(currentStage));
         yield return null;
     }
-    IEnumerator TypeText(string message,bool inReverse)
+
+    private IEnumerator TypeText(string message,bool inReverse)
     {
         display.color = Color.white;
         backing.GetComponent<MeshRenderer>().material.color = Color.black;
@@ -3194,13 +3028,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     bool ZenModeActive;
     bool TwitchPlaysSkipTimeAllowed = true; // Enforce skipping time on the module when needed
 #pragma warning disable IDE0044 // Add readonly modifier
-    readonly string TwitchHelpMessage = "To hold a given button at a specific time: \"!{0} hold l[eft]/m[iddle]/r[ight] at ##:##\" To tap a given button at a specific time: \"!{0} tap l[eft]/m[iddle]/r[ight] at ##:##\"\n" +
+    readonly string TwitchHelpMessage = "To interact a given button at a specific time: \"!{0} hold/tap l[eft]/m[iddle]/r[ight] at ##:##\" Time format is MM:SS with MM being able to exceed 99 min, multiple time stamps are acceptable when releasing.\n" +
         "To release a button at a specific time based on the display or bomb timer: \"!{0} release display/bombtime at ##:##\" To release a button based on the seconds timer: \"!{0} release display/bombtime at ## ##\"\n" +
-        "Time format is MM:SS with MM being able to exceed 99 min, multiple time stamps are acceptable when releasing. To get the current time on the display: \"!{0} display time\"\n"+
-        "To switch between stages: \"!{0} toggle/switch\" To activate colorblind mode: \"!{0} colorblind\" You can only activate colorblind mode or switch stages if you are NOT holding a button!";
+        "To get the current time on the display: \"!{0} display time\" To switch between stages: \"!{0} toggle/switch\"\n" +
+        "To activate colorblind mode: \"!{0} colorblind\" You can only activate colorblind mode or switch stages if you are NOT holding a button!";
 #pragma warning restore IDE0044 // End Adding readonly modifier
     void TwitchHandleForcedSolve()
-    {
+    {// Handle force solving on the module.
         forcedSolve = true;
         StopAllCoroutines();
         curbtnHeld = -1;
