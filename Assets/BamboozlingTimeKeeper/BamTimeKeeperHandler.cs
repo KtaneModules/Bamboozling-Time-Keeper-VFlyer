@@ -135,6 +135,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "passportControl",
         "poetry",
         "PrimeChecker",
+        "revPolNot",
         "screw",
         "SeaShells",
         "simonSamples",
@@ -162,24 +163,27 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "countdown",
         "cruelCountdown",
         "crystalMaze",
+        "etterna",  // Thanks Rhythms
         "fastMath",
         "GoingBackwardsModule",
         "jackAttack",
         "KritLockpickMaze", // Test Build ATM, may be changed in the final build
         "manometers",
         "KritHomework",
+        "NotMaze",      // 10 second delay before the module resets
         "numberNimbleness",
         "quizBuzz",
         "simonStops",   // All other Simon modules are in a gray spot due to the fact that these either wait or don't wait to clear the inputs. Simon Stops strikes on waiting for a controlled input for too long.
-        "sonicKnuckles", // Grey spot, TP compatible on most streams.
+        "sonicKnuckles",
         "stopwatch",
         "valves",   // Brush Strokes is considered a RT Controlled Module, why not Valves? - Asew
         "wire",
         "ZooModule"
     }, RTSensitiveModIDs = new List<string>() {
         "blinkstopModule", // Can't strike by leaving it for too long, new sequence is given at the end of the previous set of flashes, starts flashing the sequence as soon as the bomb starts.
+        "kataCheatCheckout", // Source Code suggests RT sensitivity mainly for trying to check on each item quickly before the timer runs out randomly. Can only be delayed by correct interactions on the module or solving it.
         "lgndHyperactiveNumbers", // Can't strike by leaving it for too long, resets every now and then.
-        "lunchtime", // Can detonate a bomb by leaving it for too long, otherwise strikable by incorrect selection and timing
+        "lunchtime", // Can detonate a bomb by leaving it for too long, otherwise strikable by incorrect selection and/or timing
         "numberCipher", // Can't strike by leaving it for too long, resets every now and then.
         "theSwan", // Strikes by leaving it sit for too long or by incorrect set of presses.
         "taxReturns", // Strikes by leaving it sit for too long or by incorrect value.
@@ -221,20 +225,20 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     private List<string> idModsonBomb, nameModsonBomb;
     private int batteryCount, batteryholdCount, startTime;
 
-    private readonly string[] specialDayStartPhrases = new string[] {
+    private readonly string[] specialDayStartPhrases = {
         "Iku zo.",
         "Showtime.",
         "Are we starting\nsoon?",
         "Let's do this.",
         "Yaru no ka."
-    }, specialDayStrikePhrases = new string[] {
+    }, specialDayStrikePhrases = {
         "Taihen da.",
         "Oh boy.",
         "Wait, what?",
         "Oof.",
         "Huh, too bad.",
         "Aw..."
-    }, awakePhrases = new string[] {
+    }, awakePhrases = {
         "YOU WON'T WIN",
         "YOU WILL SUFFER",
         "NOTHING SPARED",
@@ -243,7 +247,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "NO CHANCES LEFT",
         "DON'T LEAVE\nTHIS BEHIND",
         "DO YOU FACE IT?"
-    }, strikePhrases = new string[] {
+    }, strikePhrases = {
         "THAT'S A STRIKE",
         "THAT IS A STRIKE",
         "FAILED AGAIN",
@@ -255,16 +259,16 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "NO U",
         "GET BAMBOOZLED",
         "STILL WRONG"
-    }, actionPhrases = new string[] {
+    }, actionPhrases = {
         "HOLD",
         "TAP"
-    }, disarmPhrases = new string[] {
+    }, disarmPhrases = {
         "EXCELLENT", "AWESOME", "AMAZING", "STUPENDOUS", "REMARKABLE", "MAGNIFICENT", "IMPRESSIVE", "PHENOMENAL", "ASTOUNDING", "EXTRAORDINARY", "WHAT A PRO", "YOU DEFEATED", "GODLIKE"
-    }, disarmSpecialPhrases = new string[] {
+    }, disarmSpecialPhrases = {
         "So I won huh?","Katta no ka.","Katteta.", "Oh, hey I won?", "I won?"
-    }, letters = new string[] {
+    }, letters = {
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
-    }, specialSoundStrikes = new string[] { "SigLight", "SigHeavy", "SigLose" }, specialSoundCorrect = new string[] { "Sig20Plus", "Sig20PlusALT" };
+    }, specialSoundStrikes = { "SigLight", "SigHeavy", "SigLose" }, specialSoundCorrect = { "Sig20Plus", "Sig20PlusALT" };
 
 
     private BamTimeKeeperSettings Settings = new BamTimeKeeperSettings();
@@ -811,7 +815,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         vanillaInds = new string[] { "SND", "CLR", "CAR", "IND", "FRQ", "SIG", "NSA", "MSA", "TRN", "BOB", "FRK" },
         vanillaPorts = new string[] { "DVI", "Parallel", "PS/2", "RJ45", "Serial", "StereoRCA" },
         definablePhrases = new string[] { "ONE NUMBER", "TWO NUMBERS", "THREE NUMBERS", "FOUR NUMBERS", "1 NUMBER", "2 NUMBERS", "3 NUMBERS", "4 NUMBERS", "A NUMBER" };
-    int stageRuleApplied = 0, positiveDifference = 0, sumFirst3 = 0, vanillaIndOnCnt = 0, vanillaIndOffCnt = 0;
+    int stageRuleApplied = 0, positiveDifference = 0, sumFirst3 = 0, vanillaIndOnCnt = 0, vanillaIndOffCnt = 0, rtControlCount = 0;
     void CalculateStage1()
     {
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 CALCULATIONS:", curModId);
@@ -896,9 +900,9 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 7: False", curModId);
         // Step 8
-        int rtControlModCount = idModsonBomb.Where(a => RTControlModIDs.Contains(a)).Count();
-        finalValueA += rtControlModCount * batteryCount;
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 8 applied. Detected this many RT controlled modules: {1}", curModId,rtControlModCount);
+        rtControlCount = idModsonBomb.Where(a => RTControlModIDs.Contains(a)).Count();
+        finalValueA += rtControlCount * batteryCount;
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 8 applied. Detected this many RT controlled modules: {1}", curModId,rtControlCount);
         // Step 9
         if (stage1ButtonColors[1].Equals("Green") || stage1ButtonColors[1].Equals("Magenta"))
         {
@@ -909,7 +913,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 9: False", curModId);
         // Step 10
-        if (finalValueA % 1176 <= 5 || finalValueA % 1176 >= 1171) // 1176, A number divisible by 24 and 49
+        if (finalValueA % 1176 <= 10 || finalValueA % 1176 >= 1166) // 1176, A number divisible by 24 and 49
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 10: True", curModId);
             return;
@@ -959,9 +963,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: At this point, the current value for this stage is {1}", curModId,finalValueA);
         // Step 17
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Begin Step 17", curModId);
-        bool canStop = false;
         List<string> requiredOperations = new List<string>();
-        for (int x = 0; x < stage1Phrases.Count && !canStop; x++)
+        for (int x = 0; x < stage1Phrases.Count; x++)
         {
             string curCell = GrabCellFromManualTable(colIndex.IndexOf(stage1PhrClr[x].ToUpper()), rowIndex.IndexOf(stage1Phrases[x].ToUpper()));
             requiredOperations.Add(curCell);
@@ -998,9 +1001,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         if (stage1Phrases[0].Contains("(") || stage1Phrases[0].RegexMatch(@"^\d\sNUMBERS?"))
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 22: True, processing like Step 17", curModId);
-            canStop = false;
             List<string> buttonRequiredOperations = new List<string>();
-            for (int x = 0; x < stage1ButtonColors.Count && !canStop; x++)
+            for (int x = 0; x < stage1ButtonColors.Count; x++)
             {
                 string curCell = GrabCellFromManualTable(colIndex.IndexOf(stage1ButtonColors[x].ToUpper()), rowIndex.IndexOf(stage1ButtonDigits[x].ToString()));
                 buttonRequiredOperations.Add(curCell);
@@ -1015,7 +1017,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 23: False", curModId);
         int sumLast3SerDigits = 0;
-        string last3SerDigits = curSerNo.Substring(curSerNo.Length / 2, curSerNo.Length - (curSerNo.Length / 2));
+        string last3SerDigits = curSerNo.Substring(curSerNo.Length / 2);
         foreach (char serchar in last3SerDigits.ToCharArray())
         {
             finalValueA += GetValueofBase36Digit(serchar);
@@ -1077,9 +1079,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         else
         { Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 7: False", curModId); }
         // Step 8
-        int RTControlCount = idModsonBomb.Where(a => RTControlModIDs.Contains(a)).Count();
-        finalValueB += RTControlCount * batteryCount;
-        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 8 applied. Detected this many RT controlled modules: {1}", curModId,RTControlCount);
+        finalValueB += rtControlCount * batteryCount;
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 8 applied. Detected this many RT controlled modules: {1}", curModId, rtControlCount);
         // Step 9
         if (stage2ButtonColors[1].Equals("Green") || stage2ButtonColors[1].Equals("Magenta"))
         {
@@ -1091,7 +1092,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         else
         { Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 9: False", curModId); }
         // Step 10
-        if (finalValueB % 1176 <= 5 || finalValueB % 1176 >= 1171) // 1176, A number divisible by 24 and 49
+        if (finalValueB % 1176 <= 10 || finalValueB % 1176 >= 1166) // 1176, A number divisible by 24 and 49
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 10: True", curModId);
             return;
@@ -1200,7 +1201,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 25: False", curModId);
         // Step 27
-        if (stage2ButtonColors[0].Length + stage2ButtonColors[1].Length + stage2ButtonColors[2].Length > 12)
+        int sumLocal = 0;
+        foreach (string colorName in stage2ButtonColors)
+            sumLocal += colorName.Length;
+        if (sumLocal > 12)
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 26: True", curModId);
             int valuetoDivide = 0;
@@ -1410,8 +1414,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     void DetermineCorrectButton()
     {
         if (canOverride()) return;
+        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Determining The Correct Button:", curModId);
         if (crtBtnIdxStg1 == null)
         {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 1's correct button was previously not determined during the calculation procedure.", curModId);
             int presentInStage = 0;
             int idxCon6 = -1;
             for (int x = 0; x < stage1ButtonDigits.Length; x++)
@@ -1423,27 +1429,60 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
 
 
-            if (finalValueA >= 0 && finalValueA <= 9999) crtBtnIdxStg1 = 0;
-            else if (info.IsPortPresent(Port.Parallel) && stage1ButtonColors.Where(a => a.Equals("Magenta")).Count() == 1)
+            if (finalValueA >= 0 && finalValueA <= 9999)
+            {
+                crtBtnIdxStg1 = 0;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The final value for stage 1 is between 0 to 9999 inclusive", curModId);
+            }
+            else if (info.IsPortPresent(Port.Parallel) && stage1ButtonColors.Count(a => a.Equals("Magenta")) == 1)
+            {
                 crtBtnIdxStg1 = stage1ButtonColors.IndexOf("Magenta");
-            else if (info.IsPortPresent(Port.StereoRCA) && stage1ButtonColors.Where(a => a.Equals("Red")).Count() == 1 && stage1ButtonColors.Where(a => a.Equals("White")).Count() == 1)
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: A Parallel port is present and exactly 1 magenta button is present.", curModId);
+            }
+            else if (info.IsPortPresent(Port.StereoRCA) && stage1ButtonColors.Count(a => a.Equals("Red")) == 1 && stage1ButtonColors.Count(a => a.Equals("White")) == 1)
             {
                 for (int x = 0; x < stage1ButtonColors.Count; x++)
                     if (!stage1ButtonColors[x].Equals("Red") && !stage1ButtonColors[x].Equals("White"))
                     {
                         crtBtnIdxStg1 = x;
-                        return;
                     }
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: An RCA port is present and exactly 1 red and white button are present.", curModId);
             }
-            else if (!stage1PhrClr.Contains("Black") && stage1ButtonColors.Where(a => a.Equals("Black")).Count() == 1) crtBtnIdxStg1 = stage1ButtonColors.IndexOf("Black");
-            else if (stage1ButtonColors.Where(a => !a.Equals("White")).ToList().Intersect(stage1PhrClr.Where(a => !a.Equals("White")).ToList()).Count() == 0) crtBtnIdxStg1 = 2;
-            else if (stage1PhrClr.Where(a => a.Equals("White")).Count() == stage1PhrClr.Count() && presentInStage == 2) crtBtnIdxStg1 = idxCon6;
-            else if (stage1ButtonColors.Where(a => a.Equals("Blue")).Count() == 1 && stage1ButtonColors.Where(a => a.Equals("Green")).Count() == 1 && stage1ButtonColors.Where(a => a.Equals("Red")).Count() == 1) crtBtnIdxStg1 = stage1ButtonColors.IndexOf("Blue");
-            else if (!stage1ButtonColors.Contains("Cyan") && !stage1ButtonColors.Contains("Magenta")) crtBtnIdxStg1 = 1;
-            else crtBtnIdxStg1 = (int?)(finalValueA % 3);
+            else if (idModsonBomb.Contains("PercentageGreyModule") && stage1ButtonColors.Count(a => a.Equals("Black")) == 1)
+            {
+                crtBtnIdxStg1 = stage1ButtonColors.IndexOf("Black");
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: % Grey is present and exactly 1 black button is present.", curModId);
+            }
+            else if (!stage1ButtonColors.Where(a => !a.Equals("White")).ToList().Intersect(stage1PhrClr.Where(a => !a.Equals("White")).ToList()).Any())
+            {
+                crtBtnIdxStg1 = 2;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Excluding white, all the phrases and buttons do not share a color.", curModId);
+            }
+            else if (stage1PhrClr.Count(a => a.Equals("White")) == stage1PhrClr.Count() && presentInStage == 2)
+            {
+                crtBtnIdxStg1 = idxCon6;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: All the phrases are white and exactly 1 button's label is not present in numerical form or decimal form.", curModId);
+            }
+            else if (stage1ButtonColors.Count(a => a.Equals("Blue")) == 1 && stage1ButtonColors.Count(a => a.Equals("Green")) == 1 && stage1ButtonColors.Count(a => a.Equals("Red")) == 1)
+            {
+                crtBtnIdxStg1 = stage1ButtonColors.IndexOf("Blue");
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: There is exactly 1 green, 1 red and 1 blue button.", curModId);
+            }
+            else if (idModsonBomb.Contains("leftandRight"))
+            {
+                crtBtnIdxStg1 = 1;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Left and Right is present.", curModId);
+            }
+            else
+            {
+                crtBtnIdxStg1 = (int?)(finalValueA % 3);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The final value for stage 1 modulo 3, plus 1 is {1}.", curModId, (int)(finalValueA % 3 + 1));
+            }
         }
+        else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 1's correct button was previously determined during the calculation procedure.", curModId);
         if (crtBtnIdxStg2 == null)
         {
+            Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 2's correct button was previously not determined during the calculation procedure.", curModId);
             int presentInStage = 0;
             int idxCon6 = -1;
             for (int x = 0; x < stage2ButtonDigits.Length; x++)
@@ -1454,26 +1493,58 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     idxCon6 = x;
             }
 
-            if (finalValueB >= 0 && finalValueB <= 9999) crtBtnIdxStg2 = 0;
-            else if (info.IsPortPresent(Port.Parallel) && stage2ButtonColors.Where(a => a.Equals("Magenta")).Count() == 1)
+            if (finalValueB >= 0 && finalValueB <= 9999)
+            {
+                crtBtnIdxStg2 = 0;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The final value for stage 2 is between 0 to 9999 inclusive", curModId);
+            }
+            else if (info.IsPortPresent(Port.Parallel) && stage2ButtonColors.Count(a => a.Equals("Magenta")) == 1)
+            {
                 crtBtnIdxStg2 = stage2ButtonColors.IndexOf("Magenta");
-            else if (info.IsPortPresent(Port.StereoRCA) && stage2ButtonColors.Where(a => a.Equals("Red")).Count() == 1 && stage2ButtonColors.Where(a => a.Equals("White")).Count() == 1)
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: A Parallel port is present and exactly 1 magenta button is present.", curModId);
+            }
+            else if (info.IsPortPresent(Port.StereoRCA) && stage2ButtonColors.Count(a => a.Equals("Red")) == 1 && stage2ButtonColors.Count(a => a.Equals("White")) == 1)
             {
                 for (int x = 0; x < stage2ButtonColors.Count; x++)
                     if (!stage2ButtonColors[x].Equals("Red") && !stage2ButtonColors[x].Equals("White"))
                     {
                         crtBtnIdxStg2 = x;
-                        return;
                     }
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: An RCA port is present and exactly 1 red and white button are present.", curModId);
             }
-            else if (!stage2PhrClr.Contains("Black") && stage2ButtonColors.Where(a => a.Equals("Black")).Count() == 1) crtBtnIdxStg2 = stage2ButtonColors.IndexOf("Black");
-            else if (stage2ButtonColors.Where(a => !a.Equals("White")).ToList().Intersect(stage2PhrClr.Where(a => !a.Equals("White")).ToList()).Count() == 0) crtBtnIdxStg2 = 2;
-            else if (stage2PhrClr.Where(a => a.Equals("White")).Count() == stage2PhrClr.Count() && presentInStage == 2) crtBtnIdxStg1 = idxCon6;
-            else if (stage2ButtonColors.Where(a => a.Equals("Blue")).Count() == 1 && stage2ButtonColors.Where(a => a.Equals("Green")).Count() == 1 && stage2ButtonColors.Where(a => a.Equals("Red")).Count() == 1) crtBtnIdxStg2 = stage2ButtonColors.IndexOf("Blue");
-            else if (!stage2ButtonColors.Contains("Cyan") && !stage2ButtonColors.Contains("Magenta")) crtBtnIdxStg2 = 1;
-            else crtBtnIdxStg2 = 2 - (int)(finalValueB % 3);
+            else if (idModsonBomb.Contains("PercentageGreyModule") && stage2ButtonColors.Count(a => a.Equals("Black")) == 1)
+            {
+                crtBtnIdxStg2 = stage2ButtonColors.IndexOf("Black");
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: % Grey is present and exactly 1 black button is present.", curModId);
+            }
+            else if (!stage2ButtonColors.Where(a => !a.Equals("White")).ToList().Intersect(stage2PhrClr.Where(a => !a.Equals("White")).ToList()).Any())
+            {
+                crtBtnIdxStg2 = 2;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Excluding white, all the phrases and buttons do not share a color.", curModId);
+            }
+            else if (stage2PhrClr.Count(a => a.Equals("White")) == stage2PhrClr.Count() && presentInStage == 2)
+            {
+                crtBtnIdxStg1 = idxCon6;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: All the phrases are white and exactly 1 button's label is not present in numerical form or decimal form.", curModId);
+            }
+            else if (stage2ButtonColors.Count(a => a.Equals("Blue")) == 1 && stage2ButtonColors.Count(a => a.Equals("Green")) == 1 && stage2ButtonColors.Count(a => a.Equals("Red")) == 1)
+            {
+                crtBtnIdxStg2 = stage2ButtonColors.IndexOf("Blue");
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: There is exactly 1 green, 1 red and 1 blue button.", curModId);
+            }
+            else if (idModsonBomb.Contains("leftandRight"))
+            {
+                crtBtnIdxStg2 = 1;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Left and Right is present.", curModId);
+            }
+            else
+            {
+                crtBtnIdxStg2 = 2 - (int)(finalValueB % 3);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The final value for stage 2 modulo 3, plus 1 is {1}.", curModId,(int)(finalValueB % 3 + 1));
+            }
         }
-        
+        else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 2's correct button was previously determined during the calculation procedure.", curModId);
+
     }
     void CalculateAllPossibleTimes(List<long> destination, long finalValue, int scaleFactor)
     {
@@ -1759,7 +1830,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                         curText.color = Color.white;
                     }
                     curFlashPart++;
-                    yield return new WaitForSeconds(0.25f);
+                    yield return new WaitForSeconds(0.2f);
                     if (curbtnHeld == -1) yield break;
                     curMeshRdr.material.color = Color.black;
                     curText.text = "";
@@ -1767,10 +1838,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 else
                 {
                     curFlashPart = 0;
-                    yield return new WaitForSeconds(0.5f);
+                    yield return new WaitForSeconds(0.8f);
                     if (curbtnHeld == -1) yield break;
                 }
-                yield return new WaitForSeconds(0.25f);
+                yield return new WaitForSeconds(0.1f);
             }
         }
         else
@@ -1832,7 +1903,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                         curText.color = Color.white;
                     }
                     curFlashPart++;
-                    yield return new WaitForSeconds(0.25f);
+                    yield return new WaitForSeconds(0.2f);
                     if (curbtnHeld == -1) yield break;
                     curMeshRdr.material.color = Color.black;
                     curText.text = "";
@@ -1840,10 +1911,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 else
                 {
                     curFlashPart = 0;
-                    yield return new WaitForSeconds(0.5f);
+                    yield return new WaitForSeconds(0.8f);
                     if (curbtnHeld == -1) yield break;
                 }
-                yield return new WaitForSeconds(0.25f);
+                yield return new WaitForSeconds(0.1f);
             }
         }
         else
@@ -1914,8 +1985,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         isHeld = false;
         soundwithRef = sound.PlaySoundAtTransformWithRef("HumProgressing", transform);
         StartCoroutine(PlayStartHoldAnim(curbtnHeld));
-        yield return new WaitForSeconds(3);
-        if (curbtnHeld == -1) yield break;
+        for (int x = 0; x < 30; x++)
+        {
+            yield return new WaitForSeconds(.1f);
+            if (curbtnHeld == -1) yield break;
+        }
         soundwithRef.StopSound();
         sound.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CapacitorPop, transform);
         if (curbtnHeld != -1)
@@ -1927,7 +2001,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             // Handle Left flashing
             leftHoldColors.Clear();
 
-            isLeftFlashingConsistent = UnityEngine.Random.Range(0,2) == 1;
+            isLeftFlashingConsistent = UnityEngine.Random.Range(0, 5) != 0;
             int flashCountLeft;
             string leftFlashChar = "";
 
@@ -1951,7 +2025,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             // Handle Right flashing
             rightHoldColors.Clear();
 
-            isRightFlashingConsistent = UnityEngine.Random.Range(0, 2) == 1;
+            isRightFlashingConsistent = UnityEngine.Random.Range(0, 5) != 0;
             int flashCountRight;
             string rightFlashChar = "";
 
@@ -2006,10 +2080,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         
         int localTimeHr = DateTime.Today.Hour;
         int localTimeMin = DateTime.Today.Minute;
-        int[] valuesUnder60 = new int[] { 0, 2, 6, 12, 20, 30, 42, 56 };
-        int[] primePossibleValues = new int[] { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97 };
-        int[] swanCodes = new int[] { 4, 8, 15, 16, 23, 42 };
-
+        int[] valuesUnder60 = { 0, 2, 6, 12, 20, 30, 42, 56 };
+        int[] primePossibleValues = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97 };
+        int[] swanCodes = { 4, 8, 15, 16, 23, 42 };
+        int[] tribbonachiCodes = { 1, 1, 1, 3, 5, 9, 17, 31, 57 };
         int timeRemainingBomb = Mathf.FloorToInt(info.GetTime());
 
         // Formatted Time for the bomb and display
@@ -2029,20 +2103,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The leftmost button is flashing all red", curModId);
                 if (rightHoldColors.Contains("Red"))
                 {
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all red", curModId);
-                    List<char> bombTimerDigits = new List<char>();
-                    List<char> displayTimerDigits = new List<char>();
-                    foreach (char digit in formattedTime.ToCharArray())
-                    {
-                        if (digit.ToString().RegexMatch(@"[0-9]") && !bombTimerDigits.Contains(digit))
-                            bombTimerDigits.Add(digit);
-                    }
-                    foreach (char digit in displayFormattedTime.ToCharArray())
-                    {
-                        if (digit.ToString().RegexMatch(@"[0-9]") && !displayTimerDigits.Contains(digit))
-                            displayTimerDigits.Add(digit);
-                    }
-                    return displayTimerDigits.Intersect(bombTimerDigits).Count() >= 2;
+                    return timeRemainingBomb / 60 % 2 == 0;
                 }
                 else if (rightHoldColors.Contains("Green"))
                 {
@@ -2061,12 +2122,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 if (rightHoldColors.Contains("Red"))
                 {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all red", curModId);
-                    List<char> nonZeroDigits = new List<char>();
-                    foreach (char num in (localTimeHr.ToString() + localTimeMin.ToString()).ToCharArray())
-                    {
-                        if (!nonZeroDigits.Contains(num) && !num.Equals('0'))
-                            nonZeroDigits.Add(num);
-                    }
+                    List<char> nonZeroDigits = (localTimeHr.ToString() + localTimeMin.ToString()).ToCharArray().Where(x => !x.Equals('0')).ToList();
                     if (nonZeroDigits.Count > 0)
                     {
                         bool isCorrect = false;
@@ -2081,19 +2137,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 else if (rightHoldColors.Contains("Green"))
                 {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all green", curModId);
-                    if (!(zenModeDetected && info.GetStrikes() == 0 && Math.Abs(timeRemainingBomb % 10 - (timeHeldSec % 10)) > 1))
-                        return Math.Abs(timeRemainingBomb % 10 - (timeHeldSec % 10)) <= 1 || (timeRemainingBomb % 10 == 9 && (timeHeldSec % 10) == 0) || (timeRemainingBomb % 10 == 0 && (timeHeldSec % 10) == 9);
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The condition to release the button in this section is not possible due to very specific conditions being satsfied. Skipping to next \"Otherwise\"", curModId);
+                    return tribbonachiCodes.Contains(int.Parse(secondsbombTimer));
                 }
                 else if (rightHoldColors.Contains("Blue"))
                 {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all blue", curModId);
-                    List<char> nonZeroDigits = new List<char>();
-                    foreach (char num in (localTimeHr.ToString() + localTimeMin.ToString()).ToCharArray())
-                    {
-                        if (!nonZeroDigits.Contains(num) && !num.Equals('0'))
-                            nonZeroDigits.Add(num);
-                    }
+                    List<char> nonZeroDigits = (localTimeHr.ToString() + localTimeMin.ToString()).ToCharArray().Where(x => !x.Equals('0')).ToList();
                     if (nonZeroDigits.Count > 0)
                     {
                         bool isCorrect = false;
@@ -2112,18 +2161,18 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 if (rightHoldColors.Contains("Red"))
                 {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all red", curModId);
-                    return timeRemainingBomb % 60 == 4 || timeRemainingBomb % 60 == 40;
+                    return secondsDisplayTimer == "40" || secondsDisplayTimer == "4";
                 }
                 else if (rightHoldColors.Contains("Green"))
                 {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all green", curModId);
-                    return timeRemainingBomb % 60 == 40 || timeRemainingBomb % 60 == 4;
+                    return secondsbombTimer =="40" || secondsbombTimer == "4";
                 }
                 else if (rightHoldColors.Contains("Blue"))
                 {
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The rightmost button is flashing all blue", curModId);
 
-                    return !(secondsDisplayTimer.Contains("0") || secondsDisplayTimer.Contains("4") || secondsbombTimer.Contains("0") || secondsbombTimer.Contains("4"));
+                    return tribbonachiCodes.Contains(int.Parse(secondsDisplayTimer));
                 }
             }
         }
@@ -2132,12 +2181,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: There is exactly 1 button flashing the same color 4 times in a row consistently", curModId);
             int idxConsistent = -1;
             string colorReference = "";
-            if (isLeftFlashingConsistent)
+            if (isLeftFlashingConsistent && leftHoldColors.Distinct().Count() == 1 && leftHoldColors.Count() == 4)
             {
                 idxConsistent = leftmostIdxFlashable;
                 colorReference = leftHoldColors[0];
             }
-            else if (isRightFlashingConsistent)
+            else if (isRightFlashingConsistent && rightHoldColors.Distinct().Count() == 1 && rightHoldColors.Count() == 4)
             {
                 idxConsistent = rightmostIdxFlashable;
                 colorReference = rightHoldColors[0];
@@ -2246,19 +2295,19 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
             if (TwoCodes.Count == 1)
             {
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exactly 1 is present which displayed {1} at the time of the release.", curModId, TwoCodes[0]);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exactly 1 is present whose least significant digit displayed {1} at the time of the release.", curModId, TwoCodes[0] % 10);
                 return secondsDisplayTimer.Contains((TwoCodes[0]%10).ToString());
             }
-            if (TwoCodes.Count == 2 && TwoCodes.Distinct().Count() != 1)
+            if (new List<int>() { 2,3,4 }.Contains( TwoCodes.Count))
             {
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exactly 2 Two Factors are present and both are not equal", curModId, TwoCodes[0]);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exactly 2, 3 or 4 Two Factors are present.", curModId);
                 int average = 0;
                 foreach (int code in TwoCodes)
                 {
                     average += code;
                 }
                 average /= TwoCodes.Count();
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: After averaging the non-unique Two Factors, the least significant digit in the average is {1}", curModId, average % 10);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: After averaging the Two Factors, the least significant digit in the average is {1}", curModId, average % 10);
                 return ((int)info.GetTime() % 60).ToString("00").Contains((average % 10).ToString());
             }
             int highestTwoFactor = TwoCodes[0];
@@ -2280,55 +2329,55 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     if (highestCodeDigits.Contains(digit))
                         digitsInCommon++;
                 }
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The highest Two Factor on the bomb when released is {1}.", curModId,highestTwoFactor);
                 return digitsInCommon >= 4;
             }
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The highest Two Factor on the bomb has 3 or fewer distant digits, skipping to next Otherwise", curModId);
         }
         if (!(isLeftFlashingConsistent && isRightFlashingConsistent))
-        {
+        {// Otherwise if at least 1 button not held is flashing irregularrly.
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: At least 1 button not held is flashing irregularrly.", curModId);
             List<int> irregularFlashesValue = new List<int>();
             if (!isLeftFlashingConsistent)
             {
-                int valuetoAdd = letters.ToList().IndexOf(inconsistMorseLetterL) + 1;
+                int initialValue = letters.ToList().IndexOf(inconsistMorseLetterL) + 1;
+                int valuetoAdd = initialValue;
                 for (int x = 0; x < leftHoldColors.Count; x++)
                 {
-                    if (x == 0)
+                    switch (x)
                     {
-                        if (leftHoldColors[x].Equals("Red"))
-                            valuetoAdd += nameModsonBomb.Count();
-                        else if (leftHoldColors[x].Equals("Green"))
-                            valuetoAdd += TodaysMonth;
-                        else if (leftHoldColors[x].Equals("Blue"))
-                            valuetoAdd += info.GetPortCount();
-                    }
-                    else if (x == 1)
-                    {
-                        if (leftHoldColors[x].Equals("Red"))
-                            valuetoAdd += GetDigitalRoot(nameModsonBomb.Count());
-                        else if (leftHoldColors[x].Equals("Green"))
-                            valuetoAdd += GetDigitalRoot(valuetoAdd);
-                        else if (leftHoldColors[x].Equals("Blue"))
-                            valuetoAdd -= GetDigitalRoot(valuetoAdd);
-                        
-                    }
-                    else if (x == 2)
-                    {
-                        if (leftHoldColors[x].Equals("Red"))
-                            valuetoAdd -= nameModsonBomb.Count();
-                        else if (leftHoldColors[x].Equals("Green"))
-                            valuetoAdd -= TodaysMonth;
-                        else if (leftHoldColors[x].Equals("Blue"))
-                            valuetoAdd -= info.GetPortCount();
-                    }
-                    else
-                    {
-                        if (leftHoldColors[x].Equals("Red"))
-                            valuetoAdd -= GetDigitalRoot(nameModsonBomb.Count());
-                        else if (leftHoldColors[x].Equals("Green"))
-                            valuetoAdd -= Math.Abs(valuetoAdd).ToString().Length;
-                        else if (leftHoldColors[x].Equals("Blue"))
-                            valuetoAdd += Math.Abs(valuetoAdd).ToString().Length;
+                        case 0:
+                            if (leftHoldColors[x].Equals("Red"))
+                                valuetoAdd += nameModsonBomb.Count();
+                            else if (leftHoldColors[x].Equals("Green"))
+                                valuetoAdd += TodaysMonth;
+                            else if (leftHoldColors[x].Equals("Blue"))
+                                valuetoAdd += info.GetPortCount();
+                            break;
+                        case 1:
+                            if (leftHoldColors[x].Equals("Red"))
+                                valuetoAdd += GetDigitalRoot(nameModsonBomb.Count());
+                            else if (leftHoldColors[x].Equals("Green"))
+                                valuetoAdd -= info.GetPortPlateCount();
+                            else if (leftHoldColors[x].Equals("Blue"))
+                                valuetoAdd += info.GetPortPlateCount();
+                            break;
+                        case 2:
+                            if (leftHoldColors[x].Equals("Red"))
+                                valuetoAdd -= nameModsonBomb.Count();
+                            else if (leftHoldColors[x].Equals("Green"))
+                                valuetoAdd -= TodaysMonth;
+                            else if (leftHoldColors[x].Equals("Blue"))
+                                valuetoAdd -= info.GetPortCount();
+                            break;
+                        case 3:
+                            if (leftHoldColors[x].Equals("Red"))
+                                valuetoAdd -= GetDigitalRoot(nameModsonBomb.Count());
+                            else if (leftHoldColors[x].Equals("Green"))
+                                valuetoAdd += initialValue % 10;
+                            else if (leftHoldColors[x].Equals("Blue"))
+                                valuetoAdd -= initialValue % 10;
+                            break;
                     }
                 }
 
@@ -2338,45 +2387,44 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
             if (!isRightFlashingConsistent)
             {
-                int valuetoAdd = letters.ToList().IndexOf(inconsistMorseLetterR) + 1;
+                int initialValue = letters.ToList().IndexOf(inconsistMorseLetterR) + 1;
+                int valuetoAdd = initialValue;
                 for (int x = 0; x < rightHoldColors.Count; x++)
                 {
-                    if (x == 0)
+                    switch (x)
                     {
-                        if (rightHoldColors[x].Equals("Red"))
-                            valuetoAdd += nameModsonBomb.Count();
-                        else if (rightHoldColors[x].Equals("Green"))
-                            valuetoAdd += TodaysMonth;
-                        else if (rightHoldColors[x].Equals("Blue"))
-                            valuetoAdd += info.GetPortCount();
-                    }
-                    else if (x == 1)
-                    {
-                        if (rightHoldColors[x].Equals("Red"))
-                            valuetoAdd += GetDigitalRoot(nameModsonBomb.Count());
-                        else if (rightHoldColors[x].Equals("Green"))
-                            valuetoAdd += GetDigitalRoot(valuetoAdd);
-                        else if (rightHoldColors[x].Equals("Blue"))
-                            valuetoAdd -= GetDigitalRoot(valuetoAdd);
-
-                    }
-                    else if (x == 2)
-                    {
-                        if (rightHoldColors[x].Equals("Red"))
-                            valuetoAdd -= nameModsonBomb.Count();
-                        else if (rightHoldColors[x].Equals("Green"))
-                            valuetoAdd -= TodaysMonth;
-                        else if (rightHoldColors[x].Equals("Blue"))
-                            valuetoAdd -= info.GetPortCount();
-                    }
-                    else
-                    {
-                        if (rightHoldColors[x].Equals("Red"))
-                            valuetoAdd -= GetDigitalRoot(nameModsonBomb.Count());
-                        else if (rightHoldColors[x].Equals("Green"))
-                            valuetoAdd -= Math.Abs(valuetoAdd).ToString().Length;
-                        else if (rightHoldColors[x].Equals("Blue"))
-                            valuetoAdd += Math.Abs(valuetoAdd).ToString().Length;
+                        case 0:
+                            if (leftHoldColors[x].Equals("Red"))
+                                valuetoAdd += nameModsonBomb.Count();
+                            else if (leftHoldColors[x].Equals("Green"))
+                                valuetoAdd += TodaysMonth;
+                            else if (leftHoldColors[x].Equals("Blue"))
+                                valuetoAdd += info.GetPortCount();
+                            break;
+                        case 1:
+                            if (leftHoldColors[x].Equals("Red"))
+                                valuetoAdd += GetDigitalRoot(nameModsonBomb.Count());
+                            else if (leftHoldColors[x].Equals("Green"))
+                                valuetoAdd -= info.GetPortPlateCount();
+                            else if (leftHoldColors[x].Equals("Blue"))
+                                valuetoAdd += info.GetPortPlateCount();
+                            break;
+                        case 2:
+                            if (leftHoldColors[x].Equals("Red"))
+                                valuetoAdd -= nameModsonBomb.Count();
+                            else if (leftHoldColors[x].Equals("Green"))
+                                valuetoAdd -= TodaysMonth;
+                            else if (leftHoldColors[x].Equals("Blue"))
+                                valuetoAdd -= info.GetPortCount();
+                            break;
+                        case 3:
+                            if (leftHoldColors[x].Equals("Red"))
+                                valuetoAdd -= GetDigitalRoot(nameModsonBomb.Count());
+                            else if (leftHoldColors[x].Equals("Green"))
+                                valuetoAdd += initialValue % 10;
+                            else if (leftHoldColors[x].Equals("Blue"))
+                                valuetoAdd -= initialValue % 10;
+                            break;
                     }
                 }
                 valuetoAdd = Math.Abs(valuetoAdd);
@@ -2385,11 +2433,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
 
             if (irregularFlashesValue.Count() == 1)
-            {
+            {// One value used
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exactly 1 value was used which is {1}", curModId, irregularFlashesValue[0]);
                 return secondsbombTimer.Contains(irregularFlashesValue[0].ToString());
             }
-            if (irregularFlashesValue.Count() == 2)
+            else if (irregularFlashesValue.Count() == 2)
             {// Two values used
                 // One of the value is a 0
                 if (irregularFlashesValue[0] == 0 && irregularFlashesValue[1] != 0)
@@ -2435,6 +2483,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The given product is not possible to reach on the seconds display timer", curModId);
             }
         }
+        // Last Otherwise Condition
         int[,] valuesList = new int[,] { { 1, 2, 3 }, { 2, 3, 1 }, { 3, 1, 2 } };
         int valueA = 0;
         int valueB = 0;
@@ -3024,10 +3073,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     };
 
     // Begin TP Handler
+#pragma warning disable IDE0044 // Add readonly modifier
     bool TwitchPlaysActive;
     bool ZenModeActive;
     bool TwitchPlaysSkipTimeAllowed = true; // Enforce skipping time on the module when needed
-#pragma warning disable IDE0044 // Add readonly modifier
     readonly string TwitchHelpMessage = "To interact a given button at a specific time: \"!{0} hold/tap l[eft]/m[iddle]/r[ight] at ##:##\" Time format is MM:SS with MM being able to exceed 99 min, multiple time stamps are acceptable when releasing.\n" +
         "To release a button at a specific time based on the display or bomb timer: \"!{0} release display/bombtime at ##:##\" To release a button based on the seconds timer: \"!{0} release display/bombtime at ## ##\"\n" +
         "To get the current time on the display: \"!{0} display time\" To switch between stages: \"!{0} toggle/switch\"\n" +
@@ -3036,8 +3085,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     void TwitchHandleForcedSolve()
     {// Handle force solving on the module.
         forcedSolve = true;
+        if (curbtnHeld != -1)
+        {
+            curbtnHeld = -1;
+            sound.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonRelease,transform);
+        }
         StopAllCoroutines();
-        curbtnHeld = -1;
         StartCoroutine(PlaySolveAnim());
         stagesCompleted[0] = true;
         stagesCompleted[1] = true;
@@ -3151,6 +3204,16 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 }
                 yield return "strike";
                 yield return "sendtochat Next bomb time to release: " + (possibleReleaseTimes[0] / 60).ToString("00") + ":" + (possibleReleaseTimes[0] % 60).ToString("00");
+                if (zenModeDetected)
+                {
+                    timeToSkipTo = possibleReleaseTimes[0] - 5;
+                    if (possibleReleaseTimes[0] - info.GetTime() > 15) yield return "skiptime " + timeToSkipTo;
+                }
+                else
+                {
+                    timeToSkipTo = possibleReleaseTimes[0] + 5;
+                    if (info.GetTime() - possibleReleaseTimes[0] > 15) yield return "skiptime " + timeToSkipTo;
+                }
                 music = Math.Abs(info.GetTime() - possibleReleaseTimes[0]) > 30;
                 if (music) yield return "waiting music";
                 do
@@ -3256,9 +3319,18 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     yield return "sendtochaterror Sorry but the specified time(s) cannot be reached.";
                     yield break;
                 }
-                
                 yield return "strike";
                 yield return "sendtochat Next bomb time to release: " + (possibleReleaseTimes[0] / 60).ToString("00") + ":" + (possibleReleaseTimes[0] % 60).ToString("00");
+                if (zenModeDetected)
+                {
+                    timeToSkipTo = possibleReleaseTimes[0] - 5;
+                    if (possibleReleaseTimes[0] - info.GetTime() > 15) yield return "skiptime " + timeToSkipTo;
+                }
+                else
+                {
+                    timeToSkipTo = possibleReleaseTimes[0] + 5;
+                    if (info.GetTime() - possibleReleaseTimes[0] > 15) yield return "skiptime " + timeToSkipTo;
+                }
                 music = Math.Abs(info.GetTime() - possibleReleaseTimes[0]) > 30;
                 if (music) yield return "waiting music";
                 do
