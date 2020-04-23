@@ -824,7 +824,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The button colors for stage 1 are {1}", curModId, FormatDebugList(stage1ButtonColors));
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The digits on the buttons for stage 1 are {1}", curModId, FormatDebugList(stage1ButtonDigits.ToList()));
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 1 is {1}", curModId, startValueA);
-        finalValueA = startValueA;
+        finalValueA = startValueA * 1;
         if (canOverride())
         {
             finalValueA = 15;
@@ -1033,7 +1033,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The button colors for stage 2 are {1}", curModId, FormatDebugList(stage2ButtonColors));
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The digits on the buttons for stage 2 are {1}", curModId, FormatDebugList(stage2ButtonDigits.ToList()));
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The starting value for stage 2 is {1}", curModId, startValueB);
-        finalValueB = startValueB;
+        finalValueB = startValueB * 1;
         if (canOverride())
         {
             finalValueB = 15;
