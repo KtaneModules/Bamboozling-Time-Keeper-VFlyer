@@ -2394,35 +2394,35 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     switch (x)
                     {
                         case 0:
-                            if (leftHoldColors[x].Equals("Red"))
+                            if (rightHoldColors[x].Equals("Red"))
                                 valuetoAdd += nameModsonBomb.Count();
-                            else if (leftHoldColors[x].Equals("Green"))
+                            else if (rightHoldColors[x].Equals("Green"))
                                 valuetoAdd += TodaysMonth;
-                            else if (leftHoldColors[x].Equals("Blue"))
+                            else if (rightHoldColors[x].Equals("Blue"))
                                 valuetoAdd += info.GetPortCount();
                             break;
                         case 1:
-                            if (leftHoldColors[x].Equals("Red"))
+                            if (rightHoldColors[x].Equals("Red"))
                                 valuetoAdd += GetDigitalRoot(nameModsonBomb.Count());
-                            else if (leftHoldColors[x].Equals("Green"))
+                            else if (rightHoldColors[x].Equals("Green"))
                                 valuetoAdd -= info.GetPortPlateCount();
-                            else if (leftHoldColors[x].Equals("Blue"))
+                            else if (rightHoldColors[x].Equals("Blue"))
                                 valuetoAdd += info.GetPortPlateCount();
                             break;
                         case 2:
-                            if (leftHoldColors[x].Equals("Red"))
+                            if (rightHoldColors[x].Equals("Red"))
                                 valuetoAdd -= nameModsonBomb.Count();
-                            else if (leftHoldColors[x].Equals("Green"))
+                            else if (rightHoldColors[x].Equals("Green"))
                                 valuetoAdd -= TodaysMonth;
-                            else if (leftHoldColors[x].Equals("Blue"))
+                            else if (rightHoldColors[x].Equals("Blue"))
                                 valuetoAdd -= info.GetPortCount();
                             break;
                         case 3:
-                            if (leftHoldColors[x].Equals("Red"))
+                            if (rightHoldColors[x].Equals("Red"))
                                 valuetoAdd -= GetDigitalRoot(nameModsonBomb.Count());
-                            else if (leftHoldColors[x].Equals("Green"))
+                            else if (rightHoldColors[x].Equals("Green"))
                                 valuetoAdd += initialValue % 10;
-                            else if (leftHoldColors[x].Equals("Blue"))
+                            else if (rightHoldColors[x].Equals("Blue"))
                                 valuetoAdd -= initialValue % 10;
                             break;
                     }
