@@ -118,6 +118,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "EncryptedDice",
         "EnglishTest",
         "DateFinder",
+        "elderFuthark",
         "FlavorTextCruel",
         "guitarChords",
         "iceCreamModule",
@@ -167,13 +168,17 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "fastMath",
         "GoingBackwardsModule",
         "jackAttack",
-        "KritLockpickMaze", // Test Build ATM, may be changed in the final build
+        "KritLockpickMaze", // May be changed in the final build
         "manometers",
         "KritHomework",
+        "necronomicon",
         "NotMaze",      // 10 second delay before the module resets
         "numberNimbleness",
+        "PointOfOrderModule", // 6 second delay before the module strikes
         "quizBuzz",
+        "shellGame",
         "simonStops",   // All other Simon modules are in a gray spot due to the fact that these either wait or don't wait to clear the inputs. Simon Stops strikes on waiting for a controlled input for too long.
+        "snowflakes",
         "sonicKnuckles",
         "stopwatch",
         "valves",   // Brush Strokes is considered a RT Controlled Module, why not Valves? - Asew
@@ -185,6 +190,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "lgndHyperactiveNumbers", // Can't strike by leaving it for too long, resets every now and then.
         "lunchtime", // Can detonate a bomb by leaving it for too long, otherwise strikable by incorrect selection and/or timing
         "numberCipher", // Can't strike by leaving it for too long, resets every now and then.
+        "RAM", // Or Random Access Memory; Can strike by leaving it sit for too long.
         "theSwan", // Strikes by leaving it sit for too long or by incorrect set of presses.
         "taxReturns", // Strikes by leaving it sit for too long or by incorrect value.
         "veryAnnoyingButton", // Or The Very Annoying Button; Strikes by leaving it sit for too long or by an incorrect press.
