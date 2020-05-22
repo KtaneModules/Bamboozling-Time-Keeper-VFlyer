@@ -107,6 +107,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "3dTunnels",
         "algebra",
         "alphabeticalRuling",
+        "ksmBadugi",
         "binaryGrid",
         "binaryTree",
         "BookOfMarioModule",
@@ -134,6 +135,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "orderedKeys",
         "partialDerivatives",
         "passportControl",
+        "PickupIdentification",
+        "PlantIdentification",
         "poetry",
         "PrimeChecker",
         "revPolNot",
@@ -152,6 +155,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "ThirdBase",
         "timingIsEverything",
         "UltraStores",
+        "R4YUncoloredSwitches",
         "Wavetapping",
         "WhosOnFirst",
         "WhosOnFirstTranslated",
@@ -176,6 +180,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "numberNimbleness",
         "PointOfOrderModule", // 6 second delay before the module strikes
         "quizBuzz",
+        "RedHerring",
         "shellGame",
         "simonStops",   // All other Simon modules are in a gray spot due to the fact that these either wait or don't wait to clear the inputs. Simon Stops strikes on waiting for a controlled input for too long.
         "snowflakes",
@@ -190,6 +195,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "lgndHyperactiveNumbers", // Can't strike by leaving it for too long, resets every now and then.
         "lunchtime", // Can detonate a bomb by leaving it for too long, otherwise strikable by incorrect selection and/or timing
         "numberCipher", // Can't strike by leaving it for too long, resets every now and then.
+        "powModule", // The Attack phase is random and can cause strikes if not handled correctly.
         "RAM", // Or Random Access Memory; Can strike by leaving it sit for too long.
         "theSwan", // Strikes by leaving it sit for too long or by incorrect set of presses.
         "taxReturns", // Strikes by leaving it sit for too long or by incorrect value.
@@ -298,7 +304,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         catch
         {
-            Debug.LogWarningFormat("[Bamboozling Time Keeper #{0}]: WARNING! Config does not exist for Bamboozling Time Keeper, using default settings.", curModId);
+            Debug.LogWarningFormat("[Bamboozling Time Keeper #{0}]: WARNING! Config does not properly work for Bamboozling Time Keeper, using default settings.", curModId);
             oneTapHolds = false;
         }
         finally
@@ -665,7 +671,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             case 'q':
                 return 26;
             case 'p':
-                return 24;
+                return 25;
             case 'o':
                 return 24;
             case 'n':
@@ -2565,15 +2571,23 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         bool isOnReleaseCorrect = true;
         bool isInteractedCorrectly = false;
         hasStruck = false;
-        StopCoroutine(UpdateDisplay(currentStage));
         if (currentStage == 1 && !stagesCompleted[0])
         {
-            if (info.GetTime() < 121 && holdCorStg1 == true && isHeld == false)
+            if ((startTime > 1800 && bTimeOnHold <= 60) || (startTime > 300 && startTime <= 1800 && bTimeOnHold <= 30) && !canOverride())
             {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This module did not like late interactions with the given button. Because of that interaction, you will receive a strike even if some of the conditions are correct.", curModId);
                 hasStruck = true;
                 modSelf.HandleStrike();
+            }
+            if (bTimeOnHold * 4 <= startTime * 3 && holdCorStg1 == true && isHeld == false)
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Tapped the button versus holding the button at 25% or lower of the initial starting time", curModId);
+                if (!hasStruck)
+                {
+                    hasStruck = true;
+                    modSelf.HandleStrike();
+                }
                 isInteractedCorrectly = true;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exchanged a strike for tapping the button versus holding the button at 120 or fewer seconds remaining", curModId);
             }
             else
             {
@@ -2593,12 +2607,21 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         else if (currentStage == 2 && !stagesCompleted[1])
         {
-            if (info.GetTime() < 121 && holdCorStg2 == true && isHeld == false)
+            if ((startTime > 1800 && bTimeOnHold <= 60) || (startTime > 300 && startTime <= 1800 && bTimeOnHold <= 30) && !canOverride())
             {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This module did not like late interactions with the given button. Because of that interaction, you will receive a strike even if some of the conditions are correct.", curModId);
                 hasStruck = true;
                 modSelf.HandleStrike();
+            }
+            if (bTimeOnHold * 4 <= startTime * 3 && holdCorStg2 == true && isHeld == false)
+            {
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Tapped the button versus holding the button at 25% or lower of the initial starting time", curModId);
+                if (!hasStruck)
+                {
+                    hasStruck = true;
+                    modSelf.HandleStrike();
+                }
                 isInteractedCorrectly = true;
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Exchanged a strike for tapping the button versus holding the button at 120 or fewer seconds remaining", curModId);
             }
             else
             {
