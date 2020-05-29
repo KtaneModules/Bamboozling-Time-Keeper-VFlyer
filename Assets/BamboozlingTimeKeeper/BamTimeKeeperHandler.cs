@@ -1419,9 +1419,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             scaleFactorB = 2;
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Laundry Unicorn and Radiator Unicorn are present; this overrode stage 1 and 2's scale factor", curModId);
         }
-
-        scaleFactorA = Math.Max(Math.Min(scaleFactorA, 5), 2);
-        scaleFactorB = Math.Max(Math.Min(scaleFactorB, 5), 2);
+        scaleFactorA = Math.Max(Math.Min(scaleFactorA, 4), 2);
+        scaleFactorB = Math.Max(Math.Min(scaleFactorB, 4), 2);
 
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: The scale factor for stage 1 and 2 is {1} and {2} respectively.", curModId, scaleFactorA, scaleFactorB);
     }
@@ -2357,7 +2356,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             if (!isLeftFlashingConsistent)
             {
                 int initialValue = letters.ToList().IndexOf(inconsistMorseLetterL) + 1;
-                int valuetoAdd = initialValue;
+                int valuetoAdd = initialValue * 1;
                 for (int x = 0; x < leftHoldColors.Count; x++)
                 {
                     switch (x)
@@ -2404,7 +2403,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             if (!isRightFlashingConsistent)
             {
                 int initialValue = letters.ToList().IndexOf(inconsistMorseLetterR) + 1;
-                int valuetoAdd = initialValue;
+                int valuetoAdd = initialValue * 1;
                 for (int x = 0; x < rightHoldColors.Count; x++)
                 {
                     switch (x)
