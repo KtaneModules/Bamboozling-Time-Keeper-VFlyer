@@ -1228,13 +1228,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
             if (valuetoDivide != 0)
             {
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 26: True. Dividing {1}, current value = {2}", curModId, valuetoDivide, finalValueB);
                 finalValueB /= valuetoDivide;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 26: True. Dividing {1}, current value = {2}", curModId, valuetoDivide, finalValueB);
+                
             }
             else
             {
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 26: True. Attempted to divide 0, doubled instead, current value = {1}", curModId, finalValueB);
                 finalValueB *= 2;
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 26: True. Attempted to divide 0, doubled instead, current value = {1}", curModId, finalValueB);
             }
         }
         else Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 26: False", curModId);
