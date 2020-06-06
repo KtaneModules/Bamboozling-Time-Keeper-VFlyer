@@ -223,7 +223,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
 
     private int TodaysDay = DateTime.Today.Day;
     private int TodaysMonth = DateTime.Today.Month;
-    private bool oneTapHolds = false, playingAnim = false, interactable = false, colorBlindActive = false, started = false, specialDay, holdCorStg1, holdCorStg2, isHeld = false, isLeftFlashingConsistent, isRightFlashingConsistent,zenModeDetected = false,forcedSolve=false;
+    private bool oneTapHolds = false, playingAnim = false, interactable = false, colorBlindActive = false, started = false, specialDay, holdCorStg1, holdCorStg2, isHeld = false, isLeftFlashingConsistent, isRightFlashingConsistent, zenModeDetected = false, forcedSolve = false, hardModeEnabled = false;
 
     private List<string> leftHoldColors = new List<string>(), rightHoldColors = new List<string>();
     private string inconsistMorseLetterL, inconsistMorseLetterR;
@@ -300,12 +300,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             
             oneTapHolds = Settings.OneTapHolds;
 
-
+            hardModeEnabled = Settings.EnableHardMode;
         }
         catch
         {
-            Debug.LogWarningFormat("[Bamboozling Time Keeper #{0}]: WARNING! Config does not properly work for Bamboozling Time Keeper, using default settings.", curModId);
+            Debug.LogWarningFormat("[Bamboozling Time Keeper #{0}]: WARNING! Config does not properly work for Bamboozling Time Keeper, using default settings. (No 1 Tap Holds, No Hard Mode)", curModId);
             oneTapHolds = false;
+            hardModeEnabled = false;
         }
         finally
         {
@@ -321,6 +322,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     }
     void Start() {
         specialDay = isSpecialDay();
+        startTime = Mathf.RoundToInt(info.GetTime());
         IEnumerator currentlyRunning = null;
         if (specialDay)
         {
@@ -369,7 +371,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             StartCoroutine(ShowButtons());
 
             curSerNo = info.GetSerialNumber();
-            startTime = Mathf.RoundToInt(info.GetTime());
             idModsonBomb = info.GetModuleIDs();
             nameModsonBomb = info.GetModuleNames();
             batteryCount = info.GetBatteryCount();
@@ -824,9 +825,9 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     }
     readonly string[] buttonPos = new string[] { "LEFT", "MIDDLE", "RIGHT" },
         vanillaInds = new string[] { "SND", "CLR", "CAR", "IND", "FRQ", "SIG", "NSA", "MSA", "TRN", "BOB", "FRK" },
-        vanillaPorts = new string[] { "DVI", "Parallel", "PS/2", "RJ45", "Serial", "StereoRCA" },
+        //vanillaPorts = new string[] { "DVI", "Parallel", "PS/2", "RJ45", "Serial", "StereoRCA" },
         definablePhrases = new string[] { "ONE NUMBER", "TWO NUMBERS", "THREE NUMBERS", "FOUR NUMBERS", "1 NUMBER", "2 NUMBERS", "3 NUMBERS", "4 NUMBERS", "A NUMBER" };
-    int stageRuleApplied = 0, positiveDifference = 0, sumFirst3 = 0, vanillaIndOnCnt = 0, vanillaIndOffCnt = 0, rtControlCount = 0;
+    int stageRuleApplied = 0, positiveDifference = 0, sumFirst3 = 0, vanillaIndOnCnt = 0, vanillaIndOffCnt = 0, rtControlCount = 0, modPortCnt = 0;
     void CalculateStage1()
     {
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 CALCULATIONS:", curModId);
@@ -962,12 +963,18 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 13: Added {1}, current value = {2}", curModId, ThreeStgModsCnt, finalValueA);
         }
         // Step 14
-        int modPortCnt = 0;
-        foreach (string portName in info.GetPorts())
-        {
-            if (!vanillaPorts.Contains(portName))
-                modPortCnt++;
-        }
+        int DVICount = info.GetPortCount(Port.DVI),
+            ParallelCount = info.GetPortCount(Port.Parallel),
+            SerialCount = info.GetPortCount(Port.Serial),
+            PS2Count = info.GetPortCount(Port.PS2),
+            RCACount = info.GetPortCount(Port.StereoRCA),
+            RJCount = info.GetPortCount(Port.RJ45);
+
+
+        Debug.LogFormat("{1} Ports - {2} DVI port(s)  - {3} parallel port(s) - {4} serial port(s) - {5} PS2 port(s) - {6} RCA port(s) - {7} RJ port(s)", curModId, info.GetPortCount(), DVICount, ParallelCount, SerialCount, PS2Count, RCACount, RJCount);
+
+        modPortCnt = info.GetPortCount() - info.GetPortCount(Port.DVI) - info.GetPortCount(Port.Parallel) - info.GetPortCount(Port.Serial) - info.GetPortCount(Port.PS2) - info.GetPortCount(Port.StereoRCA) - info.GetPortCount(Port.RJ45);
+
         finalValueA -= modPortCnt * 6;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 14: Subtracted 6 * {1}, current value = {2}", curModId, modPortCnt, finalValueA);
         // Step 17
@@ -1130,12 +1137,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 13: Added {1}, current value = {2}", curModId, ThreeStgModsCnt, finalValueB);
         }
         // Step 14
-        int modPortCnt = 0;
-        foreach (string portName in info.GetPorts())
-        {
-            if (!vanillaPorts.Contains(portName))
-                modPortCnt++;
-        }
+        modPortCnt = info.GetPortCount() - info.GetPortCount(Port.DVI) - info.GetPortCount(Port.Parallel) - info.GetPortCount(Port.Serial) - info.GetPortCount(Port.PS2) - info.GetPortCount(Port.StereoRCA) - info.GetPortCount(Port.RJ45);
         finalValueB -= modPortCnt * 6;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 14: Subtracted 6 * {1}, current value = {2}", curModId, modPortCnt, finalValueB);
         // Step 18
@@ -2500,7 +2502,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
         }
         // Last Otherwise Condition
-        int[,] valuesList = new int[,] { { 1, 2, 3 }, { 2, 3, 1 }, { 3, 1, 2 } };
+        int[,] valuesList = new int[,] {
+            { 1, 2, 3 },
+            { 2, 3, 1 },
+            { 3, 1, 2 }
+        };
         int valueA = 0;
         int valueB = 0;
         foreach (string leftColor in leftHoldColors)
@@ -2571,6 +2577,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         bool isOnReleaseCorrect = true;
         bool isInteractedCorrectly = false;
         hasStruck = false;
+        StopAllCoroutines(); // Halt the screen update coroutine, the delay from the hold coroutine, and hopefully any other coroutines related to this module.
         if (currentStage == 1 && !stagesCompleted[0])
         {
             if ((startTime > 1800 && bTimeOnHold <= 60) || (startTime > 300 && startTime <= 1800 && bTimeOnHold <= 30) && !canOverride())
@@ -2662,32 +2669,35 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         else
         {
-            if (currentStage == 1 && !stagesCompleted[0])
+            if (currentStage == 1)
             {
-                if (specialDay)
+                if (!stagesCompleted[0])
                 {
-                    sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0, specialSoundCorrect.Length)], transform);
+                    if (specialDay)
+                    {
+                        sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0, specialSoundCorrect.Length)], transform);
+                    }
+                    sound.PlaySoundAtTransform("InputCorrect", transform);
+                    stagesCompleted[0] = true;
+                    highlightStage1.GetComponent<MeshRenderer>().material.color = stagesCompleted[0] ? indcColors[2] : indcColors[0];
                 }
-                sound.PlaySoundAtTransform("InputCorrect", transform);
-                stagesCompleted[0] = true;
-                highlightStage1.GetComponent<MeshRenderer>().material.color = stagesCompleted[0] ? indcColors[2] : indcColors[0];
-            }
-            else if (currentStage == 1) {
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 1 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
-            }
-            else if (currentStage == 2 && !stagesCompleted[1])
-            {
-                if (specialDay)
-                {
-                    sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0, specialSoundCorrect.Length)], transform);
-                }
-                sound.PlaySoundAtTransform("InputCorrect", transform);
-                stagesCompleted[1] = true;
-                highlightStage2.GetComponent<MeshRenderer>().material.color = stagesCompleted[1] ? indcColors[2] : indcColors[0];
+                else
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 1 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
             }
             else if (currentStage == 2)
             {
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 2 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
+                if (!stagesCompleted[1])
+                {
+                    if (specialDay)
+                    {
+                        sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0, specialSoundCorrect.Length)], transform);
+                    }
+                    sound.PlaySoundAtTransform("InputCorrect", transform);
+                    stagesCompleted[1] = true;
+                    highlightStage2.GetComponent<MeshRenderer>().material.color = stagesCompleted[1] ? indcColors[2] : indcColors[0];
+                }
+                else
+                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 2 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
             }
             if (stagesCompleted.ToList().TrueForAll(a => a))
             {
@@ -3087,6 +3097,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     class BamTimeKeeperSettings
     {
         public bool OneTapHolds = false;
+        public bool EnableHardMode = false;
     }
 
     static Dictionary<string, object>[] TweaksEditorSettings = new Dictionary<string, object>[]
@@ -3110,8 +3121,9 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     bool TwitchPlaysActive;
     bool ZenModeActive;
     bool TwitchPlaysSkipTimeAllowed = true; // Enforce skipping time on the module when needed
-    readonly string TwitchHelpMessage = "To interact a given button at a specific time: \"!{0} hold/tap l[eft]/m[iddle]/r[ight] at ##:##\" Time format is MM:SS with MM being able to exceed 99 min, multiple time stamps are acceptable when releasing.\n" +
-        "To release a button at a specific time based on the display or bomb timer: \"!{0} release display/bombtime at ##:##\" To release a button based on the seconds timer: \"!{0} release display/bombtime at ## ##\"\n" +
+    readonly string TwitchHelpMessage =
+        "To interact a given button at a specific time: \"!{0} hold/tap l[eft]/m[iddle]/r[ight] at ##:##\" Time format is MM:SS with MM being able to exceed 99 min.\n" +
+        "To release a button at a specific time based on the display or bomb timer: \"!{0} release display/bombtime at ##:##\" To release a button based on the seconds timer: \"!{0} release display/bombtime at ## ##\" Multiple time stamps are acceptable when releasing the button.\n" +
         "To get the current time on the display: \"!{0} display time\" To switch between stages: \"!{0} toggle/switch\"\n" +
         "To activate colorblind mode: \"!{0} colorblind\" You can only activate colorblind mode or switch stages if you are NOT holding a button!";
 #pragma warning restore IDE0044 // End Adding readonly modifier
@@ -3288,7 +3300,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 }
                 while (timeHeldSec != possibleReleaseTimes[0]);
                 if (music) yield return "end waiting music";
-                yield return new WaitForSeconds(0.1f);
+                //yield return new WaitForSeconds(0.1f);
             }
             else
             {
@@ -3413,7 +3425,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 }
                 while (timeHeldSec != possibleReleaseTimes[0]);
                 if (music) yield return "end waiting music";
-                yield return new WaitForSeconds(0.1f);
+                //yield return new WaitForSeconds(0.1f);
             }
             else
             {
