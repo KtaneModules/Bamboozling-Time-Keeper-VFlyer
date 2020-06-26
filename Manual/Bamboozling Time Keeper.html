@@ -970,6 +970,7 @@
 						<li>Otherwise take your final value and modulo by 3. Add one to this to get the number of buttons to count to get your correct button.</li>
 						<li>Count from left to right if you are on stage 1, right to left if you are on stage 2 with the number you got from the previous step.</li>
 					</ol>
+					<p>If any instuctions dictate the given part being present in numerical form or digit form, it refers to the exact part being present. For example, if the digit is 1 and the step checks if 1 is present in numerical form or decimal form, "ONE" and "1" will count, but "13" will NOT count.</p>
                 </div>
                 <div class="page-footer relative-footer">Page 7 of 19</div>
             </div>
@@ -981,8 +982,8 @@
                 <div class="page-content">
 					<h2>Determining the State of the Correct Button</h2>
 					<p>Refer to the conditions underneath when pressing the button at the right time. The error margin for starting a tap or a hold are within 5 seconds on the bomb's timer. Refer to the conditions below for each stage.</p>
-					<ol>
-						<li>If the module "The Very Annoying Button" is present or there is at least 1 needy module on the bomb, tap the correct button.</li>
+					<ol start="1">
+						<li>If the following modules "The Very Annoying Button", or "Multitask" are present or there is at least 1 needy module on the bomb, tap the correct button.</li>
 						<li>Otherwise, if both of the other button's labels are present in the display in either numerical form or digit form, hold the correct button.</li>
 						<li>Otherwise, if the correct button's label is present in the display in either numerical form or digit form, tap the correct button.</li>
 						<li>Otherwise, if the button's labels are sorted from greatest to least or least to greatest, hold the correct button.</li>
@@ -1045,7 +1046,7 @@
 							<tr>
 								<th rowspan="3">Red</th>
 								<th>Red</th>
-								<td>Total time remaining in minutes is even or 0 for the bomb timer</td>
+								<td>Total time remaining in minutes is even for the bomb timer</td>
 							</tr>
 							<tr>
 								<th>Green</th>
@@ -1421,7 +1422,7 @@
 					<p><strong>RT Controlled:</strong> An RT Controlled module is a module that has a built-in internal timer that only starts ticking as soon as the user has finished prepping the module and has pressed the "start" button. Notable RT controlled modules are The Wire, Module Homework, Burger Alarm, Burglar Alarm, Fast Math, and The Stopwatch. If the module requires holding for a specific amount of time to disarm itself, the bomb's timer, or start its internal timer immediately as the bomb loads or arms itself, these modules are NOT RT controlled modules. Needies are also NOT RT controlled modules since they activate by time, strikes, or upon solving a few modules.</p>
 					<p><strong>RT Sensitive:</strong> An RT Sensitive module is a module that has a built-in internal timer that starts ticking as soon as the bomb starts or as the bomb loads. Notable RT sensitive modules are The Swan, Tax Returns, and The Very Annoying Button. Needies are also NOT RT sensitive modules since they activate randomally by time, strikes, or upon solving a few modules. "RT strike" is said to determine if the strike was based on running out of internal time set up by the module. An RT strike can repeat multiple times if the RT sensitive module is left unhandled for too long. Some RT sensitive modules may not strike but instead reset which makes the defuser have to reread the contents in the module again.</p>
 					<h2>Appendix SpeakingEvil's Modules</h2>
-					<p>This list was last updated on May 29th, 2020.</p>
+					<p>This list was last updated on June 25th, 2020.</p>
 					<ul style="column-count: 2">
 						<li>14</li>
 						<li>Affine Cycle</li>
@@ -1438,13 +1439,17 @@
 						<li>Forget Me Later</li>
 						<li>Hill Cycle</li>
 						<li>Jumble Cycle</li>
+						<li>Match 'em</li>
 						<li>Misordered Keys</li>
+						<li>Multitask</li>
 						<li>Ordered Keys</li>
 						<li>Pigpen Cycle</li>
 						<li>Playfair Cycle</li>
 						<li>Recorded Keys</li>
 						<li>Reordered Keys</li>
+						<li>RGB Arithemtic</li>
 						<li>RGB Maze</li>
+						<li>RGB Logic</li>
 						<li>Simon Stores</li>
 						<li>Silhouettes</li>
 						<li>Tallordered Keys</li>
@@ -1465,7 +1470,7 @@
 					<h2>Appendix: List of 3 Stage Modules</h2>
 					<p class="flavour-text">There's so many of them!</p>
 					<p>A 3 stage module is classified as a relatively repetitive procedure that must be done successfully exactly 3 times to disarm a module. Note that the module must also have exactly 3 stages for this to count. The actions needed to submit cannot completely be unique to the 2 other stages to classify a module as a 3 stage module.</p>
-					<p>This list was last updated on May 29th, 2020.</p>
+					<p>This list was last updated on June 25th, 2020.</p>
 					<ul style="column-count: 2">
 						<li>3D Tunnels</li>
 						<li>Algebra</li>
@@ -1480,8 +1485,10 @@
 						<li>Divisible Numbers</li>
 						<li>Edgework*</li>
 						<li>Elder Futhark</li>
+						<li>Emotiguy Identification</li>
 						<li>Encrypted Dice</li>
 						<li>English Test</li>
+						<li>Factoring</li>
 						<li>Find The Date</li>
 						<li>Flavor Text EX</li>
 						<li>Guitar Chords</li>
@@ -1500,9 +1507,11 @@
 						<li>Passport Control</li>
 						<li>Pickup Identification</li>
 						<li>Plant Identification</li>
+						<li>Plug-Ins</li>
 						<li>Poetry</li>
 						<li>Prime Checker</li>
 						<li>Reverse Polish Notation</li>
+						<li>RGB Arithmetic</li>
 						<li>The Screw</li>
 						<li>Sea Shells</li>
 						<li>Simon Samples</li>
@@ -1525,7 +1534,7 @@
 						<li>Zoni</li>
 					</ul>
                 </div>
-				<div class="footnote">* This module's manual misleads the number of stages present but actually mets the criteria of a "3 Stage Module"<br>A struck out name of a module indicates that the module is currently incompatible/inaccessible from the Steam Workshop.</div>
+				<div class="footnote">* This module's manual misleads the number of stages present but actually mets the criteria of a "3 Stage Module"</div>
                 <div class="page-footer relative-footer">Page 17 of 19</div>
             </div>
             <div class="page page-bg-02">
@@ -1535,7 +1544,7 @@
                 </div>
                 <div class="page-content">
 					<h2>Appendix: Kritzy's Modules</h2>
-					<p>This list was last updated on May 29th, 2020.</p>
+					<p>This list was last updated on June 25th, 2020.</p>
 					<ul style="column-count: 2">
 						<li>Blackjack</li>
 						<li>Command Prompt</li>
@@ -1550,7 +1559,7 @@
 						<li>Scripting</li>
 					</ul>
 					<h2>Appendix: List of RT Controlled Modules</h2>
-					<p>This list was last updated on May 29th, 2020.</p>
+					<p>This list was last updated on June 25th, 2020.</p>
 					<ul style="column-count: 2">
 						<li>Brush Strokes</li>
 						<li>Burglar Alarm</li>
@@ -1582,13 +1591,15 @@
 						<li>Zoo</li>
 					</ul>
 					<h2>Appendix: RT Sensitive Modules</h2>
-					<p>This list was last updated on May 29th, 2020.</p>
+					<p>This list was last updated on June 25th, 2020.</p>
 					<ul style="column-count: 2">
 						<li>Blinkstop</li>
 						<li>Cheat Checkout</li>
 						<li>Hyperactive Numbers</li>
 						<li>Lunchtime</li>
+						<li>Multitask</li>
 						<li>The Number Cipher</li>
+						<li>Password Destroyer</li>
 						<li>Pow</li>
 						<li>Random Access Memory</li>
 						<li>The Swan</li>

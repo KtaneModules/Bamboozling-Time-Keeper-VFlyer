@@ -68,7 +68,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "KritFlipTheCoin",
         "Krit4CardMonte", // Module now has a different maintainer however still counts as Kritsy's module.
         "KritHoldUps",
-        "KritLockpickMaze", // Test Build ATM
+        "KritLockpickMaze",
         "KritMicroModules",
         "KritHomework",
         "KritRadio",
@@ -89,12 +89,16 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "forgetMeLater",
         "hillCycle",
         "jumbleCycle",
+        "matchem",
         "misorderedKeys",
+        "multitask",
         "orderedKeys",
         "pigpenCycle",
         "playfairCycle",
         "recordedKeys",
         "reorderedKeys",
+        "rgbArithmetic",
+        "rgbLogic",
         "rgbMaze",
         "simonStores",
         "silhouettes",
@@ -116,10 +120,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "CruelKeypads",
         "divisibleNumbers",
         "EdgeworkModule",
+        "EmotiguyIdentification",
         "EncryptedDice",
         "EnglishTest",
         "DateFinder",
         "elderFuthark",
+        "factoring",
         "FlavorTextCruel",
         "guitarChords",
         "iceCreamModule",
@@ -137,9 +143,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "passportControl",
         "PickupIdentification",
         "PlantIdentification",
+        "plugins",
         "poetry",
         "PrimeChecker",
         "revPolNot",
+        "rgbArithmetic",
         "screw",
         "SeaShells",
         "simonSamples",
@@ -190,11 +198,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "wire",
         "ZooModule"
     }, RTSensitiveModIDs = new List<string>() {
-        "blinkstopModule", // Can't strike by leaving it for too long, new sequence is given at the end of the previous set of flashes, starts flashing the sequence as soon as the bomb starts.
+        "blinkstopModule", // Can't strike by leaving it for too long, new sequence is given at the end of the previous set of flashes, starts flashing the sequence as soon as the bomb starts. Has a random time for submission.
         "kataCheatCheckout", // Source Code suggests RT sensitivity mainly for trying to check on each item quickly before the timer runs out randomly. Can only be delayed by correct interactions on the module or solving it.
         "lgndHyperactiveNumbers", // Can't strike by leaving it for too long, resets every now and then.
         "lunchtime", // Can detonate a bomb by leaving it for too long, otherwise strikable by incorrect selection and/or timing
+        "multitask", // Very difficult to manage upon entering "finale" state. Is a solvable module that handles like a needy. (Isn't pseudo-needy already used?)
         "numberCipher", // Can't strike by leaving it for too long, resets every now and then.
+        "pwDestroyer", // Very tedious module relying on system time + display time to disarm the module
         "powModule", // The Attack phase is random and can cause strikes if not handled correctly.
         "RAM", // Or Random Access Memory; Can strike by leaving it sit for too long.
         "theSwan", // Strikes by leaving it sit for too long or by incorrect set of presses.
@@ -1589,7 +1599,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         if (canOverride()) return;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: ——————————", curModId);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STATE CALCULATIONS:", curModId);
-        if (idModsonBomb.Contains("veryAnnoyingButton") || nameModsonBomb.Count - info.GetSolvableModuleNames().Count > 0)
+        if (idModsonBomb.Contains("veryAnnoyingButton") || idModsonBomb.Contains("multitask") || nameModsonBomb.Count - info.GetSolvableModuleNames().Count > 0)
         {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Condition 1 takes highest priority for both stages", curModId);
             holdCorStg1 = false;
