@@ -142,10 +142,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "partialDerivatives",
         "passportControl",
         "PickupIdentification",
+        //"pitchPerfect",
         "PlantIdentification",
         "plugins",
         "poetry",
         "PrimeChecker",
+        //"qkRepoSelector",
         "revPolNot",
         "rgbArithmetic",
         "screw",
@@ -180,12 +182,15 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "fastMath",
         "GoingBackwardsModule",
         "jackAttack",
+        //"Jailbreak",
         "KritLockpickMaze", // May be changed in the final build
         "manometers",
+        //"MentalMath",
         "KritHomework",
         "necronomicon",
         "NotMaze",      // 10 second delay before the module resets
         "numberNimbleness",
+        //"plugins",
         "PointOfOrderModule", // 6 second delay before the module strikes
         "quizBuzz",
         "RedHerring",
@@ -194,6 +199,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "snowflakes",
         "sonicKnuckles",
         "stopwatch",
+        //"GSTellMeWhen",
         "valves",   // Brush Strokes is considered a RT Controlled Module, why not Valves? - Asew
         "wire",
         "ZooModule"
@@ -207,6 +213,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "pwDestroyer", // Very tedious module relying on system time + display time to disarm the module
         "powModule", // The Attack phase is random and can cause strikes if not handled correctly.
         "RAM", // Or Random Access Memory; Can strike by leaving it sit for too long.
+        //"regretbFiltering", // Partially resets after a certain amount of time has passed.
         "theSwan", // Strikes by leaving it sit for too long or by incorrect set of presses.
         "taxReturns", // Strikes by leaving it sit for too long or by incorrect value.
         "veryAnnoyingButton", // Or The Very Annoying Button; Strikes by leaving it sit for too long or by an incorrect press.
@@ -2718,15 +2725,15 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             UpdateButtons(currentStage);
             curbtnHeld = -1;
             StartCoroutine(UpdateDisplay(currentStage));
-
         }
+        isDisplayRunning = false;
     }
     readonly string[] forceSolveMessages = new string[] { "FORCE SOLVED", "SOLVE FORCED", "NOTHING? REALLY", "REALLY NOTHING?" };
     private IEnumerator PlaySolveAnim()
     {
         interactable = false;
         GameObject[] GameOBJArray = new GameObject[] { buttonL, buttonM, buttonR };
-        string buttonChars = specialDay ? "YEA" : "WOW";
+        string buttonChars = specialDay ? "YEA" : new string[] { "WOW", "GG!" }.PickRandom();
         for (int x = 0; x < GameOBJArray.Length; x++)
         {
             TextMesh curText = GameOBJArray[x].GetComponentInChildren<TextMesh>();
