@@ -375,7 +375,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 }
                 else
                 {
-                    sound.PlaySoundAtTransform("KefkaLaugh", transform);
+                    sound.PlaySoundAtTransform("KefkaLaughQuietier", transform);
                 }
                 countSoundsPlayed++;
             }
