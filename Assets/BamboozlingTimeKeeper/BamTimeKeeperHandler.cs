@@ -76,12 +76,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     }, SpeakingModIDs = new List<string>() { // An ID list of all of Speakingevil's modules uploaded so far
         "14",
         "affineCycle",
+        "asciiMaze",
         "bamboozledAgain",
         "bamboozlingButton",
         "bamboozlingButtonGrid",
         "bamboozlingTimeKeeper",
         "borderedKeys",
         "caesarCycle",
+        "matchemcruel",
         "crypticCycle",
         "disorderedKeys",
         "doubleArrows",
@@ -89,6 +91,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "forgetMeLater",
         "hillCycle",
         "jumbleCycle",
+        "lightson",
         "matchem",
         "misorderedKeys",
         "multitask",
@@ -100,6 +103,9 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "rgbArithmetic",
         "rgbLogic",
         "rgbMaze",
+        "runeMatchI",
+        "runeMatchII",
+        "runeMatchIII",
         "simonStores",
         "silhouettes",
         "tallorderedKeys",
@@ -142,12 +148,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "partialDerivatives",
         "passportControl",
         "PickupIdentification",
-        //"pitchPerfect",
+        "pitchPerfect",
         "PlantIdentification",
         "plugins",
         "poetry",
         "PrimeChecker",
-        //"qkRepoSelector",
+        "qkRepoSelector",
         "revPolNot",
         "rgbArithmetic",
         "screw",
@@ -171,6 +177,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "WhosOnFirstTranslated",
         "lgndZoni"
     }, RTControlModIDs = new List<string>() {
+        "TheBioscanner",
         "brushStrokes",
         "burglarAlarm",
         "burgerAlarm",
@@ -178,28 +185,35 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "countdown",
         "cruelCountdown",
         "crystalMaze",
+        "digitalClock",
         "etterna",  // Thanks Rhythms
+        "evenOrOdd",
         "fastMath",
-        "GoingBackwardsModule",
+        "GoingBackwardsModule", // Module might have been removed.
         "jackAttack",
-        //"Jailbreak",
+        "Jailbreak",
         "KritLockpickMaze", // May be changed in the final build
         "manometers",
-        //"MentalMath",
+        "MentalMath",
         "KritHomework",
         "necronomicon",
         "NotMaze",      // 10 second delay before the module resets
+        "notnot",
         "numberNimbleness",
-        //"plugins",
+        "plugins",
         "PointOfOrderModule", // 6 second delay before the module strikes
+        "PuzzwordModule",
         "quizBuzz",
         "RedHerring",
+        "Rules",
         "shellGame",
         "simonStops",   // All other Simon modules are in a gray spot due to the fact that these either wait or don't wait to clear the inputs. Simon Stops strikes on waiting for a controlled input for too long.
         "snowflakes",
         "sonicKnuckles",
+        "xelSpace",
         "stopwatch",
-        //"GSTellMeWhen",
+        "typeRacer",
+        "GSTellMeWhen",
         "valves",   // Brush Strokes is considered a RT Controlled Module, why not Valves? - Asew
         "wire",
         "ZooModule"
@@ -213,7 +227,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "pwDestroyer", // Very tedious module relying on system time + display time to disarm the module
         "powModule", // The Attack phase is random and can cause strikes if not handled correctly.
         "RAM", // Or Random Access Memory; Can strike by leaving it sit for too long.
-        //"regretbFiltering", // Partially resets after a certain amount of time has passed.
+        "regretbFiltering", // Partially resets after a certain amount of time has passed.
         "theSwan", // Strikes by leaving it sit for too long or by incorrect set of presses.
         "taxReturns", // Strikes by leaving it sit for too long or by incorrect value.
         "veryAnnoyingButton", // Or The Very Annoying Button; Strikes by leaving it sit for too long or by an incorrect press.
@@ -240,7 +254,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
 
     private int TodaysDay = DateTime.Today.Day;
     private int TodaysMonth = DateTime.Today.Month;
-    private bool oneTapHolds = false, playingAnim = false, interactable = false, colorBlindActive = false, started = false, specialDay, holdCorStg1, holdCorStg2, isHeld = false, isLeftFlashingConsistent, isRightFlashingConsistent, zenModeDetected = false, forcedSolve = false, hardModeEnabled = false;
+    private bool oneTapHolds = false, playingAnim = false, interactable = false, colorBlindActive = false, started = false, specialDay, holdCorStg1, holdCorStg2, isHeld = false, isLeftFlashingConsistent, isRightFlashingConsistent, zenModeDetected = false, forcedSolve = false, hardModeEnabled = false, disableLaugh;
 
     private List<string> leftHoldColors = new List<string>(), rightHoldColors = new List<string>();
     private string inconsistMorseLetterL, inconsistMorseLetterR;
@@ -318,6 +332,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             oneTapHolds = Settings.OneTapHolds;
 
             hardModeEnabled = Settings.EnableHardMode;
+
+            disableLaugh = Settings.DisableStartUpLaugh;
         }
         catch
         {
@@ -367,7 +383,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             zenModeDetected = ZenModeActive;
             StopCoroutine(currentlyRunning);
             display.text = "BEGIN";
-            if (countSoundsPlayed < 1)
+            if (countSoundsPlayed < 1 && !disableLaugh)
             {
                 if (specialDay)
                 {
@@ -1482,10 +1498,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     }
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: An RCA port is present and exactly 1 red and white button are present.", curModId);
             }
-            else if (idModsonBomb.Contains("PercentageGreyModule") && stage1ButtonColors.Count(a => a.Equals("Black")) == 1)
+            else if (idModsonBomb.Contains("blackCipher") && stage1ButtonColors.Count(a => a.Equals("Black")) == 1)
             {
                 crtBtnIdxStg1 = stage1ButtonColors.IndexOf("Black");
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: % Grey is present and exactly 1 black button is present.", curModId);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Black Cipher is present and exactly 1 black button is present.", curModId);
             }
             else if (!stage1ButtonColors.Where(a => !a.Equals("White")).ToList().Intersect(stage1PhrClr.Where(a => !a.Equals("White")).ToList()).Any())
             {
@@ -1546,10 +1562,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     }
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: An RCA port is present and exactly 1 red and white button are present.", curModId);
             }
-            else if (idModsonBomb.Contains("PercentageGreyModule") && stage2ButtonColors.Count(a => a.Equals("Black")) == 1)
+            else if (idModsonBomb.Contains("blackCipher") && stage2ButtonColors.Count(a => a.Equals("Black")) == 1)
             {
                 crtBtnIdxStg2 = stage2ButtonColors.IndexOf("Black");
-                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: % Grey is present and exactly 1 black button is present.", curModId);
+                Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Black Cipher is present and exactly 1 black button is present.", curModId);
             }
             else if (!stage2ButtonColors.Where(a => !a.Equals("White")).ToList().Intersect(stage2PhrClr.Where(a => !a.Equals("White")).ToList()).Any())
             {
@@ -3115,6 +3131,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     {
         public bool OneTapHolds = false;
         public bool EnableHardMode = false;
+        public bool DisableStartUpLaugh = false;
     }
 
     static Dictionary<string, object>[] TweaksEditorSettings = new Dictionary<string, object>[]
@@ -3231,7 +3248,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             while (split[posCurrent].RegexMatch(@"^[0-9]+:[0-5][0-9]$"))
             {
                 var timeLocal = split[posCurrent].ToLowerInvariant().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                long secondsLocal = 60 * int.Parse(timeLocal[0]) + int.Parse(timeLocal[1]);
+                long minutes, secondPart;
+                if (!long.TryParse(timeLocal[0], out minutes) || !long.TryParse(timeLocal[1], out secondPart))
+                {
+                    yield return string.Format("sendtochaterror \"{0}\" resulted in a calculation to large to process. I'm not processing that time.", split[posCurrent]);
+                    yield break;
+                }
+                long secondsLocal = 60 * minutes + secondPart;
                 possibleReleaseTimes.Add(secondsLocal);
                 posCurrent--;
             }
@@ -3463,7 +3486,13 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             var time = split[3].ToLowerInvariant().Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
 
             int buttonSpecified = buttonPosInit.IndexOf(split[1]) != -1 ? buttonPosInit.IndexOf(split[1]) : buttonPos.ToList().IndexOf(split[1]);
-            long seconds = 60 * int.Parse(time[0]) + int.Parse(time[1]);
+            long minutes, secondPart;
+            if (!long.TryParse(time[0], out minutes) || !long.TryParse(time[1], out secondPart))
+            {
+                yield return string.Format("sendtochaterror \"{0}\" resulted in a calculation to large to process. I'm not processing that time.",split[3]);
+                yield break;
+            }
+            long seconds = 60 * minutes + secondPart;
             if (buttonSpecified < 0 || buttonSpecified >= 3)
             {
                 yield return "sendtochaterror Sorry but what button is \"" + split[1] + "?\"";
@@ -3501,14 +3530,14 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             if (music) yield return "waiting music";
             do
             {
-                if ((Mathf.FloorToInt(info.GetTime()) < seconds && !zenModeDetected) || (Mathf.FloorToInt(info.GetTime()) > seconds && zenModeDetected))
+                if (((long)info.GetTime() < seconds && !zenModeDetected) || ((long)info.GetTime() > seconds && zenModeDetected))
                 {
                     yield return "sendtochaterror A sudden change to the timer caused the interaction with the button to cancel automatically.";
                     yield return "cancelled";
                     yield break;
                 }
                 yield return "trycancel The button that was going to be interacted got canceled.";
-            } while (Mathf.FloorToInt(info.GetTime()) != seconds);
+            } while ((long)info.GetTime() != seconds);
             if (music) yield return "end waiting music";
             buttonsSelectable[buttonSpecified].OnInteract();
             if (split[0].EqualsIgnoreCase("tap"))
