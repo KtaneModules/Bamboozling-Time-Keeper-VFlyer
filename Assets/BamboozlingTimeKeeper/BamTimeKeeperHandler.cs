@@ -171,7 +171,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "ThirdBase",
         "timingIsEverything",
         "UltraStores",
-        "R4YUncoloredSwitches",
+        //"R4YUncoloredSwitches", // Module now has 1 stage, commented out due to this change.
         "Wavetapping",
         "WhosOnFirst",
         "WhosOnFirstTranslated",
