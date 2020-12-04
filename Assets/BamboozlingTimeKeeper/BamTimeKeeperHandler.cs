@@ -117,6 +117,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "3dTunnels",
         "algebra",
         "alphabeticalRuling",
+        "arsGoetiaIdentification",
         "ksmBadugi",
         "binaryGrid",
         "binaryTree",
@@ -133,8 +134,10 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "elderFuthark",
         "factoring",
         "FlavorTextCruel",
+        "graduallyWatermelon",
         "guitarChords",
         "iceCreamModule",
+        "increasingIndices",
         "KanjiModule",
         "krazyTalk",
         "logicalButtonsModule",
@@ -170,6 +173,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "symbolicCoordinates",
         "ThirdBase",
         "timingIsEverything",
+        "needyTypingTutor",
         "UltraStores",
         //"R4YUncoloredSwitches", // Module now has 1 stage, commented out due to this change.
         "Wavetapping",
@@ -189,7 +193,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         "etterna",  // Thanks Rhythms
         "evenOrOdd",
         "fastMath",
-        "GoingBackwardsModule", // Module might have been removed.
+        "GoingBackwardsModule", // Module is now reuploaded though different date is specified, may remove.
         "jackAttack",
         "Jailbreak",
         "KritLockpickMaze", // May be changed in the final build
