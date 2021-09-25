@@ -2037,7 +2037,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
             display.text = scrambledText;
             display.color = new Color(1, 1, 1, display.color.a - 0.01f);
-            yield return new WaitForSeconds(0);
+            yield return null;
         }
         yield return null;
     }
@@ -2848,7 +2848,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             curlocalPos /= AnimTime;
             buttonGroup.transform.localPosition = curlocalPos;
 
-            yield return new WaitForSeconds(0);
+            yield return null;
         }
 
         for (int stp = 0; stp <= AnimTime; stp++)
@@ -2868,7 +2868,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             curlocalPos /= AnimTime;
             door.transform.localPosition = curlocalPos;
 
-            yield return new WaitForSeconds(0);
+            yield return null;
         }
         playingAnim = false;
         yield return null;
@@ -2897,7 +2897,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             curlocalPos /= AnimTime;
             door.transform.localPosition = curlocalPos;
 
-            yield return new WaitForSeconds(0);
+            yield return null;
         }
         for (int stp = 0; stp <= AnimTime; stp++)
         {
@@ -2916,7 +2916,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             curlocalPos /= AnimTime;
             buttonGroup.transform.localPosition = curlocalPos;
 
-            yield return new WaitForSeconds(0);
+            yield return null;
         }
         playingAnim = false;
         interactable = true;
@@ -2931,7 +2931,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         currentPart = -1;
         while (!interactable)
         {
-            yield return new WaitForSeconds(0);
+            yield return null;
         }
         MeshRenderer backingRenderer = backing.GetComponent<MeshRenderer>();
         while (currentStage == stage && curbtnHeld == -1 && interactable)
@@ -3125,7 +3125,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
 
     IEnumerator HandleSounds()
     {
-        yield return new WaitForSeconds(0);
+        yield return null;
         countSoundsPlayed = 0;
         yield return null;
     }
@@ -3234,7 +3234,9 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 yield return "sendtochaterror The module is not holding a button! Hold the button by using the \"hold\" command on this module first.";
                 yield break;
             }
-            while (!isHeld) yield return new WaitForSeconds(0);
+            do
+                yield return null;
+            while (!isHeld);
             yield return "sendtochat The display showed at the time this command was invoked \"" + (timeHeldSec / 60).ToString("00") + ":" + (timeHeldSec % 60).ToString("00") + "\"";
             yield break;
         }
@@ -3245,7 +3247,9 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 yield return "sendtochaterror The module is not holding a button! Hold the button by using the \"hold\" command on this module first.";
                 yield break;
             }
-            while (!isHeld) yield return new WaitForSeconds(0);
+            do
+                yield return null;
+            while (!isHeld);
             var split = input.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
             int posCurrent = split.Length - 1;
             while (split[posCurrent].RegexMatch(@"^[0-9]+:[0-5][0-9]$"))
@@ -3360,7 +3364,9 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 yield return "sendtochaterror The module is not holding a button! Hold the button by using the \"hold\" command on this module first.";
                 yield break;
             }
-            while (!isHeld) yield return new WaitForSeconds(0);
+            do
+                yield return null;
+            while (!isHeld);
             var split = input.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
             int posCurrent = split.Length - 1;
 
