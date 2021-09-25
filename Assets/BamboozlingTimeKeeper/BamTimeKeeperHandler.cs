@@ -16,7 +16,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     public TextMesh display;
     public KMSelectable[] buttonsSelectable = new KMSelectable[3], stageSelectables = new KMSelectable[2];
     public Material[] materialList = new Material[2];
-    public KMModSettings ModSettings;
 
     private List<Color> colorList = new List<Color>()
     {   new Color(1, 0, 0),
@@ -239,19 +238,20 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     }, stage1ButtonColors = new List<string>(), stage2ButtonColors = new List<string>();
     private string[,] ManualOperationsList = new string[,] {
         { "STOP", "+1", "-10", "B1", "B3", "+559", "*3", "B1", "-65", "B1", "*10", "+84", "/4", "+485", "+459", "+45", "*2", "+456", "+45", "B3", "STOP", "+45", "-512", "*5", "*5", "*2", "*2", "B1", "/5", "-1", "+10", "B3", "*4", "-559", "+3", "STOP", "+65", "B2", "/10", "-84", "+4", "-485", "-459", "-45", "/2", "-456", "-45", "+0", "*2", "+330", "+512", "/5", "/5", "/2", "/2", "STOP" },
-        { "*5", "STOP", "+25", "/2", "B2", "-58", "/3", "+158", "+46", "B1", "/10", "-46", "*3", "+54", "-485", "-90", "+256", "-98", "*5", "B3", "-59", "STOP", "+128", "/5", "*12", "*5", "/2", "B2", "-50", "+1", "-25", "*2", "/4", "+58", "STOP", "B3", "-46", "B2", "*10", "+46", "-3", "-84", "+485", "+90", "-256", "+98", "/5", "-25", "/2", "-330", "-126", "*5", "/12", "/5", "STOP", "B1"},
+        { "*5", "STOP", "+25", "/2", "B2", "-58", "/3", "+158", "+46", "B1", "/10", "-46", "*3", "+84", "-485", "-90", "+256", "-98", "*5", "B3", "-59", "STOP", "+128", "/5", "*12", "*5", "/2", "B2", "-50", "+1", "-25", "*2", "/4", "+58", "STOP", "B3", "-46", "B2", "*10", "+46", "-3", "-84", "+485", "+90", "-256", "+98", "/5", "-25", "/2", "-330", "-126", "*5", "/12", "/5", "STOP", "B1"},
         { "+50", "-1", "STOP", "*2", "B1", "+25", "*6", "B2", "-415", "B1", "*10", "+94", "/3", "+95", "-458", "+30", "-32", "-485", "/9", "B3", "/3", "-89", "STOP", "*10", "-120", "*7", "*2", "B3", "*2", "B3", "+25", "/2", "+4", "STOP", "/3", "-158", "+415", "B2", "/10", "-94", "+3", "-95", "+458", "-30", "+32", "+485", "*9", "+25", "*5", "+90", "/2", "/10", "+120", "STOP", "*2", "B3"},
         { "/2", "B2", "-25", "STOP", "B2", "-48", "/6", "-264", "+48", "B1", "/10", "+54", "*4", "+24", "+478", "+120", "+64", "+741", "+45", "B3", "+55", "*7", "*2", "STOP", "-60", "+21", "/2", "B3", "+25", "B2", "-66", "B1", "STOP", "-25", "*3", "B1", "-48", "B2", "*10", "-54", "-4", "-24", "-478", "-120", "-64", "-741", "-45", "-25", "/5", "-90", "*5", "*10", "STOP", "/7", "/2", "B2"},
         { "-25", "B1", "+66", "B2", "STOP", "+99", "+9", "*56", "-56", "B1", "*10", "+49", "/2", "-48", "+0", "-150", "-64", "-46", "-5", "B3", "-20", "/5", "/5", "/10", "STOP", "/2", "*2", "B2", "B1", "/3", "+512", "STOP", "-4", "+48", "/6", "+264", "+56", "B2", "/10", "-49", "+2", "+48", "+0", "+150", "+64", "+46", "+5", "+25", "*10", "/3", "/5", "STOP", "+60", "-21", "*2", "B1"},
         { "B3", "*3", "-512", "/9", "B3", "STOP", "-6", "/7", "-99", "B1", "/10", "+21", "*2", "-78", "-45", "+15", "+32", "+155", "+46", "B3", "+23", "+48", "*5", "+1", "+180", "STOP", "/2", "B3", "B2", "*3", "STOP", "*9", "*4", "-99", "*6", "/56", "+99", "B2", "*10", "-21", "-2", "+78", "+45", "-15", "-32", "-155", "-46", "-25", "/10", "*3", "STOP", "-1", "-180", "*2", "/2", "B3"},
-        { "B1", "/3", "+12", "*6", "B1", "-454", "STOP", "B3", "+284", "B1", "-100", "+86", "/6", "-459", "*5", "+15", "-256", "-45", "+75", "B3", "+59", "+89", "/2", "-151", "/5", "/5", "STOP", "B1", "B3", "STOP", "-12", "/6", "/4", "+454", "-9", "*7", "-284", "B2", "+100", "-86", "-6", "+459", "/5", "-15", "+256", "+45", "-75", "+25", "+20", "STOP", "*2", "+151", "*5", "*5", "*2", "B2"},
-        { "B2", "B3", "/5", "B3", "B2", "*5", "-3", "STOP", "-54", "B1", "-100", "*11", "*6", "-101", "/5", "*15", "/2", "+485", "-87", "B3", "-41", "-78", "+155", "+150", "/12", "/7", "+40", "STOP", "STOP", "B1", "*5", "B2", "+0", "/5", "+6", "B2", "+54", "B2", "+100", "/11", "+6", "+101", "*5", "-15", "*2", "-485", "+87", "+0", "STOP", "/10", "-155", "-150", "*12", "*7", "-40", "B1"}
+        { "B1", "/3", "+12", "*6", "B1", "-454", "STOP", "B3", "+284", "B1", "-100", "+86", "/6", "-459", "*5", "+15", "-256", "-45", "+78", "B3", "+59", "+89", "/2", "-151", "/5", "/5", "STOP", "B1", "B3", "STOP", "-12", "/6", "/4", "+454", "-9", "*7", "-284", "B2", "+100", "-86", "-6", "+459", "/5", "-15", "+256", "+45", "-78", "+25", "+20", "STOP", "*2", "+151", "*5", "*5", "*2", "B2"},
+        { "B2", "B3", "/5", "B3", "B2", "*5", "-3", "STOP", "-54", "B1", "-100", "*11", "*6", "-101", "/5", "+15", "/2", "+485", "-87", "B3", "-41", "-78", "+155", "+150", "/12", "/7", "+40", "STOP", "STOP", "B1", "*5", "B2", "+0", "/5", "+6", "B2", "+54", "B2", "+100", "/11", "+6", "+101", "*5", "-15", "*2", "-485", "+87", "+0", "STOP", "/10", "-155", "-150", "*12", "*7", "-40", "B1"}
     };// Current Format is (Color,PhraseText)
     private List<string> stage1Phrases = new List<string>(), stage2Phrases = new List<string>();
     private List<string> stage1PhrClr = new List<string>(), stage2PhrClr = new List<string>();
     private int[] stage1ButtonDigits = new int[3], stage2ButtonDigits = new int[3];
 
     private long startValueA, startValueB, finalValueA, finalValueB, bTimeOnHold, bTimeEndHold;
+    public long startValueAOverride, startValueBOverride;
     private int scaleFactorA = 0, scaleFactorB = 0;
     private int? crtBtnIdxStg1, crtBtnIdxStg2;
     private List<long> possibleTimesA = new List<long>(), possibleTimesB = new List<long>();
@@ -265,7 +265,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
 
     private int curbtnHeld = -1, currentStage = 0, timeHeldSec = 0, leftmostIdxFlashable, rightmostIdxFlashable;
     private static int modID = 1;
-    public int curModId;
+    private int curModId;
     private bool[] stagesCompleted = new bool[] { false, false };
 
     private string curSerNo;
@@ -329,9 +329,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         {
             ModConfig<BamTimeKeeperSettings> modconfig = new ModConfig<BamTimeKeeperSettings>("BamTimeKeeperSettings");
             Settings = modconfig.Settings;
-
-
-            ModSettings.RefreshSettings();
             
             oneTapHolds = Settings.OneTapHolds;
 
@@ -361,9 +358,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         specialDay = isSpecialDay();
         startTime = Mathf.RoundToInt(info.GetTime());
         IEnumerator currentlyRunning = null;
+        
+
         if (specialDay)
         {
-            long[] listValues = new long[] { 2424, 4949 };
+            long[] listValues = new long[] { 2424, 4949, UnityEngine.Random.Range(0, 10000), UnityEngine.Random.Range(0, 10000) }.Shuffle();
             int idxSwap = UnityEngine.Random.Range(0, 2);
             long tempvalue = listValues[idxSwap];
             listValues[idxSwap] = listValues[0];
@@ -373,13 +372,20 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             startValueB = listValues[1];
             stage1ButtonColors.Add("Cyan");
             stage2ButtonColors.Add("Cyan");
-            currentlyRunning = TypeText(specialDayStartPhrases[UnityEngine.Random.Range(0, specialDayStartPhrases.Length)].ToUpper(), false);
+            currentlyRunning = TypeText(specialDayStartPhrases.PickRandom().ToUpper(), false);
         }
         else
         {
             startValueA = UnityEngine.Random.Range(0, 10000);
             startValueB = UnityEngine.Random.Range(0, 10000);
-            currentlyRunning = TypeText(awakePhrases[UnityEngine.Random.Range(0, awakePhrases.Length)].ToUpper(), false);
+            currentlyRunning = TypeText(awakePhrases.PickRandom().ToUpper(), false);
+        }
+        if (Application.isEditor)
+        {
+            if (startValueAOverride >= 0 && startValueAOverride <= 9999)
+                startValueA = startValueAOverride;
+            if (startValueBOverride >= 0 && startValueBOverride <= 9999)
+                startValueB = startValueBOverride;
         }
         modSelf.OnActivate += delegate
         {
@@ -401,7 +407,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             }
             GenerateRandomPhrases();
             GenerateRandomButtons();
-
+            //Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Extended logging is provided by Fangy.", curModId);
             currentStage = 1;
             UpdateButtons(currentStage);
             playingAnim = true;
@@ -581,26 +587,26 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                         if (detectString.RegexMatch(@"^\d0$") || detectString.RegexMatch(@"^1\d$"))
                         {
                             stage1Phrases.Add(phraseNumList[phraseNumList.IndexOf(detectString) + UnityEngine.Random.Range(0, 2)]);
-                            stage1PhrClr.Add(colorString[UnityEngine.Random.Range(0, colorString.Count)]);
+                            stage1PhrClr.Add(colorString.PickRandom());
                             x++;
                         }
                         else
                         {
                             stage1Phrases.Add(phraseNumList[phraseNumList.IndexOf(digitSingle + "0") + UnityEngine.Random.Range(0, 2)]);
-                            stage1PhrClr.Add(colorString[UnityEngine.Random.Range(0, colorString.Count)]);
+                            stage1PhrClr.Add(colorString.PickRandom());
                         }
                     }
                     else
                     {
                         stage1Phrases.Add(phraseNumList[phraseNumList.IndexOf(digitSingle) + UnityEngine.Random.Range(0, 2)]);
-                        stage1PhrClr.Add(colorString[UnityEngine.Random.Range(0, colorString.Count)]);
+                        stage1PhrClr.Add(colorString.PickRandom());
                     }
                 }
             }
         else
         {
             stage1Phrases.Add(phraseNumList[phraseNumList.IndexOf(startValueA.ToString()) + UnityEngine.Random.Range(0, 2)]);
-            stage1PhrClr.Add(colorString[UnityEngine.Random.Range(0, colorString.Count)]);
+            stage1PhrClr.Add(colorString.PickRandom());
         }
         // Stage 2
         string startNum2Str = startValueB.ToString("0000");
@@ -622,26 +628,26 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                         if (detectString.RegexMatch(@"^\d0$") || detectString.RegexMatch(@"^1\d$"))
                         {
                             stage2Phrases.Add(phraseNumList[phraseNumList.IndexOf(detectString) + UnityEngine.Random.Range(0, 2)]);
-                            stage2PhrClr.Add(colorString[UnityEngine.Random.Range(0, colorString.Count)]);
+                            stage2PhrClr.Add(colorString.PickRandom());
                             x++;
                         }
                         else
                         {
                             stage2Phrases.Add(phraseNumList[phraseNumList.IndexOf(digitSingle + "0") + UnityEngine.Random.Range(0, 2)]);
-                            stage2PhrClr.Add(colorString[UnityEngine.Random.Range(0, colorString.Count)]);
+                            stage2PhrClr.Add(colorString.PickRandom());
                         }
                     }
                     else
                     {
                         stage2Phrases.Add(phraseNumList[phraseNumList.IndexOf(digitSingle) + UnityEngine.Random.Range(0, 2)]);
-                        stage2PhrClr.Add(colorString[UnityEngine.Random.Range(0, colorString.Count)]);
+                        stage2PhrClr.Add(colorString.PickRandom());
                     }
                 }
             }
         else
         {
             stage2Phrases.Add(phraseNumList[phraseNumList.IndexOf(startValueA.ToString()) + UnityEngine.Random.Range(0, 2)]);
-            stage2PhrClr.Add(colorString[UnityEngine.Random.Range(0, colorString.Count)]);
+            stage2PhrClr.Add(colorString.PickRandom());
         }
         // Add Ending Phrases
         stage1Phrases.Add("POINT ZERO");
@@ -653,11 +659,11 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     {   // Generate Random Button Colors
         while (stage1ButtonColors.Count < 3)
         {
-            stage1ButtonColors.Add(colorString[UnityEngine.Random.Range(0, colorString.Count)]);
+            stage1ButtonColors.Add(colorString.PickRandom());
         }
         while (stage2ButtonColors.Count < 3)
         {
-            stage2ButtonColors.Add(colorString[UnityEngine.Random.Range(0, colorString.Count)]);
+            stage2ButtonColors.Add(colorString.PickRandom());
         }
         // Scramble Button Colors
         stage1ButtonColors.Shuffle();
@@ -2613,6 +2619,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         bool correctButtonInt = false;
         bool isOnReleaseCorrect = true;
         bool isInteractedCorrectly = false;
+        bool requireStrikeOnSuccessfulStage = false;
         hasStruck = false;
         StopAllCoroutines(); // Halt the screen update coroutine, the delay from the hold coroutine, and hopefully any other coroutines related to this module.
         if (currentStage == 1 && !stagesCompleted[0])
@@ -2620,17 +2627,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             if ((startTime > 1800 && bTimeOnHold <= 60) || (startTime > 300 && startTime <= 1800 && bTimeOnHold <= 30) && !canOverride())
             {
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This module did not like late interactions with the given button. Because of that interaction, you will receive a strike even if some of the conditions are correct.", curModId);
-                hasStruck = true;
-                modSelf.HandleStrike();
+                requireStrikeOnSuccessfulStage = true;
             }
-            if (bTimeOnHold * 4 <= startTime * 3 && holdCorStg1 == true && isHeld == false)
+            if (bTimeOnHold * 4 <= startTime && holdCorStg1 == true && isHeld == false)
             {
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Tapped the button versus holding the button at 25% or lower of the initial starting time", curModId);
-                if (!hasStruck)
-                {
-                    hasStruck = true;
-                    modSelf.HandleStrike();
-                }
+                requireStrikeOnSuccessfulStage = true;
                 isInteractedCorrectly = true;
             }
             else
@@ -2654,17 +2656,12 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             if ((startTime > 1800 && bTimeOnHold <= 60) || (startTime > 300 && startTime <= 1800 && bTimeOnHold <= 30) && !canOverride())
             {
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: This module did not like late interactions with the given button. Because of that interaction, you will receive a strike even if some of the conditions are correct.", curModId);
-                hasStruck = true;
-                modSelf.HandleStrike();
+                requireStrikeOnSuccessfulStage = true;
             }
-            if (bTimeOnHold * 4 <= startTime * 3 && holdCorStg2 == true && isHeld == false)
+            if (bTimeOnHold * 4 <= startTime && holdCorStg2 == true && isHeld == false)
             {
                 Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Tapped the button versus holding the button at 25% or lower of the initial starting time", curModId);
-                if (!hasStruck)
-                {
-                    hasStruck = true;
-                    modSelf.HandleStrike();
-                }
+                requireStrikeOnSuccessfulStage = true;
                 isInteractedCorrectly = true;
             }
             else
@@ -2699,9 +2696,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         // Stage 2 is not finished yet and the module is on stage 2.
         if (!isAllCorrect && ((currentStage == 1 && !stagesCompleted[0]) || (currentStage == 2 && !stagesCompleted[1]) ))
         {
-            if (!hasStruck)
-                modSelf.HandleStrike();
-
+            modSelf.HandleStrike();
             StartCoroutine(PlayIncorrectAnim());
         }
         else
@@ -2717,6 +2712,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     sound.PlaySoundAtTransform("InputCorrect", transform);
                     stagesCompleted[0] = true;
                     highlightStage1.GetComponent<MeshRenderer>().material.color = stagesCompleted[0] ? indcColors[2] : indcColors[0];
+                    if (requireStrikeOnSuccessfulStage)
+                        modSelf.HandleStrike();
                 }
                 else
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 1 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
@@ -2732,6 +2729,8 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                     sound.PlaySoundAtTransform("InputCorrect", transform);
                     stagesCompleted[1] = true;
                     highlightStage2.GetComponent<MeshRenderer>().material.color = stagesCompleted[1] ? indcColors[2] : indcColors[0];
+                    if (requireStrikeOnSuccessfulStage)
+                        modSelf.HandleStrike();
                 }
                 else
                     Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 2 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
@@ -2753,7 +2752,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     {
         interactable = false;
         GameObject[] GameOBJArray = new GameObject[] { buttonL, buttonM, buttonR };
-        string buttonChars = specialDay ? "YEA" : new string[] { "WOW", "GG!" }.PickRandom();
+        string buttonChars = specialDay ? "YEA" : forcedSolve ? "WHY" : new string[] { "WOW", "GG!" }.PickRandom();
         for (int x = 0; x < GameOBJArray.Length; x++)
         {
             TextMesh curText = GameOBJArray[x].GetComponentInChildren<TextMesh>();

@@ -1591,7 +1591,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1444327955423780}
-  m_Text: NO CHANCES LEFT
+  m_Text: THAT IS A STRIKE
   m_OffsetZ: 0
   m_CharacterSize: 0.75
   m_LineSpacing: 1
@@ -1968,8 +1968,8 @@ MonoBehaviour:
   materialList:
   - {fileID: 2100000, guid: 069d57da8b2171242a59097fd0f2e94b, type: 2}
   - {fileID: 2100000, guid: 224f82514adbf6b4a9a0153a5581b05f, type: 2}
-  ModSettings: {fileID: 114581733408576776}
-  curModId: 0
+  startValueAOverride: -1
+  startValueBOverride: -1
 --- !u!114 &114485012100424936
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -166,7 +166,7 @@ Prefab:
         type: 2}
       propertyPath: AudioClips.Array.data[0]
       value: 
-      objectReference: {fileID: 8300000, guid: 64b493e8fc123af46816718858304b57, type: 3}
+      objectReference: {fileID: 8300000, guid: d29d15ec2196d034bafa277553bcf395, type: 3}
     - target: {fileID: 114848120511536268, guid: 8814ea52310d2614a9feda02ec355ae4,
         type: 2}
       propertyPath: AudioClips.Array.data[1]
@@ -475,11 +475,6 @@ Prefab:
     - target: {fileID: 4519127487248690, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}
       propertyPath: m_RootOrder
       value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 102110469584694310, guid: bcfb1dca9e0b02946a427af11d87c10e,
-        type: 2}
-      propertyPath: m_Text
-      value: THAT IS A STRIKE
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bcfb1dca9e0b02946a427af11d87c10e, type: 2}
