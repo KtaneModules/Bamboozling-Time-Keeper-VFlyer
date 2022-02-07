@@ -3148,7 +3148,17 @@ public class BamTimeKeeperHandler : MonoBehaviour {
                 {
                     { "Key", "OneTapHolds" },
                     { "Text", "Allows holding the button by just clicking on the button instead." }
-                }
+                },
+                new Dictionary<string, object>
+                {
+                    { "Key", "EnableHardMode" },
+                    { "Text", "(unused) Enables a Crueler version of Bamboozling Time Keeper." }
+                },
+                new Dictionary<string, object>
+                {
+                    { "Key", "DisableStartUpLaugh" },
+                    { "Text", "Disables the start up laugh that plays when the module begins." }
+                },
             } }
         }
     };
