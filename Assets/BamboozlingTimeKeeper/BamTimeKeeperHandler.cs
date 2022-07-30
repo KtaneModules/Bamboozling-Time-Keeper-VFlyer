@@ -418,6 +418,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             nameModsonBomb = info.GetModuleNames();
             batteryCount = info.GetBatteryCount();
             batteryholdCount = info.GetBatteryHolderCount();
+            PrepCalcs();
             //Redirect to Calculation Methods
             CalculateStage1();
             while (finalValueA < 10)
@@ -692,7 +693,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
     } // Return true if the module showed up on the 4th of Feb, 9th of April, or 16th of June.
     int GetValueofBase36Digit(char oneDigit)
     {
-        switch (oneDigit.ToString().ToLower().ToCharArray()[0])// Ensure the value is a lowercase value. In case it wasn't set to that already.
+        switch (oneDigit.ToString().ToLower().First())// Ensure the value is a lowercase value. In case it wasn't set to that already.
         {
             case 'z':
                 return 35;
@@ -871,6 +872,25 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         //vanillaPorts = new string[] { "DVI", "Parallel", "PS/2", "RJ45", "Serial", "StereoRCA" },
         definablePhrases = new string[] { "ONE NUMBER", "TWO NUMBERS", "THREE NUMBERS", "FOUR NUMBERS", "1 NUMBER", "2 NUMBERS", "3 NUMBERS", "4 NUMBERS", "A NUMBER" };
     int stageRuleApplied = 0, positiveDifference = 0, sumFirst3 = 0, vanillaIndOnCnt = 0, vanillaIndOffCnt = 0, rtControlCount = 0, modPortCnt = 0;
+    void PrepCalcs()
+    {
+        foreach (string unlitIndc in info.GetOffIndicators())
+        {
+            if (vanillaInds.Contains(unlitIndc))
+            {
+                vanillaIndOffCnt++;
+            }
+        }
+        foreach (string litIndc in info.GetOnIndicators())
+        {
+            if (vanillaInds.Contains(litIndc))
+            {
+                vanillaIndOnCnt++;
+            }
+        }
+        modPortCnt = info.GetPortCount() - info.GetPortCount(Port.DVI) - info.GetPortCount(Port.Parallel) - info.GetPortCount(Port.Serial) - info.GetPortCount(Port.PS2) - info.GetPortCount(Port.StereoRCA) - info.GetPortCount(Port.RJ45);
+    }
+
     void CalculateStage1()
     {
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: STAGE 1 CALCULATIONS:", curModId);
@@ -978,20 +998,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         finalValueA += TodaysDay;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 11: Added {1}, current value = {2}", curModId, TodaysDay, finalValueA);
         // Step 12
-        foreach (string unlitIndc in info.GetOffIndicators())
-        {
-            if (vanillaInds.Contains(unlitIndc))
-            {
-                vanillaIndOffCnt++;
-            }
-        }
-        foreach (string litIndc in info.GetOnIndicators())
-        {
-            if (vanillaInds.Contains(litIndc))
-            {
-                vanillaIndOnCnt++;
-            }
-        }
+
         finalValueA += 20 * (vanillaIndOnCnt - vanillaIndOffCnt);
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 12: Added {1}, current value = {2}", curModId, 20 * (vanillaIndOnCnt - vanillaIndOffCnt), finalValueA);
         // Step 13
@@ -1014,9 +1021,7 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             RJCount = info.GetPortCount(Port.RJ45);
 
 
-        Debug.LogFormat("{1} Ports - {2} DVI port(s)  - {3} parallel port(s) - {4} serial port(s) - {5} PS2 port(s) - {6} RCA port(s) - {7} RJ port(s)", curModId, info.GetPortCount(), DVICount, ParallelCount, SerialCount, PS2Count, RCACount, RJCount);
-
-        modPortCnt = info.GetPortCount() - info.GetPortCount(Port.DVI) - info.GetPortCount(Port.Parallel) - info.GetPortCount(Port.Serial) - info.GetPortCount(Port.PS2) - info.GetPortCount(Port.StereoRCA) - info.GetPortCount(Port.RJ45);
+        //Debug.LogFormat("{1} Ports - {2} DVI port(s)  - {3} parallel port(s) - {4} serial port(s) - {5} PS2 port(s) - {6} RCA port(s) - {7} RJ port(s)", curModId, info.GetPortCount(), DVICount, ParallelCount, SerialCount, PS2Count, RCACount, RJCount);
 
         finalValueA -= modPortCnt * 6;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 14: Subtracted 6 * {1}, current value = {2}", curModId, modPortCnt, finalValueA);
@@ -1180,7 +1185,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
             Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 13: Added {1}, current value = {2}", curModId, ThreeStgModsCnt, finalValueB);
         }
         // Step 14
-        modPortCnt = info.GetPortCount() - info.GetPortCount(Port.DVI) - info.GetPortCount(Port.Parallel) - info.GetPortCount(Port.Serial) - info.GetPortCount(Port.PS2) - info.GetPortCount(Port.StereoRCA) - info.GetPortCount(Port.RJ45);
         finalValueB -= modPortCnt * 6;
         Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Step 14: Subtracted 6 * {1}, current value = {2}", curModId, modPortCnt, finalValueB);
         // Step 18
@@ -2609,7 +2613,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         return isDivisiblebyValues;
     }
-    bool hasStruck = false;
     bool?[] conditionsMet = new bool?[3];
     void HandleRelease(int buttonIdx)
     {
@@ -2620,7 +2623,6 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         bool isOnReleaseCorrect = true;
         bool isInteractedCorrectly = false;
         bool requireStrikeOnSuccessfulStage = false;
-        hasStruck = false;
         StopAllCoroutines(); // Halt the screen update coroutine, the delay from the hold coroutine, and hopefully any other coroutines related to this module.
         if (currentStage == 1 && !stagesCompleted[0])
         {
@@ -2701,39 +2703,40 @@ public class BamTimeKeeperHandler : MonoBehaviour {
         }
         else
         {
-            if (currentStage == 1)
+            switch (currentStage)
             {
-                if (!stagesCompleted[0])
-                {
-                    if (specialDay)
+                case 1:
+                    if (!stagesCompleted[0])
                     {
-                        sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0, specialSoundCorrect.Length)], transform);
+                        if (specialDay)
+                        {
+                            sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0, specialSoundCorrect.Length)], transform);
+                        }
+                        sound.PlaySoundAtTransform("InputCorrect", transform);
+                        stagesCompleted[0] = true;
+                        highlightStage1.GetComponent<MeshRenderer>().material.color = stagesCompleted[0] ? indcColors[2] : indcColors[0];
+                        if (requireStrikeOnSuccessfulStage)
+                            modSelf.HandleStrike();
                     }
-                    sound.PlaySoundAtTransform("InputCorrect", transform);
-                    stagesCompleted[0] = true;
-                    highlightStage1.GetComponent<MeshRenderer>().material.color = stagesCompleted[0] ? indcColors[2] : indcColors[0];
-                    if (requireStrikeOnSuccessfulStage)
-                        modSelf.HandleStrike();
-                }
-                else
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 1 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
-            }
-            else if (currentStage == 2)
-            {
-                if (!stagesCompleted[1])
-                {
-                    if (specialDay)
+                    else
+                        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 1 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
+                    break;
+                case 2:
+                    if (!stagesCompleted[1])
                     {
-                        sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0, specialSoundCorrect.Length)], transform);
+                        if (specialDay)
+                        {
+                            sound.PlaySoundAtTransform(specialSoundCorrect[UnityEngine.Random.Range(0, specialSoundCorrect.Length)], transform);
+                        }
+                        sound.PlaySoundAtTransform("InputCorrect", transform);
+                        stagesCompleted[1] = true;
+                        highlightStage2.GetComponent<MeshRenderer>().material.color = stagesCompleted[1] ? indcColors[2] : indcColors[0];
+                        if (requireStrikeOnSuccessfulStage)
+                            modSelf.HandleStrike();
                     }
-                    sound.PlaySoundAtTransform("InputCorrect", transform);
-                    stagesCompleted[1] = true;
-                    highlightStage2.GetComponent<MeshRenderer>().material.color = stagesCompleted[1] ? indcColors[2] : indcColors[0];
-                    if (requireStrikeOnSuccessfulStage)
-                        modSelf.HandleStrike();
-                }
-                else
-                    Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 2 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
+                    else
+                        Debug.LogFormat("[Bamboozling Time Keeper #{0}]: Stage 2 is already completed. I'm not going to strike you for interacting with it again correctly/incorrectly. - VFlyer", curModId);
+                    break;
             }
             if (stagesCompleted.ToList().TrueForAll(a => a))
             {
